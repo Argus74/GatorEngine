@@ -1,8 +1,12 @@
 # CMake
 build/*
 
-Directory Files:
+# Directory Files:
 .DS_Store
+
+# Visual Studio:
+.vs/
+out/
 
 # Windows CMake
 SFMLConfig.cmake
