@@ -1,3 +1,17 @@
 # CMake
-build*/
+build/*
+
+Directory Files:
 .DS_Store
+
+# Windows CMake
+SFMLConfig.cmake
+SFMLConfigDependencies.cmake
+SFMLConfigVersion.cmake
+SFMLSharedTargets-debug.cmake
+SFMLSharedTargets-release.cmake
+SFMLSharedTargets.cmake
+SFMLStaticTargets-debug.cmake
+SFMLStaticTargets-release.cmake
+SFMLStaticTargets.cmake
+Windows_CMake_Files/
