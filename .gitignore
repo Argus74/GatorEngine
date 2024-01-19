@@ -11,13 +11,3 @@ out/
 
 # Windows CMake
 CMakeSettings.json
-SFMLConfig.cmake
-SFMLConfigDependencies.cmake
-SFMLConfigVersion.cmake
-SFMLSharedTargets-debug.cmake
-SFMLSharedTargets-release.cmake
-SFMLSharedTargets.cmake
-SFMLStaticTargets-debug.cmake
-SFMLStaticTargets-release.cmake
-SFMLStaticTargets.cmake
-Windows_CMake_Files/
