@@ -3,7 +3,8 @@ version: 2.1
 executors:
   windows-executor:
     machine:
-      image: windows-server-2019-vs2019:stable
+      image: "windows-server-2019-vs2019:stable"
+
   macos-executor:
     macos:
       xcode: "12.0.0"
@@ -17,7 +18,7 @@ jobs:
       - run:
           name: Build
           command: |
-            cmake -Bbuild -H. 
+            cmake -Bbuild -H.
             cmake --build build
 
   build-macos:
@@ -31,7 +32,7 @@ jobs:
       - run:
           name: Build
           command: |
-            cmake -Bbuild -H. 
+            cmake -Bbuild -H.
             cmake --build build
 
 workflows:
