@@ -1,26 +1,26 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#executor-job
+  build:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
+      - image: circleci/gcc:latest  # or another image with the required tools
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Install CMake
+          command: sudo apt-get update && sudo apt-get install cmake
+      - run:
+          name: Create Build Directory
+          command: mkdir build
+      - run:
+          name: Run CMake
+          command: cmake -Bbuild -H.  # Configure the project
+      - run:
+          name: Build
+          command: cmake --build build  # Build the project
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  version: 2
+  build_and_test:
     jobs:
-      - say-hello
+      - build
