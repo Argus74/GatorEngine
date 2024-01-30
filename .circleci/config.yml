@@ -9,5 +9,8 @@ jobs:
 
     steps:
       # Commands are run in a Windows virtual machine environment
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:pedvkYVGxQ2xSxeINVyTbOvQPaTHidyI309H0I2N99s"
       - checkout
       - run: Write-Host 'Hello, Windows'
