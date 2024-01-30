@@ -16,6 +16,12 @@ jobs:
           name: Install CMake
           command: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
       - run:
+          name: Refresh Environment
+          command: 'RefreshEnv.cmd'
+      - run:
+          name: Verify CMake Installation
+          command: cmake --version
+      - run:
           name: Create Build Directory
           command: New-Item -Path . -Name build -ItemType "directory"
       - run:
