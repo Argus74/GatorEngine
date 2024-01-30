@@ -3,12 +3,12 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/gcc:latest  # or another image with the required tools
+      - image: gcc:latest  # Using the official GCC image
     steps:
       - checkout
       - run:
           name: Install CMake
-          command: sudo apt-get update && sudo apt-get install cmake
+          command: apt-get update && apt-get install -y cmake
       - run:
           name: Create Build Directory
           command: mkdir build
