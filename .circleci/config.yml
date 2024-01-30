@@ -16,8 +16,11 @@ jobs:
           name: Install CMake
           command: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
       - run:
-          name: Update Environment Variables
-          command: Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; Update-SessionEnvironment
+          name: Find CMake Executable
+          command: |
+            $cmakePath = Get-Command cmake.exe | Select-Object -ExpandProperty Source
+            Write-Host "CMake Path: $cmakePath"
+            $env:Path += ";" + [System.IO.Path]::GetDirectoryName($cmakePath)
       - run:
           name: Verify CMake Installation
           command: cmake --version
