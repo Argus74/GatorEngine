@@ -10,7 +10,7 @@ jobs:
           name: Install Dependencies
           command: |
             apt-get update
-            apt-get install -y cmake libx11-dev libxext-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libudev-dev libopenal-dev libvorbis-dev libogg-dev
+            apt-get install -y cmake libx11-dev libxext-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libudev-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev
       - run:
           name: Create Build Directory
           command: mkdir build
