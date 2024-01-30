@@ -1,43 +1,13 @@
-version: 2.1
+version: 2.1 # Use version 2.1 to enable Orb usage.
 
-executors:
-  windows-executor:
-    machine:
-      image: "windows-server-2019-vs2019:stable"
-
-  macos-executor:
-    macos:
-      xcode: "12.0.0"
+orbs:
+  win: circleci/windows@5.0 # The Windows orb gives you everything you need to start using the Windows executor.
 
 jobs:
-  build-windows:
-    executor: windows-executor
-    steps:
-      - checkout
-      # Add your build commands here
-      - run:
-          name: Build
-          command: |
-            cmake -Bbuild -H.
-            cmake --build build
+  build: # name of your job
+    executor: win/default # executor type
 
-  build-macos:
-    executor: macos-executor
     steps:
+      # Commands are run in a Windows virtual machine environment
       - checkout
-      # Add your build commands here
-      - run:
-          name: Install Dependencies
-          command: brew install cmake
-      - run:
-          name: Build
-          command: |
-            cmake -Bbuild -H.
-            cmake --build build
-
-workflows:
-  version: 2
-  build-all:
-    jobs:
-      - build-windows
-      - build-macos
+      - run: Write-Host 'Hello, Windows'
