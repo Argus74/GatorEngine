@@ -22,7 +22,7 @@ set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
 # Main executable
-add_executable(GatorEngine src/main.cpp "src/CTransform.cpp")
+add_executable(GatorEngine src/main.cpp "src/CTransform.cpp"  "src/CSprite.cpp")
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
     sfml-window
@@ -53,3 +53,11 @@ if (WIN32)
             $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
             $<TARGET_FILE_DIR:GatorEngine>)
 endif()
+
+
+
+# Copy asset folder
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:GatorEngine>/assets)
