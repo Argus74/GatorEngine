@@ -4,6 +4,8 @@
 #include "SFML/Graphics.hpp"
 #include <box2d/box2d.h>
 #include <iostream>
+
+// #include <EntityManager.h>
 // #include "glm.hpp"
 
 int main()
@@ -12,6 +14,9 @@ int main()
     // glm::bvec4 testVec(1, 0, 3, 4);
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
+
+	// Update EntityManager (and all managed entities)
+	// entityManager.update();
 
     // Create world
     b2Vec2 gravity(0.0f, -10.0f);
@@ -98,7 +103,20 @@ int main()
             body->SetTransform(b2Vec2(body->GetPosition().x, redBoxY), body->GetAngle()); // Updating y position
             body->SetAwake(true);
         }
+
+		// Interact with your entities through ImGui 
+		// ...
+
         ImGui::End();
+
+		// Draw entities
+		// Example for an entity that has a method to return their shape for SFML:
+		// for (auto& entity : entityManager.getEntities()) {
+		//     if (auto shapeComponent = entity->getShape()) {
+		//         window.draw(*shapeComponent->getSFMLShape());
+		//     }
+		// }
+        
         // Run a physics step at 1/60 of a second
         world.Step(timeStep, velocityIterations, positionIterations);
         // Update sprite positions and rotations and sizes based on physics objects
