@@ -51,7 +51,7 @@ void DrawTabBar(sf::RenderWindow &window, std::vector<sf::Texture> &textures)
             {
                 // do stuff if button clicked
             }
-            ImGui::SetCursorPos(ImVec2(window.getSize().x / 3 + 13, 118));
+            ImGui::SetCursorPos(ImVec2(window.getSize().x / 3 + 14, 118));
             ImGui::Text("Sprite");
 
             // Game Object button
