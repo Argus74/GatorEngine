@@ -1,6 +1,7 @@
 # CMake
 debug/
 release/
+build/
 
 # Directory Files:
 .DS_Store
@@ -8,6 +9,7 @@ release/
 # Visual Studio:
 .vs/
 out/
+.vscode/
 
 # Windows CMake
 CMakeSettings.json
