@@ -1,6 +1,6 @@
-#include "Window.h"
+#include "UIWindow.h"
 
-Window::Window() {
+UIWindow::UIWindow() {
 	name_ = "Name me!";
 	window_flags_ = 0;
 
@@ -11,9 +11,10 @@ Window::Window() {
 	style.ScrollbarRounding = 2.0f;
 	style.GrabRounding = 2.0f;
 	ImGui::StyleColorsLight();
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Window::Draw() {
+void UIWindow::Draw() {
 	SetPosition();
 	PreDraw();
 	ImGui::Begin(name_.c_str(), NULL, window_flags_);
@@ -22,12 +23,12 @@ void Window::Draw() {
 	PostDraw();
 }
 
-void Window::PreDraw() {
+void UIWindow::PreDraw() {
 	// No default implementation; override if needed
 	// I didn't want to make it pure virtual because it's not always needed,
 	// so why force y'all to implement it?
 }
 
-void Window::PostDraw() {
+void UIWindow::PostDraw() {
 	// Ditto
 }
