@@ -20,6 +20,7 @@
 class UIWindow {
 public:
 	UIWindow();
+	~UIWindow() = default;
 	UIWindow(const UIWindow&) = delete;
 	void operator=(const UIWindow&) = delete;
 
