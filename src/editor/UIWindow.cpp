@@ -3,15 +3,6 @@
 UIWindow::UIWindow() {
 	name_ = "Name me!";
 	window_flags_ = 0;
-
-	// TODO: Elevate this to higher-level class once we have one
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowBorderSize = 0.0f;
-	style.FrameBorderSize = 1.0f;
-	style.ScrollbarRounding = 2.0f;
-	style.GrabRounding = 2.0f;
-	ImGui::StyleColorsLight();
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void UIWindow::Draw() {
