@@ -22,7 +22,7 @@ set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
 # Main executable
-add_executable(GatorEngine src/main.cpp "src/Entity.cpp" "src/EntityManager.h" "src/EntityManager.cpp" "src/AssetManager.h" "src/AssetManager.cpp")
+add_executable(GatorEngine src/main.cpp "src/AssetManager.h" "src/AssetManager.cpp")
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
     sfml-window
