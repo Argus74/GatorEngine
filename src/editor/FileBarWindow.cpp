@@ -1,7 +1,7 @@
 #include "FileBarWindow.h"
 
 FileBarWindow::FileBarWindow() {
-    name_ = "FileBarWindow";
+    name_ = "File Bar";
 }
 
 void FileBarWindow::SetPosition() {
