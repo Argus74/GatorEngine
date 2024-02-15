@@ -1,5 +1,9 @@
 #include "AssetManager.h"
 
+AssetManager& AssetManager::GetInstance() {
+    static AssetManager instance;
+    return instance;
+}
 
 AssetManager::AssetManager() {} //Depending on how we want our Users to develop 
 
