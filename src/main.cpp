@@ -8,6 +8,8 @@
 // #include <EntityManager.h>
 // #include "glm.hpp"
 
+#include "editor/Editor.h"
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1366, 768), "Gator Engine");
@@ -72,6 +74,9 @@ int main()
     float redBoxX = 500;
     float redBoxY = 768;
 
+    // Initialize Editor 
+    Editor editor;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -88,6 +93,9 @@ int main()
         ImGui::Text("Drag the slider below to control red box size and position");
         ImGui::SliderFloat("Length", &redBoxLength, 10, 300);
         ImGui::SliderFloat("Height", &redBoxHeight, 10, 300);
+
+        // Draw ImGui windows of the Editor
+        editor.Draw();
 
         // Update physics objects based on gui's
         dynamicBox.SetAsBox(redBoxLength / 2, redBoxHeight / 2); // Updating size
