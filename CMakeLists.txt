@@ -22,7 +22,18 @@ set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
 # Main executable
-add_executable(GatorEngine src/main.cpp "src/Entity.cpp" "src/EntityManager.h" "src/EntityManager.cpp" "src/AssetManager.h" "src/AssetManager.cpp" "src/editor/Editor.h" "src/editor/Editor.cpp" "src/editor/UIWindow.h" "src/editor/UIWindow.cpp")
+add_executable(
+    GatorEngine 
+    "src/main.cpp"
+    "src/Entity.cpp" 
+    "src/EntityManager.cpp" 
+    "src/AssetManager.cpp" 
+    "src/editor/Editor.cpp" 
+    "src/editor/UIWindow.cpp" 
+    "src/editor/FileBarWindow.cpp" 
+    "src/editor/TabBarWindow.cpp"
+)
+
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
     sfml-window
@@ -34,6 +45,12 @@ target_link_libraries(GatorEngine PRIVATE
 
 # Set the include directories for the GatorEngine target
 target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR})
+
+# Copy asset folder
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:GatorEngine>/assets)
 
 if (WIN32)
         # Copy SFML DLLs

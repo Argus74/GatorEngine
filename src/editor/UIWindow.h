@@ -22,7 +22,7 @@ public:
 	UIWindow();
 	~UIWindow() = default;
 	UIWindow(const UIWindow&) = delete;
-	void operator=(const UIWindow&) = delete;
+	UIWindow& operator=(const UIWindow&) = delete;
 
 	// Main draw call for UIWindows. Calls all virtual functions in correct order.
 	virtual void Draw() final;
