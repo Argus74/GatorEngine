@@ -4,13 +4,18 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <iostream>
 
-namespace sf { //forward declaration
-	class Texture;
-	class SoundBuffer;
-	class Sound;
-	class Font;
-} 
+//namespace sf { //forward declaration
+//	class Texture;
+//	class SoundBuffer;
+//	class Sound;
+//	class Font;
+//} 
 
 class AssetManager {
 public:

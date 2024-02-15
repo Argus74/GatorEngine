@@ -44,6 +44,8 @@ public:
 	// Accessor and mutator for the CBBox component
 	std::shared_ptr<CBBox> getBBox() const;
 	void setBBox(const std::shared_ptr<CBBox>& bbox);
+
+	bool isAlive();
 };
 
 #endif // ENTITY_H

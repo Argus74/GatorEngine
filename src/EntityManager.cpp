@@ -19,7 +19,7 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : m_toAdd) {
 		m_entities.push_back(entity);
-		m_entityMap[entity->getTag()].push_back(entity);
+		m_entityMap[entity->tag()].push_back(entity);
 	}
 	m_toAdd.clear();
 
