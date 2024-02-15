@@ -26,6 +26,7 @@ jobs:
         os: [windows-latest, macos-latest]
         build_type: [Release, Debug]
         c_compiler: [cl, gcc]
+        cpp_compiler: [cl, g++]  # Add the appropriate compiler for macOS
         include:
           - os: windows-latest
             c_compiler: cl
@@ -36,8 +37,10 @@ jobs:
         exclude:
           - os: windows-latest
             c_compiler: gcc
+            cpp_compiler: g++
           - os: macos-latest
             c_compiler: cl
+            cpp_compiler: cl
 
     steps:
     - uses: actions/checkout@v3
