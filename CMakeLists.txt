@@ -27,6 +27,7 @@ target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+    sfml-audio
     ImGui-SFML::ImGui-SFML
     box2d
 )
@@ -39,6 +40,17 @@ if (WIN32)
         add_custom_command(TARGET GatorEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             $<TARGET_FILE_DIR:sfml-graphics>
+            $<TARGET_FILE_DIR:GatorEngine>)
+
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            $<TARGET_FILE_DIR:sfml-audio>
+            $<TARGET_FILE_DIR:GatorEngine>)
+
+        #Copy OpenAL dlls
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/extern/SFML/extlibs/bin/x64/openal32.dll
             $<TARGET_FILE_DIR:GatorEngine>)
 
         # Copy Box2D DLLs
