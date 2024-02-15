@@ -27,29 +27,31 @@ target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+    #sfml-audio
     ImGui-SFML::ImGui-SFML
     box2d
 )
 
 # Set the include directories for the GatorEngine target
-target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR})
+target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR} )
 
 if (WIN32)
-        # Copy SFML DLLs
-        add_custom_command(TARGET GatorEngine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            $<TARGET_FILE_DIR:sfml-graphics>
-            $<TARGET_FILE_DIR:GatorEngine>)
 
-        # Copy Box2D DLLs
-        add_custom_command(TARGET GatorEngine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            $<TARGET_FILE_DIR:box2d>
-            $<TARGET_FILE_DIR:GatorEngine>)
+    # Copy SFML DLLs
+    add_custom_command(TARGET GatorEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_FILE_DIR:sfml-graphics>
+        $<TARGET_FILE_DIR:GatorEngine>)
 
-        # Copy ImGui DLLs
-        add_custom_command(TARGET GatorEngine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
-            $<TARGET_FILE_DIR:GatorEngine>)
+    # Copy Box2D DLLs
+    add_custom_command(TARGET GatorEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_FILE_DIR:box2d>
+        $<TARGET_FILE_DIR:GatorEngine>)
+
+    # Copy ImGui DLLs
+    add_custom_command(TARGET GatorEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
+        $<TARGET_FILE_DIR:GatorEngine>)
 endif()
