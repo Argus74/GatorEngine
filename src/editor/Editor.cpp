@@ -17,7 +17,7 @@ Editor::Editor() {
     windows_.push_back(std::make_unique<FileBarWindow>());
     windows_.push_back(std::make_unique<TabBarWindow>());
     //windows_.push_back(std::make_unique<PropertyWindow>());
-    //windows_.push_back(std::make_unique<ExplorerWindow>());
+    windows_.push_back(std::make_unique<ExplorerWindow>());
     //windows_.push_back(std::make_unique<ExplorerWindow>());
 }
 
