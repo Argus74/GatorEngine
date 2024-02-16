@@ -27,7 +27,7 @@ public:
 	Editor();
 	~Editor() = default;
 	Editor(Editor& other) = delete;
-	void operator=(const Editor&) = delete;
+	Editor& operator=(const Editor&) = delete;
 
 	// Draw all UIWindows of the editor
 	void Draw();
