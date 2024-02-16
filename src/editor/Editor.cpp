@@ -3,6 +3,7 @@
 #include "FileBarWindow.h"
 #include "TabBarWindow.h"
 #include "ExplorerWindow.h"
+#include "PropertyWindow.h"
 
 Editor::Editor() {
     // Setup default, global style vars for consistent look
@@ -14,12 +15,10 @@ Editor::Editor() {
     ImGui::StyleColorsLight();
     style.Colors[ImGuiCol_WindowBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-    // TODO: Initialize all UIWindows of windows_
     windows_.push_back(std::make_unique<FileBarWindow>());
     windows_.push_back(std::make_unique<TabBarWindow>());
-    //windows_.push_back(std::make_unique<PropertyWindow>());
+    windows_.push_back(std::make_unique<PropertyWindow>());
     windows_.push_back(std::make_unique<ExplorerWindow>());
-    //windows_.push_back(std::make_unique<ExplorerWindow>());
 }
 
 void Editor::Draw() {
