@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "editor/Editor.h"
+#include "EntityManager.h"
 
 int main()
 {
@@ -17,6 +18,12 @@ int main()
 
     // Initialize Editor
     Editor editor;
+
+    // TESTING: Add a few entities to the EntityManager
+    auto& entityManager = EntityManager::GetInstance();
+    for (int i = 0; i < 20; i++) {
+        entityManager.addEntity("Entity" + std::to_string(i));
+    }
 
     while (window.isOpen())
     {
@@ -28,6 +35,8 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+
+        entityManager.update();
 
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
