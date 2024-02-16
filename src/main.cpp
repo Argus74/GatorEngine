@@ -34,7 +34,6 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            // Process ImGui gui events
             ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed)
                 window.close();
@@ -44,7 +43,6 @@ int main()
 
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
-        ImGui::ShowDemoWindow();
 
         window.clear(sf::Color(0, 0, 0));
         ImGui::SFML::Render(window);
