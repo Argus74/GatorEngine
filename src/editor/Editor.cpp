@@ -2,6 +2,7 @@
 
 #include "FileBarWindow.h"
 #include "TabBarWindow.h"
+#include "ExplorerWindow.h"
 
 Editor::Editor() {
     // Setup default, global style vars for consistent look
@@ -17,7 +18,7 @@ Editor::Editor() {
     windows_.push_back(std::make_unique<FileBarWindow>());
     windows_.push_back(std::make_unique<TabBarWindow>());
     //windows_.push_back(std::make_unique<PropertyWindow>());
-    //windows_.push_back(std::make_unique<ExplorerWindow>());
+    windows_.push_back(std::make_unique<ExplorerWindow>());
     //windows_.push_back(std::make_unique<ExplorerWindow>());
 }
 
