@@ -3,6 +3,9 @@
 UIWindow::UIWindow() {
 	name_ = "Name me!";
 	window_flags_ = 0;
+	window_flags_ |= ImGuiWindowFlags_NoCollapse;
+	window_flags_ |= ImGuiWindowFlags_NoMove;
+	window_flags_ |= ImGuiWindowFlags_NoResize;
 }
 
 void UIWindow::Draw() {

@@ -19,12 +19,12 @@
 
 class AssetManager {
 public:
-	AssetManager();
+	static AssetManager& GetInstance();
 	~AssetManager();
-	AssetManager(const AssetManager&) = default;
-	AssetManager& operator=(const AssetManager&) = default;
-	AssetManager(AssetManager&&) = default;
-	AssetManager& operator=(AssetManager&&) = default;
+	AssetManager(const AssetManager&) = delete;
+	AssetManager& operator=(const AssetManager&) = delete;
+	AssetManager(AssetManager&&) = delete;
+	AssetManager& operator=(AssetManager&&) = delete;
 
 	// Asset addition methods 
 	void AddTexture(const std::string& name, const std::string& path);
@@ -42,6 +42,8 @@ public:
 	sf::Sound PlaySound(const std::string& name);
 
 private:
+	AssetManager();
+
 	std::map<std::string, sf::Texture*> textures_;
 	std::map<std::string, sf::SoundBuffer*> sounds_; //Sounds are stored as a sound buffer, and then played with a function using SMFL::Sound
 	std::map<std::string, sf::Font*> fonts_;
