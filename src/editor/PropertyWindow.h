@@ -3,11 +3,12 @@
 
 #include "UIWindow.h"
 
-class PropertyWindow : public UIWindow {
+class PropertyWindow : public UIWindow
+{
 public:
     PropertyWindow();
-    PropertyWindow(PropertyWindow const&) = delete;
-    PropertyWindow& operator=(PropertyWindow const&) = delete;
+    PropertyWindow(PropertyWindow const &) = delete;
+    PropertyWindow &operator=(PropertyWindow const &) = delete;
 
 private:
     // UIWindow virtual function implementations
@@ -17,7 +18,8 @@ private:
     void PostDraw() override;
 
     // Draw a component section
-    template<typename T> void DrawComponent(const char* name, T& component);
+    template <typename T>
+    void DrawComponent(const char *name, const T &component);
 
     // Draw the properties of a component
     void DrawComponentProperties(std::shared_ptr<CTransform> transform);
@@ -26,16 +28,17 @@ private:
     void DrawComponentProperties(std::shared_ptr<CBBox> bbox);
 
     // Draw one property row of a component
-    template<typename T> void DrawProperty(const char* name, T& value);
+    template <typename T>
+    void DrawProperty(const char *name, T &value);
 
     // Draw an input field (text box, color picker, etc.) for a property row
     // TODO: May need to update parameters, like switching to our new Vec2 object
-    void DrawInputField(std::string& val);
-    void DrawInputField(sf::Color& val);
-    void DrawInputField(sf::Vector2f& val);
-    void DrawInputField(float& val);
-    void DrawInputField(int& val);
-    void DrawInputField(bool& val);
+    void DrawInputField(std::string &val);
+    void DrawInputField(sf::Color &val);
+    void DrawInputField(sf::Vector2f &val);
+    void DrawInputField(float &val);
+    void DrawInputField(int &val);
+    void DrawInputField(bool &val);
 
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags;
