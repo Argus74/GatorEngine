@@ -4,10 +4,41 @@
 #include <memory>
 #include <string>
 
-class CTransform; // Forward declarations for the component classes
-class CName;
-class CShape;
-class CBBox;
+#include <SFML/Graphics.hpp>
+
+// TODO: Implement components 
+// These definitions are just placeholders so we can demo :)
+class CTransform {
+public:
+	sf::Vector2f position, scale, velocity;
+	float angle;
+	CTransform() : position(sf::Vector2f(0, 0)), scale(sf::Vector2f(1, 1)), angle(0) {}
+	CTransform(const sf::Vector2f& pos, const sf::Vector2f& scl, float ang) 
+		: position(pos), scale(scl), angle(ang) {}
+}; 
+
+class CName {
+public:
+	std::string name;
+	CName() : name("Default") {}
+	CName(const std::string& n) : name(n) {}
+};
+
+class CShape {
+public:
+	std::string type;
+	sf::Color color;
+	CShape() : type("Rectangle"), color(sf::Color::White) {}
+	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
+};
+
+class CBBox {
+public:
+	sf::Vector2f size;
+	bool isStatic;
+	CBBox() : size(sf::Vector2f(0, 0)) {}
+	CBBox(const sf::Vector2f& s) : size(s) {}
+};
 
 class Entity {
 	size_t m_id;

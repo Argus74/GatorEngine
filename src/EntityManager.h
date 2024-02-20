@@ -10,8 +10,8 @@
 class EntityManager
 {
 public:
-	// Constructor
-	EntityManager();
+	// Factory function to get the singleton instance
+	static EntityManager& GetInstance();
 
 	// Update function called every frame
 	void update();
@@ -26,6 +26,9 @@ public:
 	std::vector<std::shared_ptr<Entity>>& getEntities(const std::string& tag);
 
 private:
+	// Constructor
+	EntityManager();
+
 	// Type aliases for cleaner code
 	using EntityVec = std::vector<std::shared_ptr<Entity>>;
 	using EntityMap = std::unordered_map<std::string, EntityVec>;

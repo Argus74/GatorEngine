@@ -1,7 +1,11 @@
 #include "UIWindow.h"
 
+std::shared_ptr<Entity> UIWindow::active_entity_ = nullptr;
+
 UIWindow::UIWindow() {
 	name_ = "Name me!";
+
+	// Disallow moving windows by default
 	window_flags_ = 0;
 	window_flags_ |= ImGuiWindowFlags_NoCollapse;
 	window_flags_ |= ImGuiWindowFlags_NoMove;
