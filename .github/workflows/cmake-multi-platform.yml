@@ -25,11 +25,22 @@ jobs:
       matrix:
         os: [windows-latest]
         build_type: [Release, Debug]
-        c_compiler: [cl]
+        c_compiler: [cl, gcc]
+        cpp_compiler: [cl, g++]  # Add the appropriate compiler for macOS
         include:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: cl
+          - os: macos-latest
+            cpp_compiler: cl
+
     steps:
     - uses: actions/checkout@v3
 

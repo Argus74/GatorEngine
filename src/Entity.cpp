@@ -51,3 +51,7 @@ std::shared_ptr<CBBox> Entity::getBBox() const {
 void Entity::setBBox(const std::shared_ptr<CBBox>& bbox) {
 	cBBox = bbox;
 }
+
+bool Entity::isAlive() {
+	return m_alive;
+}

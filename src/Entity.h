@@ -4,9 +4,32 @@
 #include <memory>
 #include <string>
 
-class CTransform; // Forward declarations for the component classes
-class CName;
-class CShape;
+#include <SFML/Graphics.hpp>
+
+class CTransform {
+public:
+	sf::Vector2f position, scale, velocity;
+	float angle;
+	CTransform() : position(sf::Vector2f(0, 0)), scale(sf::Vector2f(1, 1)), angle(0) {}
+	CTransform(const sf::Vector2f& pos, const sf::Vector2f& scl, float ang) 
+		: position(pos), scale(scl), angle(ang) {}
+}; 
+
+class CName {
+public:
+	std::string name;
+	CName() : name("Default") {}
+	CName(const std::string& n) : name(n) {}
+};
+
+class CShape {
+public:
+	std::string type;
+	sf::Color color;
+	CShape() : type("Rectangle"), color(sf::Color::White) {}
+	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
+};
+
 
 class Entity {
 	size_t m_id;

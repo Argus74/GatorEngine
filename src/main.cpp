@@ -3,10 +3,14 @@
 
 #include "SFML/Graphics.hpp"
 #include <box2d/box2d.h>
+
 #include <iostream>
-#include "CTransform.h"
-// #include <EntityManager.h>
-// #include "glm.hpp"
+#include <string>
+#include <vector>
+
+#include "editor/Editor.h"
+#include "EntityManager.h"
+
 
 int main()
 {
@@ -67,62 +71,36 @@ int main()
     float redBoxX = 500;
     float redBoxY = 768;
 
+    // Initialize Editor
+    Editor editor;
+
+    // TESTING: Add a few entities to the EntityManager
+    auto &entityManager = EntityManager::GetInstance();
+    for (int i = 0; i < 20; i++)
+    {
+        const auto &entity = entityManager.addEntity("Entity" + std::to_string(i));
+        entity->cTransform = std::make_shared<CTransform>(sf::Vector2f(110 * i, 120 * i), sf::Vector2f(8 * i, 7 * i), 2 * i);
+        entity->cBBox = std::make_shared<CBBox>(sf::Vector2f(11 * i, 3 * i));
+        entity->cName = std::make_shared<CName>("MyEntity " + std::to_string(i));
+        entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color(i * 11, i * 11 / 3, i * 11 / 4, 255));
+    }
+
     while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
         {
-            // Process ImGui gui events
             ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        // Update the ImGui visuals
+
+        entityManager.update();
+
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("Red Square Size");
-        ImGui::Text("Drag the slider below to control red box size and position");
-        ImGui::SliderFloat("Length", &redBoxLength, 10, 300);
-        ImGui::SliderFloat("Height", &redBoxHeight, 10, 300);
+        editor.Draw();
 
-        // Update physics objects based on gui's
-        dynamicBox.SetAsBox(redBoxLength / 2, redBoxHeight / 2); // Updating size
-        // The position should only be updated if there is a change in the XPos/YPos slider
-        if (ImGui::SliderFloat("XPos", &redBoxX, 0, 1366))
-        {
-            body->SetTransform(b2Vec2(redBoxX, body->GetPosition().y), body->GetAngle()); // Updating x position
-            body->SetAwake(true);
-        }
-
-        if (ImGui::SliderFloat("YPos", &redBoxY, 0, 768))
-        {
-            body->SetTransform(b2Vec2(body->GetPosition().x, redBoxY), body->GetAngle()); // Updating y position
-            body->SetAwake(true);
-        }
-
-		// Interact with your entities through ImGui 
-		// ...
-
-        ImGui::End();
-
-		// Draw entities
-		// Example for an entity that has a method to return their shape for SFML:
-		// for (auto& entity : entityManager.getEntities()) {
-		//     if (auto shapeComponent = entity->getShape()) {
-		//         window.draw(*shapeComponent->getSFMLShape());
-		//     }
-		// }
-        
-        // Run a physics step at 1/60 of a second
-        world.Step(timeStep, velocityIterations, positionIterations);
-        // Update sprite positions and rotations and sizes based on physics objects
-        boxShape.setPosition(body->GetPosition().x, window.getSize().y - body->GetPosition().y);
-        boxShape.setRotation(body->GetAngle());
-        boxShape.setSize(sf::Vector2f(redBoxLength, redBoxHeight));
-        boxShape.setOrigin(redBoxLength / 2, redBoxHeight / 2);
-
-        window.clear();
-        window.draw(groundShape);
-        window.draw(boxShape);
+        window.clear(sf::Color(0, 0, 0));
         ImGui::SFML::Render(window);
         window.display();
     }
