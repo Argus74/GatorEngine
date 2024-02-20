@@ -27,7 +27,8 @@ add_executable(
     "src/main.cpp"
     "src/Entity.cpp" 
     "src/EntityManager.cpp" 
-    "src/AssetManager.cpp" 
+    "src/AssetManager.cpp"
+    "src/Vec2.h"
     "src/editor/Editor.cpp" 
     "src/editor/UIWindow.cpp" 
     "src/editor/FileBarWindow.cpp" 
@@ -84,3 +85,11 @@ if (WIN32)
             $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
             $<TARGET_FILE_DIR:GatorEngine>)
 endif()
+
+
+
+# Copy asset folder
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:GatorEngine>/assets)

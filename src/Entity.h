@@ -6,8 +6,6 @@
 
 #include <SFML/Graphics.hpp>
 
-// TODO: Implement components 
-// These definitions are just placeholders so we can demo :)
 class CTransform {
 public:
 	sf::Vector2f position, scale, velocity;
@@ -32,13 +30,6 @@ public:
 	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
 };
 
-class CBBox {
-public:
-	sf::Vector2f size;
-	bool isStatic;
-	CBBox() : size(sf::Vector2f(0, 0)) {}
-	CBBox(const sf::Vector2f& s) : size(s) {}
-};
 
 class Entity {
 	size_t m_id;
@@ -49,7 +40,6 @@ public:
 	std::shared_ptr<CTransform> cTransform;
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
-	std::shared_ptr<CBBox> cBBox;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -71,12 +61,7 @@ public:
 	// Accessor and mutator for the CShape component
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
-
-	// Accessor and mutator for the CBBox component
-	std::shared_ptr<CBBox> getBBox() const;
-	void setBBox(const std::shared_ptr<CBBox>& bbox);
-
-	bool isAlive();
 };
 
 #endif // ENTITY_H
+
