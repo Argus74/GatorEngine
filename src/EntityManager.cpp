@@ -1,6 +1,12 @@
 #include "EntityManager.h"
 #include <algorithm>
 
+// Factory function to get the singleton instance
+EntityManager& EntityManager::GetInstance() {
+	static EntityManager instance;
+	return instance;
+}
+
 // Constructor
 EntityManager::EntityManager() {}
 
