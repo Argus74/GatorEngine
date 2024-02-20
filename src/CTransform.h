@@ -1,18 +1,13 @@
 #pragma once
 #include "imgui-SFML.h"
 #include "SFML/Graphics/Transform.hpp"
+#include "Vec2.h"
 class CTransform {
 
 public:
 
-	sf::Transform transform_;
-	//Constructor does nothing (besides initializing a default transform)
-	//with no position or rotation
-	CTransform();
-	//Translates a transform by the offset
-	void Translate(sf::Vector2f offset);
-	//Modifies only the position portion of the transform
-	void SetPosition(sf::Vector2f position);
-	//Gets the position portion of the transform
-	sf::Vector2f GetPosition();
+	Vec2 position = {0, 0};
+	Vec2 velocity = {0, 0};
+	CTransform() {};
+	CTransform(const Vec2 position, const Vec2 velocity) : position(position), velocity(velocity) {};
 };
