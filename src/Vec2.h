@@ -22,6 +22,7 @@ public:
     Vec2(float xin, float yin)
         : x(xin), y(yin) { }
 
+
     Vec2 operator+(Vec2 v)
     {
         return Vec2(x + v.x, y + v.y);
@@ -29,6 +30,7 @@ public:
 
     // Scales vector
     void scale(float s)
+
     {
         x = s;
         y = s;
@@ -57,3 +59,4 @@ public:
         return Vec2(x * s, y * s);
     }
 };
+

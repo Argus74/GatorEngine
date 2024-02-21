@@ -5,6 +5,7 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
+
 #include "Vec2.h"
 class CTransform {
 public:
@@ -12,6 +13,7 @@ public:
 	float angle;
 	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
 	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
+
 		: position(pos), scale(scl), angle(ang) {}
 }; 
 
