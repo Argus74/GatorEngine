@@ -61,8 +61,6 @@ public:
 	// Accessor and mutator for the CShape component
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
-
-
 };
 
 #endif // ENTITY_H
