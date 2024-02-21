@@ -1,6 +1,8 @@
 # CMake
 debug/
 release/
+build/
+CMakeFiles/
 
 # Directory Files:
 .DS_Store
@@ -8,6 +10,20 @@ release/
 # Visual Studio:
 .vs/
 out/
+.vscode/
 
 # Windows CMake
 CMakeSettings.json
+
+# SFML CMake
+extern/SFML/cmake_install.cmake
+extern/SFML/CMakeCache.txt
+extern/SFML/CPackConfig.cmake
+extern/SFML/CPackSourceConfig.cmake
+Makefile
+extern/SFML/src/SFML/cmake_install.cmake
+extern/SFML/src/SFML/Audio/cmake_install.cmake
+extern/SFML/src/SFML/Graphics/cmake_install.cmake
+extern/SFML/src/SFML/Network/cmake_install.cmake
+extern/SFML/src/SFML/System/cmake_install.cmake
+extern/SFML/src/SFML/Window/cmake_install.cmake
