@@ -34,7 +34,7 @@ private:
     // TODO: May need to update parameters, like switching to our new Vec2 object
     void DrawInputField(std::string &val);
     void DrawInputField(sf::Color &val);
-    void DrawInputField(Vec2 &val);
+    void DrawInputField(sf::Vector2f &val);
     void DrawInputField(float &val);
     void DrawInputField(int &val);
     void DrawInputField(bool &val);
