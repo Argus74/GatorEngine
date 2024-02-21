@@ -158,7 +158,7 @@ void PropertyWindow::DrawInputField(std::string &val)
     ImGui::InputText("##String", &val);
 }
 
-void PropertyWindow::DrawInputField(sf::Vector2f &val)
+void PropertyWindow::DrawInputField(Vec2 &val)
 {
     ImGui::InputFloat2("##Vec2", (float *)&val, "%.2f");
 }
