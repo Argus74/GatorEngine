@@ -11,14 +11,19 @@
 #include "Vec2.h"
 #include "GatorPhysics.h"
 
-class CTransform : public Component
+#include "Vec2.h"
+class CTransform
 {
 public:
+	Vec2 position, scale, velocity;
 	Vec2 position, scale, velocity;
 	float angle;
 	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
 	CTransform(const Vec2 &pos, const Vec2 &scl, float ang)
-		: position(pos), scale(scl), angle(ang) {}
+
+		: position(pos), scale(scl), angle(ang)
+	{
+	}
 };
 
 class CName : public Component

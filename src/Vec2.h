@@ -24,11 +24,12 @@ public:
 
     Vec2 operator+(Vec2 v)
     {
-        return Vec2(x + v.x, y + v.y)
+        return Vec2(x + v.x, y + v.y);
     }
 
     // Scales vector
     void scale(float s)
+
     {
         x = s;
         y = s;
@@ -43,22 +44,17 @@ public:
     // Length of a vector
     float length()
     {
-        return sqrtf((xx) + (yy));
+        return sqrtf((x * x) + (y * y));
+    }
 
-        // Scales vector and returns a new vector
-        Vec2 operator*(float s)
-        {
-            return Vec2(xs, ys);
-        }
-
-        // Distance between two Vec2s
-        float dist(Vec2 v)
-        {
-            return (v - *this).length();
-        }
-        // Scales vector and returns a new vector
-        Vec2 operator*(float s)
-        {
-            return Vec2(x * s, y * s);
-        }
-    };
+    // Distance between two Vec2s
+    float dist(Vec2 v)
+    {
+        return (v - *this).length();
+    }
+    // Scales vector and returns a new vector
+    Vec2 operator*(float s)
+    {
+        return Vec2(x * s, y * s);
+    }
+};
