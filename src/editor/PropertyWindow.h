@@ -25,7 +25,6 @@ private:
     void DrawComponentProperties(std::shared_ptr<CTransform> transform);
     void DrawComponentProperties(std::shared_ptr<CName> name);
     void DrawComponentProperties(std::shared_ptr<CShape> shape);
-    void DrawComponentProperties(std::shared_ptr<CBBox> bbox);
 
     // Draw one property row of a component
     template <typename T>

@@ -73,10 +73,6 @@ void PropertyWindow::DrawFrames()
     {
         DrawComponent("Name", active_entity_->getNameComponent());
     }
-    if (active_entity_->getBBox())
-    {
-        DrawComponent("BBox", active_entity_->getBBox());
-    }
 
     // Maybe TODO: At end of window, draw a button for adding new components
     if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f)))
@@ -134,12 +130,6 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape)
     DrawProperty("Color", shape->color);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBBox> bbox)
-{
-    // TODO: Update below. These are based on the placeholder components in Entity.h
-    DrawProperty("Size", bbox->size);
-    DrawProperty("Static", bbox->isStatic);
-}
 
 // TODO: Add new overloads for future components here
 

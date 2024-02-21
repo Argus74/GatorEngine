@@ -34,7 +34,7 @@ public:
 class Entity {
 	size_t m_id;
 	std::string m_tag;
-	bool m_alive;
+	bool is_alive;
 
 public:
 	std::shared_ptr<CTransform> cTransform;
@@ -47,7 +47,7 @@ public:
 
 	void destroy();
 	const std::string& tag() const;
-
+	bool isAlive();
 	// Component Accessors
 
 	// Accessor and mutator for the CTransform component
