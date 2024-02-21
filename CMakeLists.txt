@@ -35,6 +35,7 @@ add_executable(
     "src/editor/TabBarWindow.cpp"
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
+    "src/Game.cpp"
 )
 
 target_link_libraries(GatorEngine PRIVATE
