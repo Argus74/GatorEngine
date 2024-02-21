@@ -5,13 +5,13 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
-
+#include "Vec2.h"
 class CTransform {
 public:
-	sf::Vector2f position, scale, velocity;
+	Vec2 position, scale, velocity;
 	float angle;
-	CTransform() : position(sf::Vector2f(0, 0)), scale(sf::Vector2f(1, 1)), angle(0) {}
-	CTransform(const sf::Vector2f& pos, const sf::Vector2f& scl, float ang) 
+	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
+	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
 		: position(pos), scale(scl), angle(ang) {}
 }; 
 
