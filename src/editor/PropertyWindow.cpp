@@ -58,9 +58,13 @@ void PropertyWindow::DrawFrames()
     }
 
     // Update title of Property Window to include the tag of the entity
-    name_ = "Properties - " + active_entity_->tag();
+    name_ = "Properties - " + active_entity_->getNameComponent()->name;
 
     // Draw a section for each components of the entity
+    if (active_entity_->getNameComponent())
+    {
+		DrawComponent("Name", active_entity_->getNameComponent());
+	}
     if (active_entity_->getTransform())
     {
         DrawComponent("Transform", active_entity_->getTransform());
@@ -68,10 +72,6 @@ void PropertyWindow::DrawFrames()
     if (active_entity_->getShape())
     {
         DrawComponent("Shape", active_entity_->getShape());
-    }
-    if (active_entity_->getNameComponent())
-    {
-        DrawComponent("Name", active_entity_->getNameComponent());
     }
 
     // Maybe TODO: At end of window, draw a button for adding new components
@@ -164,9 +164,7 @@ void PropertyWindow::DrawInputField(std::string& val)
 	}
 }
 
-
 void PropertyWindow::DrawInputField(Vec2 &val)
-
 {
     ImGui::InputFloat2("##Vec2", (float *)&val, "%.2f");
 }
