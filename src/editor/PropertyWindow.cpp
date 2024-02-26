@@ -153,7 +153,7 @@ void PropertyWindow::DrawProperty(const char *name, T &val)
     ImGui::PopID();
 }
 
-void PropertyWindow::DrawInputField(std::string &val)
+void PropertyWindow::DrawInputField(std::string& val)
 {
     ImGui::InputText("##String", &val);
 }
