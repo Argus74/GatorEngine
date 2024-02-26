@@ -153,9 +153,15 @@ void PropertyWindow::DrawProperty(const char *name, T &val)
     ImGui::PopID();
 }
 
-void PropertyWindow::DrawInputField(std::string &val)
+void PropertyWindow::DrawInputField(std::string& val)
 {
-    ImGui::InputText("##String", &val);
+    // Only set value if user presses Enter or loses focus
+    std::string buffer = val;
+    if (ImGui::InputText("##String", &buffer, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        val = buffer;
+    } else if (ImGui::IsItemDeactivatedAfterEdit()) {
+		val = buffer;
+	}
 }
 
 
