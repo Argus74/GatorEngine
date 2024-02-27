@@ -32,6 +32,9 @@ public:
 	// Draw all UIWindows of the editor
 	void Draw();
 
+	// Active entity to modify.
+	static std::shared_ptr<Entity> active_entity_;
+
 private:
 	// List of all windows in the Editor
 	std::vector<std::unique_ptr<UIWindow>> windows_;
