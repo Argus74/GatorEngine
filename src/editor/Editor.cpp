@@ -4,6 +4,8 @@
 #include "TabBarWindow.h"
 #include "ExplorerWindow.h"
 #include "PropertyWindow.h"
+// Static variables
+Editor::State Editor::state;
 std::shared_ptr<Entity> Editor::active_entity_;
 
 Editor::Editor() {
@@ -20,6 +22,7 @@ Editor::Editor() {
     style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.58f, 0.98f, 0.30f);
     style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.50f);
 
+    state = State::None;
     active_entity_ = nullptr;
 
     windows_.push_back(std::make_unique<FileBarWindow>());
