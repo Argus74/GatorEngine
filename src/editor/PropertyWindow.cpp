@@ -7,6 +7,7 @@
 
 #include "../EntityManager.h"
 #include "../Entity.h"
+#include "Editor.h"
 
 PropertyWindow::PropertyWindow()
 {
@@ -51,33 +52,33 @@ void PropertyWindow::DrawFrames()
 {
 
     // Draw blank window if no active entity
-    if (!active_entity_)
+    if (!Editor::active_entity_)
     {
         name_ = " ";
         return;
     }
 
     // Update title of Property Window to include the tag of the entity
-    name_ = "Properties - " + active_entity_->tag();
+    name_ = "Properties - " + Editor::active_entity_->getNameComponent()->name;
 
     // Draw a section for each components of the entity
-    if (active_entity_->getTransform())
+    if (Editor::active_entity_->getNameComponent())
     {
-        DrawComponent("Transform", active_entity_->getTransform());
+        DrawComponent("Name", Editor::active_entity_->getNameComponent());
     }
-    if (active_entity_->getShape())
+    if (Editor::active_entity_->getTransform())
     {
-        DrawComponent("Shape", active_entity_->getShape());
+        DrawComponent("Transform", Editor::active_entity_->getTransform());
     }
-    if (active_entity_->getNameComponent())
+    if (Editor::active_entity_->getShape())
     {
-        DrawComponent("Name", active_entity_->getNameComponent());
+        DrawComponent("Shape", Editor::active_entity_->getShape());
     }
 
     // Maybe TODO: At end of window, draw a button for adding new components
     if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f)))
     {
-        // active_entity_->addComponent(newComponent);
+        // Editor::active_entity_->addComponent(newComponent);
     }
 }
 
@@ -104,7 +105,7 @@ void PropertyWindow::DrawComponent(const char *name, const T &component)
     // Maybe TODO: Allow removing of component from entity if user closes the header
     if (!isOpen)
     {
-        // active_entity_->removeComponent(component);
+        // Editor::active_entity_->removeComponent(component);
     }
 }
 
@@ -154,10 +155,19 @@ void PropertyWindow::DrawProperty(const char *name, T &val)
 
 void PropertyWindow::DrawInputField(std::string &val)
 {
-    ImGui::InputText("##String", &val);
+    // Only set value if user presses Enter or loses focus
+    std::string buffer = val;
+    if (ImGui::InputText("##String", &buffer, ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        val = buffer;
+    }
+    else if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        val = buffer;
+    }
 }
 
-void PropertyWindow::DrawInputField(sf::Vector2f &val)
+void PropertyWindow::DrawInputField(Vec2 &val)
 {
     ImGui::InputFloat2("##Vec2", (float *)&val, "%.2f");
 }
