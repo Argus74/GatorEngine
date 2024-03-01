@@ -12,11 +12,9 @@
 #include "EntityManager.h"
 #include "Game.h"
 
-
 int main()
 {
     Game newGame;
-    newGame.update();
     sf::Clock deltaClock;
     ImGui::SFML::Init(newGame.m_window);
     Editor editor;
@@ -24,11 +22,11 @@ int main()
     {
         sf::Event event;
         while (newGame.m_window.pollEvent(event))
-		{
-			ImGui::SFML::ProcessEvent(event);
-			if (event.type == sf::Event::Closed)
-				newGame.m_window.close();
-		}
+        {
+            ImGui::SFML::ProcessEvent(event);
+            if (event.type == sf::Event::Closed)
+                newGame.m_window.close();
+        }
 
         ImGui::SFML::Update(newGame.m_window, deltaClock.restart());
         editor.Draw();
@@ -36,7 +34,8 @@ int main()
         ImGui::SFML::Render(newGame.m_window);
 
         newGame.update();
-        newGame.m_window.display();
+
+        newGame.m_window.display(); // add this to sRender()?
     }
     ImGui::SFML::Shutdown();
     return 0;
