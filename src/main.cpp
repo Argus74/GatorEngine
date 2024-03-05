@@ -28,6 +28,12 @@ int main()
 			ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 				newGame.m_window.close();
+
+            // Update the SFML's render window dimensions (to prevent scaling)
+            if (event.type == sf::Event::Resized) {
+                sf::FloatRect view(0, 0, event.size.width, event.size.height);
+                newGame.m_window.setView(sf::View(view));
+            }
 		}
 
         ImGui::SFML::Update(newGame.m_window, deltaClock.restart());
