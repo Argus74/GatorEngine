@@ -4,6 +4,7 @@
 #include "TabBarWindow.h"
 #include "ExplorerWindow.h"
 #include "PropertyWindow.h"
+#include "SceneLayoutWindow.h"
 // Static variables
 Editor::State Editor::state;
 std::shared_ptr<Entity> Editor::active_entity_;
@@ -29,6 +30,7 @@ Editor::Editor() {
     windows_.push_back(std::make_unique<TabBarWindow>());
     windows_.push_back(std::make_unique<PropertyWindow>());
     windows_.push_back(std::make_unique<ExplorerWindow>());
+    windows_.push_back(std::make_unique<SceneLayoutWindow>());
 }
 
 void Editor::Draw() {
