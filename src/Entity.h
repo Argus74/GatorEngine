@@ -32,6 +32,12 @@ public:
 	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
 };
 
+class CAnimation {
+public:
+
+
+};
+
 
 class Entity {
 	size_t m_id;
