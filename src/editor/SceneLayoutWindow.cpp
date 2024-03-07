@@ -6,6 +6,7 @@ SceneLayoutWindow::SceneLayoutWindow() {
 
 	window_flags_ |= ImGuiWindowFlags_NoBackground;
 	window_flags_ |= ImGuiWindowFlags_NoTitleBar;
+	window_flags_ |= ImGuiWindowFlags_NoScrollbar;
 }
 
 void SceneLayoutWindow::SetPosition() {
@@ -55,6 +56,7 @@ void SceneLayoutWindow::DrawFrames() {
 
 		// If this button is being dragged, move the entity
 		// TODO: Add logic here to prevent moving when not in moving state
+		// TODO: Investigate why button drags behind sprite a bit
 		if (ImGui::IsItemActive() &&
 			ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 			transform.position.x += ImGui::GetIO().MouseDelta.x;
@@ -62,6 +64,7 @@ void SceneLayoutWindow::DrawFrames() {
 		}
 
 		// If out-of-bounds, snap back to bounds
+		// TODO: This may break once we start camera stuff
 		if (transform.position.x < 0) {
 			transform.position.x = 0;
 		}

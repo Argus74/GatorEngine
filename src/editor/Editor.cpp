@@ -20,8 +20,11 @@ Editor::Editor() {
     style.Colors[ImGuiCol_WindowBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     style.Colors[ImGuiCol_TitleBg] = style.Colors[ImGuiCol_TitleBgActive]; // Make title bar always same color
     style.Colors[ImGuiCol_Header] = ImVec4(0.25f, 0.58f, 0.98f, 0.45f);
-    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.58f, 0.98f, 0.30f);
-    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.50f);
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.58f, 0.98f, 0.53f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.60f);
+    style.Colors[ImGuiCol_Button] = style.Colors[ImGuiCol_Header];
+    style.Colors[ImGuiCol_ButtonHovered] = style.Colors[ImGuiCol_HeaderHovered];
+    style.Colors[ImGuiCol_ButtonActive] = style.Colors[ImGuiCol_HeaderActive];
 
     state = State::None;
     active_entity_ = nullptr;
