@@ -37,6 +37,8 @@ add_executable(
     "src/editor/PropertyWindow.cpp"
     "src/Game.cpp"
     "src/editor/SceneLayoutWindow.cpp"
+    "src/ActionBus.cpp" 
+    "src/components/CUserInput.h"
 )
 
 target_link_libraries(GatorEngine PRIVATE
