@@ -17,6 +17,7 @@ public:
 	sf::RenderWindow m_window = sf::RenderWindow(sf::VideoMode(1366, 768), "Gator Engine");
 
 	Game();
+	// Game(std::shared_ptr<Entity> player); - mock constructor for initializing player
 	void update();
 	void sRender();
 	void sEnemySpawner();

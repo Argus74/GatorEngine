@@ -4,7 +4,7 @@ void Game::init()
 {
     m_window.setFramerateLimit(60);
     sEnemySpawner();
-    spawnPlayer();
+    // spawnPlayer(); see def below
 }
 
 Game::Game()
@@ -12,31 +12,46 @@ Game::Game()
     init();
 }
 
+/*
+
+Mock constructor for initializing player
+
+Game::Game(std::shared_ptr<Entity> player)
+{
+    init();
+    this->m_player = player;
+}
+*/
+
 void Game::update()
 {
     if (Editor::state == Editor::State::Testing)
     {
         EntityManager::GetInstance().update();
         sMovement();
+        // other systems here
+        m_currentFrame++;
+    }
+    else
+    {
+        m_currentFrame = 0;
+        /*
+            m_player->cTransform->position = Vec2(400, 400);
+            - resetting player position back to a mock position if not testing, could be an idea to reset everything here?
+        */
     }
 
-    sRender();
+    // sRender outside of testing check here?
 }
 
 void Game::sMovement()
 {
     for (auto e : EntityManager::GetInstance().getEntities())
     {
-        // TODO: update all entities with their movement components
+        // TODO: update all entities with their movement components and behaviors
     }
 
-    m_player->cTransform->position.x += m_player->cTransform->velocity.x;
-    m_player->cTransform->position.y += m_player->cTransform->velocity.y;
-}
-
-void Game::sRender()
-{
-    // TODO: implement dummy render function for testing
+    // TODO: update player movement based on input & use velocity in CTransform
 }
 
 void Game::sEnemySpawner()
@@ -52,15 +67,18 @@ void Game::sEnemySpawner()
     }
 }
 
+// This function should probably just be used for our demo if it's still needed
+// Creates and initializes a player
+// Maybe have the option for the user to select a game object as a player? Since multiple game objects shouldn't be input usable
 void Game::spawnPlayer()
 {
     auto entity = EntityManager::GetInstance().addEntity("Player");
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(110, 120), Vec2(8, 7), 0);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(110, 700), Vec2(80, 70), 0);
     entity->cName = std::make_shared<CName>("Player");
-    entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color(11, 11 / 3, 11 / 4, 255));
+    entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color::Red);
 
-    // TODO: initialize player input component
+    // TODO: maybe add CInput component here for testing/demo, would need to initialize player somewhere in init/constructor
 
     m_player = entity;
 }

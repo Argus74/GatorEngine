@@ -34,9 +34,11 @@ void TabBarWindow::DrawFrames()
 {
     if (ImGui::BeginTabBar("MainTabs"))
     {
+        // Math to resize icons and maintain their relative position
         float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
         float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
-        if (Editor::state != Editor::State::Testing)
+
+        if (Editor::state != Editor::State::Testing) // only available for use when user isn't testing the game
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
@@ -71,13 +73,14 @@ void TabBarWindow::DrawFrames()
             }
         }
 
+        // Testing tab
         if (ImGui::BeginTabItem("Testing"))
         {
             // Sprite button
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
             if (ImGui::ImageButton("Start Button", icons[0], sf::Vector2f(imageSize, imageSize)))
             {
-                Editor::state = Editor::State::Testing; // Button clicked: now testing
+                Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
             }
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 13, imageY + imageSize + 10));
@@ -87,11 +90,15 @@ void TabBarWindow::DrawFrames()
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
             if (ImGui::ImageButton("Stop Button", icons[1], sf::Vector2f(imageSize, imageSize)))
             {
-                Editor::state = Editor::State::None; // Reset state to none
-                // TODO: end game: unload content?
+                Editor::state = Editor::State::None; // Testing stopped: Reset state to none
+                // TODO: end game: unload content/reset entity pos?
             }
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 9, imageY + imageSize + 10));
             ImGui::Text("Stop");
+
+            // TODO: add pause button?
+            // TODO: add step forward button?
+            // TODO: add step back button?
             ImGui::EndTabItem();
         }
 
