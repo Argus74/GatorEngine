@@ -7,6 +7,8 @@
 #include <SFML/Graphics.hpp>
 
 #include "Vec2.h"
+#include "components/CUserInput.h"
+
 class CTransform {
 public:
 	Vec2 position, scale, velocity;
@@ -42,6 +44,7 @@ public:
 	std::shared_ptr<CTransform> cTransform;
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
+	std::shared_ptr<CUserInput> cUserInput;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -63,6 +66,10 @@ public:
 	// Accessor and mutator for the CShape component
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
+
+	// Accessor and mutator for the CUserInput component
+	std::shared_ptr<CUserInput> getUserInput() const;
+	void setUserInput(const std::shared_ptr<CUserInput>& userInput);
 };
 
 #endif // ENTITY_H
