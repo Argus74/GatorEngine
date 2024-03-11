@@ -39,7 +39,7 @@ add_executable(
     "src/editor/SceneLayoutWindow.cpp"
     "src/ActionBus.cpp" 
     "src/components/CUserInput.h"
-)
+    "src/Animation.cpp" )
 
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics

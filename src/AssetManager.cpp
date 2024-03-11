@@ -25,6 +25,12 @@ AssetManager::~AssetManager() {
         delete pair.second;
     }
     fonts_.clear();
+
+    for (auto& pair : animations_) {
+        delete pair.second;
+    }
+    animations_.clear();
+
 }
 
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {
@@ -56,6 +62,7 @@ void AssetManager::AddFont(const std::string& name, const std::string& path) {
     }
     fonts_[name] = font;
 }
+
 
 sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers
     if (sounds_.find(name) == sounds_.end()) {

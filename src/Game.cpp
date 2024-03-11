@@ -87,3 +87,7 @@ void Game::sEnemySpawner()
         entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color(i * 11, i * 11 / 3, i * 11 / 4, 255));
     }
 }
+
+void Game::sAnimation() {
+    //Need to add GetComponent, AddComponent templates to entity.
+}
