@@ -16,20 +16,11 @@
 int main()
 {
     Game newGame;
-    newGame.update();
     sf::Clock deltaClock;
     ImGui::SFML::Init(newGame.m_window);
     Editor editor;
     while (newGame.m_window.isOpen())
     {
-        sf::Event event;
-        while (newGame.m_window.pollEvent(event))
-		{
-			ImGui::SFML::ProcessEvent(event);
-			if (event.type == sf::Event::Closed)
-				newGame.m_window.close();
-		}
-
         ImGui::SFML::Update(newGame.m_window, deltaClock.restart());
         editor.Draw();
         newGame.m_window.clear(sf::Color(0, 0, 0));
