@@ -10,6 +10,12 @@
 Editor::State Editor::state;
 std::shared_ptr<Entity> Editor::active_entity_;
 
+#include "SceneLayoutWindow.h"
+// Static variables
+Editor::State Editor::state;
+std::shared_ptr<Entity> Editor::active_entity_;
+
+
 Editor::Editor() {
     // Setup default, global style vars for consistent look
     ImGuiStyle& style = ImGui::GetStyle();

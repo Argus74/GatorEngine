@@ -36,6 +36,8 @@ add_executable(
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
     "src/Game.cpp"
+    "src/Physics.cpp" 
+    "src/Physics.h"
     "src/editor/SceneLayoutWindow.cpp"
     "src/ActionBus.cpp" 
     "src/components/CUserInput.h"

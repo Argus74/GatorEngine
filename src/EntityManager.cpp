@@ -14,6 +14,8 @@ EntityManager::EntityManager() {}
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
+
+	Physics::GetInstance()->createBody(newEntity.get(), false);
 	m_toAdd.push_back(newEntity);
 	return newEntity;
 }

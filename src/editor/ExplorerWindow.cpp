@@ -6,6 +6,8 @@
 #include "../AssetManager.h";
 #include "Editor.h"
 
+#include "Editor.h"
+
 ExplorerWindow::ExplorerWindow() {
 	name_ = "Explorer";
 
@@ -48,7 +50,6 @@ void ExplorerWindow::DrawFrames() {
 		auto& entityList = EntityManager::GetInstance().getEntities();
 		for (int i = 0; i < entityList.size(); i++) {
 			auto entity = entityList[i];
-			
 			// Draw little icon
 			ImGui::Image(icon_, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
 			ImGui::SameLine();

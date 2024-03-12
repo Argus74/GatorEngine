@@ -5,6 +5,11 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
+
+#include "Vec2.h"
+class CTransform {
+public:
+
 #include "Components.h"
 #include "components/CUserInput.h"
 #include "Vec2.h"
@@ -15,7 +20,6 @@ class CTransform : public Component {
 	float angle;
 	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
 	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
-
 		: position(pos), scale(scl), angle(ang) {}
 }; 
 
@@ -33,6 +37,26 @@ public:
 	CShape() : type("Rectangle"), color(sf::Color::White) {}
 	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
 };
+
+class CRigidBody {
+	public:
+		bool staticBody;
+		b2Body* body;
+		b2Fixture* fixture;
+		CRigidBody() : staticBody(true) {}
+		CRigidBody(bool flag, b2Body* b, b2Fixture* f) : staticBody(flag), body(b), fixture(f) {}
+};
+
+
+typedef std::tuple< //ass we add more components, we add them here
+	std::shared_ptr<CTransform>,
+	std::shared_ptr<CName>,
+	std::shared_ptr<CShape>,
+	std::shared_ptr<CUserInput>,
+	std::shared_ptr<CAnimation>,
+	std::shared_ptr<CSprite>
+> ComponentTuple;
+
 
 
 typedef std::tuple< //ass we add more components, we add them here
@@ -55,7 +79,10 @@ public:
 	std::shared_ptr<CTransform> cTransform; //For now Not commenting//
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
-	std::shared_ptr<CUserInput> cUserInput;
+	std::shared_ptr<CRigidBody> cRigidBody;
+  std::shared_ptr<CUserInput> cUserInput;
+
+	ComponentTuple m_components;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -64,7 +91,6 @@ public:
 	void destroy();
 	const std::string& tag() const;
 	bool isAlive();
-
 	// Component Accessors and Modifiers 
 	template <typename T>
 	bool hasComponent() const {
@@ -92,7 +118,6 @@ public:
 	}
 		
 
-
 	// Accessor and mutator for the CTransform component
 	std::shared_ptr<CTransform> getTransform() const;
 	void setTransform(const std::shared_ptr<CTransform>& transform);
@@ -105,10 +130,12 @@ public:
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
 
+	// Accessor and mutator for the CRigidBody component
+	std::shared_ptr<CRigidBody> getRigidBody() const;
+	void setRigidBody(const std::shared_ptr<CRigidBody>& rigidBody);
 	// Accessor and mutator for the CUserInput component
 	std::shared_ptr<CUserInput> getUserInput() const;
 	void setUserInput(const std::shared_ptr<CUserInput>& userInput);
-
 };
 
 #endif // ENTITY_H
