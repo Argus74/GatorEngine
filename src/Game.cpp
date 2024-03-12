@@ -99,6 +99,7 @@ void Game::sUserInput()
 		} else if (event.type == sf::Event::MouseButtonPressed) {
 			processInputEvent(event, sf::Event::MouseButtonPressed);
 		}
+
 	}
   
     if (Editor::state == Editor::State::Testing)
