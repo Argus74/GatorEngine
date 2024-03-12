@@ -39,6 +39,9 @@ public:
 	sf::Font& GetFont(const std::string& name);
 	Animation& GetAnimation(const std::string& name);
 
+	Animation& GetAnimation(const std::string& name);
+
+
 	//Maybe create a template function here to process the directory that contains the assets, can add later on depending on what we decide
 
 	//Plaing a sound using the stored sounds that are in our map

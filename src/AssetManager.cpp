@@ -68,7 +68,6 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
     animations_[name] = ani;
 }
 
-
 sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers
     if (sounds_.find(name) == sounds_.end()) {
         throw std::runtime_error("Sound buffer not found: " + name);
@@ -110,3 +109,4 @@ Animation& AssetManager::GetAnimation(const std::string& name) {
     }
     return *animations_[name];
 }
+

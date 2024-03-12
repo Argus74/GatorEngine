@@ -28,14 +28,14 @@ public:
     }
 
     // Scales vector
-    void scale((float s)
+    void scale(float s)
     {
         x = s;
         y = s;
     }
 
     // Subtract
-    Vec2 operator - (Vec2  v)
+    Vec2 operator-(Vec2 v)
     {
         return Vec2(x - v.x, y - v.y);
     }
@@ -54,7 +54,11 @@ public:
         // Distance between two Vec2s
         float dist(Vec2 v)
         {
-            return (v - this).length();
+            return (v - *this).length();
         }
-
+        // Scales vector and returns a new vector
+        Vec2 operator*(float s)
+        {
+            return Vec2(x * s, y * s);
+        }
     };
