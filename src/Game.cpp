@@ -12,7 +12,7 @@ void Game::init()
 	assetManager.AddAnimation("DefaultAnimation", ani);
 	Animation& ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
 	assetManager.AddAnimation("RunningAnimation", ani2);
-
+	//123
 
     m_window.setFramerateLimit(60);
     sEnemySpawner();
