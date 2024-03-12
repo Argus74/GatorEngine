@@ -1,69 +1,72 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
 
-#include <memory>
+#include "Components.h"
+
+#include <tuple>
 #include <string>
 
-#include <SFML/Graphics.hpp>
+class EntityManager;
 
-#include "Vec2.h"
-class CTransform {
-public:
-	Vec2 position, scale, velocity;
-	float angle;
-	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
-	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
+typedef std::tuple<
+	CTransform,
+	CLifeSpan,
+	CInput,
+	CBoundingBox,
+	CAnimation,
+	CGravity,
+	CState>
+	Component Tuple;
 
-		: position(pos), scale(scl), angle(ang) {}
-}; 
+class Entity
+{
+	friend class EntityManager;
 
-class CName {
-public:
-	std::string name;
-	CName() : name("Default") {}
-	CName(const std::string& n) : name(n) {}
-};
+	bool			m_active = true;
+	std::string		m_tag = "default";
+	size_t			m_id = 0;
+	ComponentTuple	m_components;
 
-class CShape {
-public:
-	std::string type;
-	sf::Color color;
-	CShape() : type("Rectangle"), color(sf::Color::White) {}
-	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
-};
-
-
-class Entity {
-	size_t m_id;
-	std::string m_tag;
-	bool is_alive;
+	// constructor is private so we can never create
+	// entities outside the EntityManager which had friend access
+	Entity(cons size_t& id, const std::string& tag);
 
 public:
-	std::shared_ptr<CTransform> cTransform;
-	std::shared_ptr<CName> cName;
-	std::shared_ptr<CShape> cShape;
 
-	Entity(const std::string& tag, size_t id);
-	Entity();
-	~Entity();
-
-	void destroy();
+	void				destroy();
+	size_t				id() const;
+	bool				isActive() const;
 	const std::string& tag() const;
-	bool isAlive();
-	// Component Accessors
 
-	// Accessor and mutator for the CTransform component
-	std::shared_ptr<CTransform> getTransform() const;
-	void setTransform(const std::shared_ptr<CTransform>& transform);
+	template <typename T>
+	bool hasComponent() const
+	{
+		return getComponent<T>().has;
+	}
 
-	// Accessor and mutator for the CName component
-	std::shared_ptr<CName> getNameComponent() const;
-	void setNameComponent(const std::shared_ptr<CName>& name);
+	template <typename T, typename... TArgs>
+	T& addComponent(TArgs&&... mArgs)
+	{
+		auto& component = getComponent<T>();
+		component = T(std::forward<TArgs>(mArgs)...);
+		component.has = true;
+		return component;
+	}
 
-	// Accessor and mutator for the CShape component
-	std::shared_ptr<CShape> getShape() const;
-	void setShape(const std::shared_ptr<CShape>& shape);
+	template<typename T>
+	T& getComponent()
+	{
+		return std::get<T>(m_components);
+	}
+
+	template<typename T>
+	const T& getComponent() const
+	{
+		return std::get<T>(m_components);
+	}
+
+	template<typename T>
+	void removeComponent()
+	{
+		getComponenent<T>() = T();
+	}
 };
-
-#endif // ENTITY_H
-
