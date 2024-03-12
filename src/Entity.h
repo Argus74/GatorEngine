@@ -31,6 +31,10 @@ class Entity
 	Entity(cons size_t& id, const std::string& tag);
 
 public:
+	std::shared_ptr<CTransform> cTransform;
+	std::shared_ptr<CName> cName;
+	std::shared_ptr<CShape> cShape;
+	std::shared_ptr<CBBox> cBBox;
 
 	void				destroy();
 	size_t				id() const;
@@ -70,3 +74,5 @@ public:
 		getComponenent<T>() = T();
 	}
 };
+
+#endif // ENTITY_H

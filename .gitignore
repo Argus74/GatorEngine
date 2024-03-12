@@ -2,7 +2,6 @@
 debug/
 release/
 build/
-CMakeFiles/
 
 # Directory Files:
 .DS_Store

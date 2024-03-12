@@ -1,9 +1,10 @@
 #include "Entity.h"
 
-Entity::Entity(const std::string& tag, size_t id) : m_id(id), m_tag(tag), is_alive(true) {
+Entity::Entity(const std::string& tag, size_t id) : m_id(id), m_tag(tag), m_alive(true) {
 	// Initialization of components, if required
 }
 
+Entity::Entity() : m_id(0), m_tag("Default"), m_alive(true) {
 Entity::Entity() : m_id(0), m_tag("Default"), is_alive(true) {
 	// Default initialization
 }
@@ -13,6 +14,7 @@ Entity::~Entity() {
 }
 
 void Entity::destroy() {
+	m_alive = false;
 	is_alive = false;
 }
 
@@ -44,6 +46,12 @@ void Entity::setShape(const std::shared_ptr<CShape>& shape) {
 	cShape = shape;
 }
 
+std::shared_ptr<CBBox> Entity::getBBox() const {
+	return cBBox;
+}
+
+void Entity::setBBox(const std::shared_ptr<CBBox>& bbox) {
+	cBBox = bbox;
 bool Entity::isAlive() {
 	return is_alive;
 }

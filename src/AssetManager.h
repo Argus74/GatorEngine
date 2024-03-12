@@ -10,21 +10,16 @@
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
 
-//namespace sf { //forward declaration
-//	class Texture;
-//	class SoundBuffer;
-//	class Sound;
-//	class Font;
-//} 
+namespace sf { //forward declaration
+	class Texture;
+	class SoundBuffer;
+	class Sound;
+	class Font;
+} 
 
 class AssetManager {
 public:
-	static AssetManager& GetInstance();
 	~AssetManager();
-	AssetManager(const AssetManager&) = delete;
-	AssetManager& operator=(const AssetManager&) = delete;
-	AssetManager(AssetManager&&) = delete;
-	AssetManager& operator=(AssetManager&&) = delete;
 
 	// Asset addition methods 
 	void AddTexture(const std::string& name, const std::string& path);
