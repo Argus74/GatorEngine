@@ -30,6 +30,8 @@ private:
     void DrawComponentProperties(std::shared_ptr<CTransform> transform);
     void DrawComponentProperties(std::shared_ptr<CName> name);
     void DrawComponentProperties(std::shared_ptr<CShape> shape);
+	void DrawComponentProperties(std::shared_ptr<CSprite> sprite);
+	void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
 
     // Draw one property row of a component
     template <typename T>

@@ -4,13 +4,13 @@ Animation::Animation() {
 
 };
 
-Animation::Animation(const std::string& name, const sf::Texture texture)
+Animation::Animation(const std::string& name, const sf::Texture& texture)
 	: Animation(name, texture, 1, 0)
 {
 
 };
 
-Animation::Animation(const std::string& name, const sf::Texture texture, size_t frameCount, size_t animationSpeed) 
+Animation::Animation(const std::string& name, const sf::Texture& texture, size_t frameCount, size_t animationSpeed) 
 : name_(name),
 sprite_(texture),
 frameCount_(frameCount),
@@ -20,7 +20,6 @@ speed_(animationSpeed)
     size_ = Vec2((float)texture.getSize().x / frameCount, (float)texture.getSize().y);
     sprite_.setOrigin(size_.x / 2.0f, size_.y / 2.0f);
     sprite_.setTextureRect(sf::IntRect(std::floor(currentFrame_) * size_.x, 0, size_.x, size_.y)); //Setting the texture of our Rectangle to be the first frame/current
-
 };
 
 void Animation::Update() {
@@ -38,21 +37,5 @@ void Animation::Update() {
 
     // Update the texture rectangle to display the current frame
     sprite_.setTextureRect(sf::IntRect(framePosition, 0, size_.x, size_.y));
-};
-
-bool Animation::HasEnded() {
-    return reachedEnd_;
-};
-
-Vec2 Animation::GetSize() {
-    return size_;
-};
-
-std::string Animation::GetName() {
-    return name_;
-};
-
-sf::Sprite& Animation::GetSprite() {
-    return sprite_;
 };
 

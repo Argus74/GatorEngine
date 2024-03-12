@@ -2,21 +2,39 @@
 #include "ActionBus.h"
 
 void Game::init()
-{   
+{
+	//Just temporary sprites for testing once, we get a file system going we will do this somewhere else
+	auto& assetManager = AssetManager::GetInstance();
+	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
+	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
+	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
+	Animation& ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
+	assetManager.AddAnimation("DefaultAnimation", ani);
+	Animation& ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
+	assetManager.AddAnimation("RunningAnimation", ani2);
+
+
     m_window.setFramerateLimit(60);
     sEnemySpawner();
+
+	
 }
 
 Game::Game()
 {
     init();
+
 }
 
 void Game::update()
 {
+
+
     EntityManager::GetInstance().update();
 	// GLUING NOTE: Call cUserInput() before rest of systems. Also, only call it if the game is playing (not paused).
 	sUserInput();
+	sSprite();
+	sAnimation();
 }
 
 void Game::sUserInput()
@@ -82,12 +100,69 @@ void Game::sEnemySpawner()
     {
         const auto& entity = entityManager.addEntity("Entity" + std::to_string(i));
 
-        entity->cTransform = std::make_shared<CTransform>(Vec2(110 * i, 120 * i), Vec2(8 * i, 7 * i), 2 * i);
+        entity->cTransform = std::make_shared<CTransform>(Vec2(110 * i, 120 * i), Vec2(1, 1), 2 * i);
         entity->cName = std::make_shared<CName>("MyEntity " + std::to_string(i));
         entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color(i * 11, i * 11 / 3, i * 11 / 4, 255));
+		if (i == 1) {
+			entity->addComponent<CSprite>();
+		}
+		if (i == 2) {
+			entity->addComponent<CAnimation>();
+		}
+		if (i == 3) {
+			entity->addComponent<CAnimation>();
+		}
+
     }
 }
 
 void Game::sAnimation() {
     //Need to add GetComponent, AddComponent templates to entity.
+	auto& entityManager = EntityManager::GetInstance();
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+
+	for (auto& entity : entityList) {
+		if (entity->hasComponent<CAnimation>()) {
+			auto& transformComponent = entity->cTransform;
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			auto& animationComponent = entity->getComponent<CAnimation>();
+			animationComponent->changeSpeed();
+			
+			sf::Sprite sprite(animationComponent->animation_.sprite_);
+			sprite.setPosition(position.x, position.y + 150);
+			sprite.setScale(scale.x, scale.y);
+
+			m_window.draw(sprite);
+			animationComponent->update();
+
+		}
+	}
+}
+
+void Game::sSprite() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+
+	for (auto& entity : entityList) { // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CSprite>()) {
+			auto& transformComponent = entity->cTransform;
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			auto& spriteComponent = entity->getComponent<CSprite>();
+
+			//spriteComponent->setPosition(position);
+			//spriteComponent->setScale(scale);
+			
+			sf::Sprite sprite(spriteComponent->texture_);
+			sprite.setPosition(position.x, position.y + 150);
+			sprite.setScale(scale.x, scale.y);
+
+			if (spriteComponent->drawSprite_)
+				m_window.draw(sprite);
+			
+		}
+	
+	}
 }

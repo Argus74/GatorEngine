@@ -18,6 +18,9 @@ int main()
     Game newGame;
     sf::Clock deltaClock;
     ImGui::SFML::Init(newGame.m_window);
+
+    
+
     Editor editor;
     while (newGame.m_window.isOpen())
     {
@@ -27,6 +30,7 @@ int main()
         ImGui::SFML::Render(newGame.m_window);
 
         newGame.update();
+
         newGame.m_window.display();
     }
     ImGui::SFML::Shutdown();

@@ -63,6 +63,11 @@ void AssetManager::AddFont(const std::string& name, const std::string& path) {
     fonts_[name] = font;
 }
 
+void AssetManager::AddAnimation(const std::string& name, const Animation& animation) {
+    Animation* ani = new Animation(animation);
+    animations_[name] = ani;
+}
+
 
 sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers
     if (sounds_.find(name) == sounds_.end()) {
@@ -71,12 +76,12 @@ sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that pla
     sf::Sound sound;
     sound.setBuffer(*sounds_[name]);
     sound.play();
-    return sound; 
+    return sound;
 }
 
 sf::Texture& AssetManager::GetTexture(const std::string& name) {
     if (textures_.find(name) == textures_.end()) {
-        std::cerr << "Texture not found: " << name << std::endl; 
+        std::cerr << "Texture not found: " << name << std::endl;
         throw std::runtime_error("Texture not found");
     }
     return *textures_[name];
@@ -96,4 +101,12 @@ sf::Font& AssetManager::GetFont(const std::string& name) {
         throw std::runtime_error("Font not found");
     }
     return *fonts_[name];
+}
+
+Animation& AssetManager::GetAnimation(const std::string& name) {
+    if (animations_.find(name) == animations_.end()) {
+        std::cerr << "Animation not found: " << name << std::endl;
+        throw std::runtime_error("Animation not found");
+    }
+    return *animations_[name];
 }

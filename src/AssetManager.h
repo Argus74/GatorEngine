@@ -31,7 +31,7 @@ public:
 	void AddTexture(const std::string& name, const std::string& path);
 	void AddSound(const std::string& name, const std::string& path);
 	void AddFont(const std::string& name, const std::string& path);
-	void AddAnimation(const std::string& name, const Animation animation);
+	void AddAnimation(const std::string& name, const Animation& animation);
 
 	// Asset retrieval methods 
 	sf::Texture& GetTexture(const std::string& name);

@@ -10,9 +10,7 @@
 #include "Vec2.h"
 
 class CTransform : public Component {
-
-
-public:
+	public:
 	Vec2 position, scale, velocity;
 	float angle;
 	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
@@ -38,10 +36,12 @@ public:
 
 
 typedef std::tuple< //ass we add more components, we add them here
-	CTransform,
-	CName,
-	CShape,
-	CAnimation
+	std::shared_ptr<CTransform>,
+	std::shared_ptr<CName>,
+	std::shared_ptr<CShape>,
+	std::shared_ptr<CUserInput>,
+	std::shared_ptr<CAnimation>,
+	std::shared_ptr<CSprite>
 > ComponentTuple;
 
 
@@ -52,7 +52,7 @@ class Entity {
 	ComponentTuple m_components;
 
 public:
-	std::shared_ptr<CTransform> cTransform;
+	std::shared_ptr<CTransform> cTransform; //For now Not commenting//
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
 	std::shared_ptr<CUserInput> cUserInput;
@@ -68,25 +68,27 @@ public:
 	// Component Accessors and Modifiers 
 	template <typename T>
 	bool hasComponent() const {
-		return getComponent<T>().has;
+		auto ptr = std::get<std::shared_ptr<T>>(m_components);
+		return ptr != nullptr && ptr->has;
 	}
 
-	template <typename T, typename... TArgs> 
-	T& addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
-		auto& component = getComponent<T>();
-		component = T(std::forward<TArgs>(margs)...);
-		component.has = true;
+	template <typename T, typename... TArgs>
+	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
+		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
+		std::get<std::shared_ptr<T>>(m_components) = component;
+		component->has = true; 
 		return component;
 	}
-
+	
 	template <typename T>
-	T& getComponent() const {   //When using getComponent make sure to do auto& transform1 = entity->get<cTransform>() Rather than auto transform1 = entity->get<cTransform>()
-		return std::get<T>(m_components);
+	std::shared_ptr<T> getComponent() const {
+		return std::get<std::shared_ptr<T>>(m_components);
 	}
 
 	template <typename T> 
 	void removeComponent() {
-		getComponent<T>() = T(); //We delete the component by just setting the CComponent as the defualt constructor, we should
+		component = std::make_shared<T>(); // Replacing the component with a new default-constructed one
+		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
 	}
 		
 
