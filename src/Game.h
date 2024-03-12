@@ -25,4 +25,6 @@ public:
 	void sUserInput();
 	void sAnimation();
 	void sMovement();
+	void sSprite();
+
 };

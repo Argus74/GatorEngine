@@ -36,6 +36,12 @@ add_executable(
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
     "src/Game.cpp"
+    "src/editor/SceneLayoutWindow.cpp"
+    "src/ActionBus.cpp" 
+    "src/components/CUserInput.h"
+    "src/Animation.cpp"
+    "src/CAnimation.cpp"
+    "src/CSprite.cpp"
 )
 
 target_link_libraries(GatorEngine PRIVATE
