@@ -3,6 +3,7 @@
 #include "EntityManager.h"
 #include "Entity.h"
 #include "./Editor/Editor.h"
+#include "Physics.h"
 class Game {
 private:
 	Entity m_player;
@@ -19,6 +20,8 @@ public:
 	void sRender();
 	void sEnemySpawner();
 	void sCollision();
+	//We will implement sPhysics() once entities can have physics components (Velocity, Acceleration, etc)
+	void sPhysics();
 	void sUserInput();
 	void sAnimation();
 	void sMovement();

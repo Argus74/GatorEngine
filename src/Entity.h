@@ -30,6 +30,15 @@ public:
 	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
 };
 
+class CRigidBody {
+	public:
+		bool staticBody;
+		b2Body* body;
+		b2Fixture* fixture;
+		CRigidBody() : staticBody(true) {}
+		CRigidBody(bool flag, b2Body* b, b2Fixture* f) : staticBody(flag), body(b), fixture(f) {}
+};
+
 
 class Entity {
 	size_t m_id;
@@ -40,6 +49,7 @@ public:
 	std::shared_ptr<CTransform> cTransform;
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
+	std::shared_ptr<CRigidBody> cRigidBody;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -61,6 +71,10 @@ public:
 	// Accessor and mutator for the CShape component
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
+
+	// Accessor and mutator for the CRigidBody component
+	std::shared_ptr<CRigidBody> getRigidBody() const;
+	void setRigidBody(const std::shared_ptr<CRigidBody>& rigidBody);
 };
 
 #endif // ENTITY_H

@@ -44,6 +44,16 @@ void Entity::setShape(const std::shared_ptr<CShape>& shape) {
 	cShape = shape;
 }
 
+std::shared_ptr<CRigidBody> Entity::getRigidBody() const
+{
+	return cRigidBody;
+}
+
+void Entity::setRigidBody(const std::shared_ptr<CRigidBody>& rigidBody)
+{
+	cRigidBody = rigidBody;
+}
+
 bool Entity::isAlive() {
 	return is_alive;
 }
