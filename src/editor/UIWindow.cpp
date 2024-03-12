@@ -1,5 +1,6 @@
 #include "UIWindow.h"
 
+
 std::shared_ptr<Entity> UIWindow::active_entity_ = nullptr;
 
 UIWindow::UIWindow() {

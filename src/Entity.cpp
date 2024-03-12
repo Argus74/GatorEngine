@@ -52,6 +52,13 @@ std::shared_ptr<CRigidBody> Entity::getRigidBody() const
 void Entity::setRigidBody(const std::shared_ptr<CRigidBody>& rigidBody)
 {
 	cRigidBody = rigidBody;
+
+std::shared_ptr<CUserInput> Entity::getUserInput() const {
+	return cUserInput;
+}
+
+void Entity::setUserInput(const std::shared_ptr<CUserInput>& userInput) {
+	cUserInput = userInput;
 }
 
 bool Entity::isAlive() {

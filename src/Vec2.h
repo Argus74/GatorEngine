@@ -22,6 +22,7 @@ public:
     Vec2(float xin, float yin)
         : x(xin), y(yin) { }
 
+
     Vec2 operator+(Vec2 v)
     {
         return Vec2(x + v.x, y + v.y);
@@ -56,4 +57,5 @@ public:
     {
         return Vec2(x * s, y * s);
     }
+
 };
