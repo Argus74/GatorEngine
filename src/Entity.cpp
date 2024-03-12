@@ -44,14 +44,6 @@ void Entity::setShape(const std::shared_ptr<CShape>& shape) {
 	cShape = shape;
 }
 
-std::shared_ptr<CUserInput> Entity::getUserInput() const {
-	return cUserInput;
-}
-
-void Entity::setUserInput(const std::shared_ptr<CUserInput>& userInput) {
-	cUserInput = userInput;
-}
-
 bool Entity::isAlive() {
 	return is_alive;
 }

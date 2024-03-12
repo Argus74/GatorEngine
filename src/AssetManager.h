@@ -9,7 +9,6 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
-#include "Animation.h"
 
 //namespace sf { //forward declaration
 //	class Texture;
@@ -31,13 +30,11 @@ public:
 	void AddTexture(const std::string& name, const std::string& path);
 	void AddSound(const std::string& name, const std::string& path);
 	void AddFont(const std::string& name, const std::string& path);
-	void AddAnimation(const std::string& name, const Animation& animation);
 
 	// Asset retrieval methods 
 	sf::Texture& GetTexture(const std::string& name);
 	sf::SoundBuffer& GetSound(const std::string& name);
 	sf::Font& GetFont(const std::string& name);
-	Animation& GetAnimation(const std::string& name);
 
 	//Maybe create a template function here to process the directory that contains the assets, can add later on depending on what we decide
 
@@ -50,7 +47,6 @@ private:
 	std::map<std::string, sf::Texture*> textures_;
 	std::map<std::string, sf::SoundBuffer*> sounds_; //Sounds are stored as a sound buffer, and then played with a function using SMFL::Sound
 	std::map<std::string, sf::Font*> fonts_;
-	std::map<std::string, Animation*> animations_;
 };
 
 
