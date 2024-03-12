@@ -95,7 +95,6 @@ int main()
 
         newGame.update();
 
-        newGame.m_window.display();
         /*
             Set position and draw mock player:
 
