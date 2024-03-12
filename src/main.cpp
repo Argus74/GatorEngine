@@ -31,6 +31,7 @@ std::shared_ptr<Entity> spawnPlayer(Vec2 originalPos)
 
 int main()
 {
+
     /*
         Testing code creating mock player:
 
@@ -47,6 +48,9 @@ int main()
     Game newGame; // There's probably a better way, but could make Game a singleton OR have a ref to this game passed into editor to manipulate current frame
     sf::Clock deltaClock;
     ImGui::SFML::Init(newGame.m_window);
+
+    
+
     Editor editor;
     while (newGame.m_window.isOpen())
     {
@@ -90,6 +94,8 @@ int main()
         ImGui::SFML::Render(newGame.m_window);
 
         newGame.update();
+
+        newGame.m_window.display();
         /*
             Set position and draw mock player:
 

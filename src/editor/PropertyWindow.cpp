@@ -74,6 +74,16 @@ void PropertyWindow::DrawFrames()
     {
         DrawComponent("Shape", Editor::active_entity_->getShape());
     }
+    if (Editor::active_entity_->getUserInput())
+	{
+		DrawComponent("User Input", Editor::active_entity_->getUserInput());
+	}
+    if (Editor::active_entity_->hasComponent<CAnimation>()) {
+        DrawComponent("Animation", Editor::active_entity_->getComponent<CAnimation>());
+    }
+    if (Editor::active_entity_->hasComponent<CSprite>()) {
+        DrawComponent("Sprite", Editor::active_entity_->getComponent<CSprite>());
+    }
 
     // Maybe TODO: At end of window, draw a button for adding new components
     if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f)))
@@ -90,22 +100,26 @@ void PropertyWindow::PostDraw()
 template <typename T>
 void PropertyWindow::DrawComponent(const char *name, const T &component)
 {
-
     bool isOpen = true;
 
     if (ImGui::CollapsingHeader(name, &isOpen, tree_node_flags))
     {
+        // Hacky solution to draw a button for the UserInput component
+        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) {
+            DrawUserInputAddButton(component);
+        }
+
         if (ImGui::BeginTable(name, 2, table_flags))
         {
             DrawComponentProperties(component);
+            ImGui::EndTable();
         }
-        ImGui::EndTable();
     }
 
     // Maybe TODO: Allow removing of component from entity if user closes the header
     if (!isOpen)
     {
-        // Editor::active_entity_->removeComponent(component);
+        //Editor::active_entity_->removeComponent(component);
     }
 }
 
@@ -130,6 +144,30 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape)
     DrawProperty("Type", shape->type);
     DrawProperty("Color", shape->color);
 }
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput)
+{
+    for (auto& entry : userinput->mouseMap) {
+        DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);
+    }
+    for (auto& entry : userinput->keyMap) {
+        DrawProperty(kSFMLKeyNames[static_cast<int>(entry.first)], entry.second);
+    }
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
+{
+    DrawProperty("Sprite Name", sprite->name_);
+    DrawProperty("Draw Sprite", sprite->drawSprite_);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
+{
+    DrawProperty("Animation Name", animation->name_);
+    DrawProperty("Animation Speed", animation->animationSpeed_);
+    DrawProperty("Disappear", animation->disappear_);
+}
+
 
 
 // TODO: Add new overloads for future components here
@@ -193,4 +231,80 @@ void PropertyWindow::DrawInputField(int &val)
 void PropertyWindow::DrawInputField(bool &val)
 {
     ImGui::Checkbox("##Bool", &val);
+}
+
+void PropertyWindow::DrawInputField(sf::Keyboard::Key& val)
+{
+    int selection = static_cast<int>(val);
+    ImGui::Combo("##Keys", &selection, kSFMLKeyNames, IM_ARRAYSIZE(kSFMLKeyNames));
+    val = static_cast<sf::Keyboard::Key>(selection);
+}
+
+void PropertyWindow::DrawInputField(sf::Mouse::Button& val)
+{
+	int selection = static_cast<int>(val);
+	ImGui::Combo("##MouseButtons", &selection, kSFMLMouseNames, IM_ARRAYSIZE(kSFMLMouseNames));
+	val = static_cast<sf::Mouse::Button>(selection);
+}
+
+void PropertyWindow::DrawInputField(Action& val)
+{
+    int selection = static_cast<int>(val);
+    ImGui::Combo("##Actions", &selection, kActionNames, IM_ARRAYSIZE(kActionNames));
+    val = static_cast<Action>(selection);
+}
+
+void PropertyWindow::DrawUserInputAddButton(std::shared_ptr<CUserInput> userinput) 
+{
+    // Button within header that, when pressed, allows user to add a new binding
+    static const char* buttonTitle = "+ New Item";
+    ImGui::SameLine(); // same line as header
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(buttonTitle).x * 1.05) - 40); // Right flush by 40 pixels
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+    if (ImGui::Button(buttonTitle, ImVec2(ImGui::CalcTextSize(buttonTitle).x * 1.05, ImGui::GetTextLineHeight() * 1.75)))
+    {
+        ImGui::OpenPopup("InputSelection");
+    }
+    ImGui::PopStyleColor();
+
+    // Display a pop-up to prompt user to select the input to add
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 10.0f));
+    if (ImGui::BeginPopup("InputSelection"))
+    {
+        // Decide which input type to use so we can display the correct map below
+        ImGui::Text("Select input type");
+        static int typeSelection = 0;
+        ImGui::RadioButton("Keyboard", &typeSelection, 0);
+        ImGui::RadioButton("Mouse", &typeSelection, 1);
+        ImGui::NewLine();
+
+        // Use a drop-down (Combo) to select an input from the correct map
+        ImGui::Text("Select input");
+        static int inputSelection = 0;
+        if (typeSelection == 0) 
+        {
+            DrawInputField(reinterpret_cast<sf::Keyboard::Key&>(inputSelection));
+        }
+        else 
+        {
+            DrawInputField(reinterpret_cast<sf::Mouse::Button&>(inputSelection));
+        }
+        ImGui::NewLine();
+
+        // When pressed, add the input to its map, so long as it doesn't already exist
+        if (ImGui::Button("Create")) 
+        {
+            if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
+            {
+                userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+            } 
+            else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) 
+            {
+                userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleVar();
 }
