@@ -94,8 +94,6 @@ int main()
         ImGui::SFML::Render(newGame.m_window);
 
         newGame.update();
-
-        newGame.m_window.display();
         /*
             Set position and draw mock player:
 
