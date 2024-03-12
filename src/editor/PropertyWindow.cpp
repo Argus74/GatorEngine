@@ -9,7 +9,6 @@
 #include "../Entity.h"
 #include "Editor.h"
 
-
 PropertyWindow::PropertyWindow()
 {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
@@ -53,7 +52,6 @@ void PropertyWindow::DrawFrames()
 {
 
     // Draw blank window if no active entity
-
     if (!Editor::active_entity_)
     {
         name_ = " ";
@@ -155,6 +153,19 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinp
     for (auto& entry : userinput->keyMap) {
         DrawProperty(kSFMLKeyNames[static_cast<int>(entry.first)], entry.second);
     }
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
+{
+    DrawProperty("Sprite Name", sprite->name_);
+    DrawProperty("Draw Sprite", sprite->drawSprite_);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
+{
+    DrawProperty("Animation Name", animation->name_);
+    DrawProperty("Animation Speed", animation->animationSpeed_);
+    DrawProperty("Disappear", animation->disappear_);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)

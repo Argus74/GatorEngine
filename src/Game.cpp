@@ -1,10 +1,22 @@
 #include "Game.h"
+#include "ActionBus.h"
 
 void Game::init()
-{   
+{
+
+	//Just temporary sprites for testing once, we get a file system going we will do this somewhere else
+	auto& assetManager = AssetManager::GetInstance();
+	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
+	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
+	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
+	Animation& ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
+	assetManager.AddAnimation("DefaultAnimation", ani);
+	Animation& ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
+	assetManager.AddAnimation("RunningAnimation", ani2);
+	//123
+
     m_window.setFramerateLimit(60);
     sEnemySpawner();
-
 #include "ActionBus.h"
 
 void Game::init()
@@ -22,21 +34,28 @@ void Game::init()
 
     m_window.setFramerateLimit(60);
     sEnemySpawner();
-
-	
-
 }
 
 Game::Game()
 {
     init();
+
 }
+
+/*
+
+Mock constructor for initializing player
+
+Game::Game(std::shared_ptr<Entity> player)
+{
+    init();
+    this->m_player = player;
+}
+*/
 
 void Game::update()
 {
     EntityManager::GetInstance().update();
-
-
     EntityManager::GetInstance().update();
 	// GLUING NOTE: Call cUserInput() before rest of systems. Also, only call it if the game is playing (not paused).
 	sUserInput();
@@ -96,6 +115,37 @@ void Game::sUserInput()
 			processInputEvent(event, sf::Event::KeyPressed);
 		} else if (event.type == sf::Event::MouseButtonPressed) {
 			processInputEvent(event, sf::Event::MouseButtonPressed);
+		}
+
+	}
+  
+    if (Editor::state == Editor::State::Testing)
+    {
+        EntityManager::GetInstance().update();
+        sMovement();
+        // other systems here
+        m_currentFrame++;
+    }
+    else
+    {
+        m_currentFrame = 0;
+        /*
+            m_player->cTransform->position = Vec2(400, 400);
+            - resetting player position back to a mock position if not testing, could be an idea to reset everything here?
+        */
+    }
+
+    // sRender outside of testing check here?
+}
+
+void Game::sMovement()
+{
+    for (auto e : EntityManager::GetInstance().getEntities())
+    {
+        // TODO: update all entities with their movement components and behaviors
+    }
+
+    // TODO: update player movement based on input & use velocity in CTransform
 }
 	}
 }
@@ -103,7 +153,7 @@ void Game::sUserInput()
 
 void Game::sEnemySpawner()
 {
-    auto& entityManager = EntityManager::GetInstance();
+    auto &entityManager = EntityManager::GetInstance();
     for (int i = 0; i < 4; i++)
     {
         const auto& entity = entityManager.addEntity("Entity" + std::to_string(i));
@@ -122,6 +172,7 @@ void Game::sEnemySpawner()
 
     }
 }
+
 
 void Game::sCollision() {
     Physics::GetInstance()->update();
@@ -178,3 +229,18 @@ void Game::sSprite() {
 	}
 }
 
+// This function should probably just be used for our demo if it's still needed
+// Creates and initializes a player
+// Maybe have the option for the user to select a game object as a player? Since multiple game objects shouldn't be input usable
+void Game::spawnPlayer()
+{
+    auto entity = EntityManager::GetInstance().addEntity("Player");
+
+    entity->cTransform = std::make_shared<CTransform>(Vec2(110, 700), Vec2(80, 70), 0);
+    entity->cName = std::make_shared<CName>("Player");
+    entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color::Red);
+
+    // TODO: maybe add CInput component here for testing/demo, would need to initialize player somewhere in init/constructor
+
+    m_player = entity;
+}

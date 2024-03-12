@@ -4,6 +4,7 @@
 
 #include "../EntityManager.h"
 #include "../AssetManager.h";
+#include "Editor.h"
 
 #include "Editor.h"
 
@@ -47,7 +48,6 @@ void ExplorerWindow::DrawFrames() {
 		
 		// Draw a list item for each entity
 		auto& entityList = EntityManager::GetInstance().getEntities();
-
 		for (int i = 0; i < entityList.size(); i++) {
 			auto entity = entityList[i];
 			// Draw little icon
@@ -55,7 +55,6 @@ void ExplorerWindow::DrawFrames() {
 			ImGui::SameLine();
 
 			// Draw the entity's tag as a selectable item
-
 			const bool isSelected = (Editor::active_entity_ == entity);
 			std::string entityName = entity->getNameComponent() ? entity->getNameComponent()->name : "NULL";
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs

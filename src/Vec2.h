@@ -57,5 +57,4 @@ public:
     {
         return Vec2(x * s, y * s);
     }
-
 };

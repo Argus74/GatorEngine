@@ -5,9 +5,11 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
+
 #include "Vec2.h"
 class CTransform {
 public:
+
 #include "Components.h"
 #include "components/CUserInput.h"
 #include "Vec2.h"
@@ -21,18 +23,12 @@ class CTransform : public Component {
 		: position(pos), scale(scl), angle(ang) {}
 }; 
 
-class CName {
-		: position(pos), scale(scl), angle(ang) {}
-}; 
-
 class CName : public Component {
-
 public:
 	std::string name;
 	CName() : name("Default") {}
 	CName(const std::string& n) : name(n) {}
 };
-
 
 class CShape : public Component {
 public:
@@ -63,19 +59,30 @@ typedef std::tuple< //ass we add more components, we add them here
 
 
 
+typedef std::tuple< //ass we add more components, we add them here
+	std::shared_ptr<CTransform>,
+	std::shared_ptr<CName>,
+	std::shared_ptr<CShape>,
+	std::shared_ptr<CUserInput>,
+	std::shared_ptr<CAnimation>,
+	std::shared_ptr<CSprite>
+> ComponentTuple;
+
+
 class Entity {
 	size_t m_id;
 	std::string m_tag;
 	bool is_alive;
+	ComponentTuple m_components;
+
 public:
-	std::shared_ptr<CTransform> cTransform;
+	std::shared_ptr<CTransform> cTransform; //For now Not commenting//
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
 	std::shared_ptr<CRigidBody> cRigidBody;
   std::shared_ptr<CUserInput> cUserInput;
 
 	ComponentTuple m_components;
-
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -122,7 +129,6 @@ public:
 	// Accessor and mutator for the CShape component
 	std::shared_ptr<CShape> getShape() const;
 	void setShape(const std::shared_ptr<CShape>& shape);
-
 
 	// Accessor and mutator for the CRigidBody component
 	std::shared_ptr<CRigidBody> getRigidBody() const;

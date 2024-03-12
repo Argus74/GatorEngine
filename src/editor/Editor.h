@@ -31,8 +31,6 @@ public:
 
 	// Draw all UIWindows of the editor
 	void Draw();
-
-
 	// State of the editor
 	static enum State {
 		Selecting,

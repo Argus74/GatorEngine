@@ -30,6 +30,7 @@ AssetManager::~AssetManager() {
         delete pair.second;
     }
     animations_.clear();
+
 }
 
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {

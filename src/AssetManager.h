@@ -37,6 +37,7 @@ public:
 	sf::Texture& GetTexture(const std::string& name);
 	sf::SoundBuffer& GetSound(const std::string& name);
 	sf::Font& GetFont(const std::string& name);
+	Animation& GetAnimation(const std::string& name);
 
 	Animation& GetAnimation(const std::string& name);
 

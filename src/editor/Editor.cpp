@@ -4,6 +4,11 @@
 #include "TabBarWindow.h"
 #include "ExplorerWindow.h"
 #include "PropertyWindow.h"
+#include "SceneLayoutWindow.h"
+
+// Static variables
+Editor::State Editor::state;
+std::shared_ptr<Entity> Editor::active_entity_;
 
 #include "SceneLayoutWindow.h"
 // Static variables
@@ -27,6 +32,8 @@ Editor::Editor() {
     style.Colors[ImGuiCol_Button] = style.Colors[ImGuiCol_Header];
     style.Colors[ImGuiCol_ButtonHovered] = style.Colors[ImGuiCol_HeaderHovered];
     style.Colors[ImGuiCol_ButtonActive] = style.Colors[ImGuiCol_HeaderActive];
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.58f, 0.98f, 0.30f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.50f);
 
     state = State::None;
     active_entity_ = nullptr;
