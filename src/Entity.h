@@ -5,14 +5,11 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
-
 #include "Vec2.h"
-class CTransform {
-public:
-
 #include "Components.h"
 #include "components/CUserInput.h"
 #include "Vec2.h"
+#include "GatorPhysics.h"
 
 class CTransform : public Component {
 	public:
@@ -73,14 +70,12 @@ class Entity {
 	size_t m_id;
 	std::string m_tag;
 	bool is_alive;
-	ComponentTuple m_components;
-
 public:
 	std::shared_ptr<CTransform> cTransform; //For now Not commenting//
 	std::shared_ptr<CName> cName;
 	std::shared_ptr<CShape> cShape;
 	std::shared_ptr<CRigidBody> cRigidBody;
-  std::shared_ptr<CUserInput> cUserInput;
+	std::shared_ptr<CUserInput> cUserInput;
 
 	ComponentTuple m_components;
 

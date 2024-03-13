@@ -1,26 +1,24 @@
-#include "Physics.h"
+#include "GatorPhysics.h"
 
 
 
-Physics::Physics()
+GatorPhysics::GatorPhysics()
 {
 
 }
-Physics* Physics::GetInstance()
+
+GatorPhysics& GatorPhysics::GetInstance()
 {
-	if (instance_ == nullptr)
-	{
-		instance_ = new Physics();
-	}
+	static GatorPhysics instance_;
 	return instance_;
 }
 
-b2World* Physics::getWorld()
+b2World* GatorPhysics::getWorld()
 {
 	return nullptr;
 }
 
-void Physics::update()
+void GatorPhysics::update()
 {
 	for (auto node: entity_to_bodies_) {
 		//If anything happened to the positions/rotation of the entities, update their physics bodies
@@ -28,7 +26,7 @@ void Physics::update()
 	}
 
 	//Step the physics world
-	world_->Step(timeStep, velocityIterations, positionIterations);
+	world_.Step(timeStep, velocityIterations, positionIterations);
 
 	for (auto node : entity_to_bodies_) {
 		//Update the positions/rotation of the entities to match the physics bodies
@@ -36,12 +34,12 @@ void Physics::update()
 	}
 }
 
-void Physics::setGravity(Vec2 gravity)
+void GatorPhysics::setGravity(Vec2 gravity)
 {
 	gravity_ = b2Vec2(gravity.x, gravity.y);
 }
 
-void Physics::createBody(Entity* entity, bool is_static)
+void GatorPhysics::createBody(Entity* entity, bool is_static)
 {
 	b2BodyDef newBodyDef;
 	b2PolygonShape newBox;
@@ -62,16 +60,15 @@ void Physics::createBody(Entity* entity, bool is_static)
 	}
 
 	newBodyDef.position.Set(entity->getTransform()->position.x, entity->getTransform()->position.y);
-	b2Body* newBody = world_->CreateBody(&newBodyDef);
-	entity->getRigidBody()->body = newBody;
+	b2Body* newBody = world_.CreateBody(&newBodyDef);
 	b2Fixture* newFixture = newBody->CreateFixture(&fixtureDef);
 	entity->setRigidBody(std::shared_ptr<CRigidBody>(new CRigidBody(is_static, newBody, newFixture)));
 	entity_to_bodies_[entity] = newBody;
 }
 
-void Physics::destroyBody(Entity* entity)
+void GatorPhysics::destroyBody(Entity* entity)
 {
-	world_->DestroyBody(entity_to_bodies_[entity]);
+	world_.DestroyBody(entity_to_bodies_[entity]);
 	entity_to_bodies_.erase(entity);
 	entity->cRigidBody.reset();
 }

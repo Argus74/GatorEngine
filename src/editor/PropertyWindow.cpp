@@ -168,18 +168,6 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
     DrawProperty("Disappear", animation->disappear_);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
-{
-    DrawProperty("Sprite Name", sprite->name_);
-    DrawProperty("Draw Sprite", sprite->drawSprite_);
-}
-
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
-{
-    DrawProperty("Animation Name", animation->name_);
-    DrawProperty("Animation Speed", animation->animationSpeed_);
-    DrawProperty("Disappear", animation->disappear_);
-}
 // TODO: Add new overloads for future components here
 
 template <typename T>

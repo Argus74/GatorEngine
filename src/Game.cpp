@@ -15,25 +15,8 @@ void Game::init()
 	assetManager.AddAnimation("RunningAnimation", ani2);
 	//123
 
-    m_window.setFramerateLimit(60);
-    sEnemySpawner();
-#include "ActionBus.h"
-
-void Game::init()
-{
-	//Just temporary sprites for testing once, we get a file system going we will do this somewhere else
-	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
-	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
-	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
-	Animation& ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
-	assetManager.AddAnimation("DefaultAnimation", ani);
-	Animation& ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
-	assetManager.AddAnimation("RunningAnimation", ani2);
-	//123
-
-    m_window.setFramerateLimit(60);
-    sEnemySpawner();
+	m_window.setFramerateLimit(60);
+	sEnemySpawner();
 }
 
 Game::Game()
@@ -56,9 +39,9 @@ Game::Game(std::shared_ptr<Entity> player)
 void Game::update()
 {
     EntityManager::GetInstance().update();
-    EntityManager::GetInstance().update();
 	// GLUING NOTE: Call cUserInput() before rest of systems. Also, only call it if the game is playing (not paused).
 	sUserInput();
+	sCollision();
 	sSprite();
 	sAnimation();
 }
@@ -147,8 +130,6 @@ void Game::sMovement()
 
     // TODO: update player movement based on input & use velocity in CTransform
 }
-	}
-}
 
 
 void Game::sEnemySpawner()
@@ -160,6 +141,8 @@ void Game::sEnemySpawner()
         entity->cTransform = std::make_shared<CTransform>(Vec2(110 * i, 120 * i), Vec2(1, 1), 2 * i);
         entity->cName = std::make_shared<CName>("MyEntity " + std::to_string(i));
         entity->cShape = std::make_shared<CShape>("Rectangle", sf::Color(i * 11, i * 11 / 3, i * 11 / 4, 255));
+		entity->cRigidBody = std::make_shared<CRigidBody>();
+		GatorPhysics::GetInstance().createBody(entity.get(), false);
 		if (i == 1) {
 			entity->addComponent<CSprite>();
 		}
@@ -175,7 +158,7 @@ void Game::sEnemySpawner()
 
 
 void Game::sCollision() {
-    Physics::GetInstance()->update();
+    GatorPhysics::GetInstance().update();
 }
 
 void Game::sAnimation() {
