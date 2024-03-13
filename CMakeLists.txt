@@ -36,7 +36,7 @@ add_executable(
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
     "src/Game.cpp"
- "src/Action.h" "src/Action.cpp" "src/Scene.h")
+ "src/Action.h" "src/Action.cpp" "src/Scene.h" "src/Scene.cpp")
 
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
