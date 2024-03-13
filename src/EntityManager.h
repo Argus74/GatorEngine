@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include "Entity.h"
-#include "Physics.h"
+#include "GatorPhysics.h"
 
 class EntityManager
 {

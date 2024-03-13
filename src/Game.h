@@ -3,7 +3,7 @@
 #include "EntityManager.h"
 #include "Entity.h"
 #include "./Editor/Editor.h"
-#include "Physics.h"
+#include "GatorPhysics.h"
 class Game {
 private:
 	std::shared_ptr<Entity> m_player;
@@ -23,7 +23,7 @@ public:
 	void sEnemySpawner();
 	void sCollision();
 	//We will implement sPhysics() once entities can have physics components (Velocity, Acceleration, etc)
-	void sPhysics();
+	//void sPhysics();
 	void sUserInput();
 	void sAnimation();
 	void sMovement();
