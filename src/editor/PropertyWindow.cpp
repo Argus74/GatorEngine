@@ -59,24 +59,24 @@ void PropertyWindow::DrawFrames()
     }
 
     // Update title of Property Window to include the tag of the entity
-    name_ = "Properties - " + Editor::active_entity_->getNameComponent()->name;
+    name_ = "Properties - " + Editor::active_entity_->getComponent<CName>()->name;
 
     // Draw a section for each components of the entity
-    if (Editor::active_entity_->getNameComponent())
+    if (Editor::active_entity_->getComponent<CName>())
     {
-		DrawComponent("Name", Editor::active_entity_->getNameComponent());
+		DrawComponent("Name", Editor::active_entity_->getComponent<CName>());
 	}
-    if (Editor::active_entity_->getTransform())
+    if (Editor::active_entity_->getComponent<CTransform>())
     {
-        DrawComponent("Transform", Editor::active_entity_->getTransform());
+        DrawComponent("Transform", Editor::active_entity_->getComponent<CTransform>());
     }
-    if (Editor::active_entity_->getShape())
+    if (Editor::active_entity_->getComponent<CShape>())
     {
-        DrawComponent("Shape", Editor::active_entity_->getShape());
+        DrawComponent("Shape", Editor::active_entity_->getComponent<CShape>());
     }
-    if (Editor::active_entity_->getUserInput())
+    if (Editor::active_entity_->getComponent<CUserInput>())
 	{
-		DrawComponent("User Input", Editor::active_entity_->getUserInput());
+		DrawComponent("User Input", Editor::active_entity_->getComponent<CUserInput>());
 	}
     if (Editor::active_entity_->hasComponent<CAnimation>()) {
         DrawComponent("Animation", Editor::active_entity_->getComponent<CAnimation>());

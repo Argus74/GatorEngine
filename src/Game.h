@@ -19,7 +19,6 @@ public:
 	Game();
 	// Game(std::shared_ptr<Entity> player); - mock constructor for initializing player
 	void update();
-	void sRender();
 	void sEnemySpawner();
 	void sCollision();
 	//We will implement sPhysics() once entities can have physics components (Velocity, Acceleration, etc)
@@ -27,5 +26,5 @@ public:
 	void sUserInput();
 	void sAnimation();
 	void sMovement();
-	void sSprite();
+	void sRender();
 };

@@ -37,7 +37,7 @@ void SceneLayoutWindow::DrawFrames() {
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (int i = 0; i < entityList.size(); i++) {
 
-		auto& transform = *(entityList[i]->getTransform());
+		auto& transform = *(entityList[i]->getComponent<CTransform>());
 		std::string label = "##DraggableBox" + std::to_string(i);
 
 		ImGui::SetCursorPos(ImVec2(transform.position.x - (borderSize / 2), transform.position.y - (borderSize / 2)));

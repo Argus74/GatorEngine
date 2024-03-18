@@ -42,7 +42,7 @@ void Game::update()
 	// GLUING NOTE: Call cUserInput() before rest of systems. Also, only call it if the game is playing (not paused).
 	sUserInput();
 	sCollision();
-	sSprite();
+	sRender();
 	sAnimation();
 }
 
@@ -185,7 +185,7 @@ void Game::sAnimation() {
 	}
 }
 
-void Game::sSprite() {
+void Game::sRender() {
 	auto& entityManager = EntityManager::GetInstance();
 
 	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();

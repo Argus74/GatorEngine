@@ -1,4 +1,9 @@
 #include "AssetManager.h"
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <iostream>
 
 AssetManager& AssetManager::GetInstance() {
     static AssetManager instance;

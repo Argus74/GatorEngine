@@ -4,6 +4,7 @@
 #include <map>
 #include "Entity.h"
 #include "Vec2.h"
+
 class GatorPhysics {
 
 private:

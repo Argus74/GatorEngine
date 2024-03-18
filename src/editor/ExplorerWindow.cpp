@@ -56,7 +56,8 @@ void ExplorerWindow::DrawFrames() {
 
 			// Draw the entity's tag as a selectable item
 			const bool isSelected = (Editor::active_entity_ == entity);
-			std::string entityName = entity->getNameComponent() ? entity->getNameComponent()->name : "NULL";
+			bool hasName = entity->hasComponent<CName>();
+			std::string entityName = hasName ? entity->getComponent<CName>()->name : "NULL";
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
 			if (ImGui::Selectable(label.c_str(), isSelected))
 				Editor::active_entity_ = entity;

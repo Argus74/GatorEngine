@@ -14,6 +14,7 @@
 
 class CUserInput {
 public:
+	bool has = false;
 	std::map<sf::Mouse::Button, Action> mouseMap;
 	std::map<sf::Keyboard::Key, Action> keyMap;
 	CUserInput() {}
