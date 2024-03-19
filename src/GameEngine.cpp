@@ -1,8 +1,7 @@
 #include "GameEngine.h"
 
-
 GameEngine::GameEngine() {}
-GameEngine& GameEngine::GetInstance()
+GameEngine &GameEngine::GetInstance()
 {
 	// TODO: insert return statement here
 	static GameEngine instance_;
@@ -16,7 +15,7 @@ GameEngine& GameEngine::GetInstance()
 	return instance_;
 }
 
-void GameEngine::ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene)
+void GameEngine::ChangeScene(const std::string &sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene)
 {
 	if (endCurrentScene)
 	{
@@ -25,7 +24,6 @@ void GameEngine::ChangeScene(const std::string& sceneName, std::shared_ptr<Scene
 
 	m_currentScene = sceneName;
 	currentScene = scene;
-
 }
 
 void GameEngine::quit()
@@ -38,28 +36,28 @@ void GameEngine::run()
 	m_running = true;
 }
 
-sf::RenderWindow& GameEngine::window()
+sf::RenderWindow &GameEngine::window()
 {
 	return m_window;
 }
 
-AssetManager& GameEngine::assets()
+AssetManager &GameEngine::assets()
 {
 	return m_assets;
 }
 
-void GameEngine::init(const std::string& path)
+void GameEngine::init(const std::string &path)
 {
-	//Just temporary sprites for testing once, we get a file system going we will do this somewhere else
-	auto& assetManager = AssetManager::GetInstance();
+	// Just temporary sprites for testing once, we get a file system going we will do this somewhere else
+	auto &assetManager = AssetManager::GetInstance();
 	assetManager.AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
 	assetManager.AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
 	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
 	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
-	Animation& ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
+	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
 	assetManager.AddAnimation("DefaultAnimation", ani);
-	Animation& ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
+	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
 	assetManager.AddAnimation("RunningAnimation", ani2);
 	
 	//123
@@ -111,9 +109,6 @@ void GameEngine::sUserInput()
 	//	}
 	//}
 }
-
-
-
 
 bool GameEngine::isRunning()
 {

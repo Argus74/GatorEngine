@@ -7,13 +7,12 @@
 #include <fstream>
 #include <iostream>
 
-
 Scene_Play::Scene_Play()
 {
 	spawnPlayer();
-	//Create a platform and a tree:
+	// Create a platform and a tree:
 	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
-	//The parameters to construct a transform are position and scale and angle of rotation
+	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
 	ground->addComponent<CName>("Ground");
@@ -27,17 +26,17 @@ Scene_Play::Scene_Play()
 	tree->addComponent<CSprite>(m_game->assets().getTexture("Tree"));*/
 }
 
-Scene_Play::Scene_Play(const std::string& levelPath): m_levelPath(levelPath)
+Scene_Play::Scene_Play(const std::string &levelPath) : m_levelPath(levelPath)
 {
 	LoadScene(levelPath);
 }
 
-void Scene_Play::LoadScene(const std::string& filename)
+void Scene_Play::LoadScene(const std::string &filename)
 {
 	// reset the entity manager every time we load a level
 	EntityManager::GetInstance().reset();
 
-	//TODO: Read the level file and spawn entities based on the data
+	// TODO: Read the level file and spawn entities based on the data
 
 	spawnPlayer();
 
@@ -46,7 +45,6 @@ void Scene_Play::LoadScene(const std::string& filename)
 	brick->addComponent<CSprite>();
 	brick->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("DefaultSprite");
 	brick->addComponent<CTransform>(Vec2(96, 200), Vec2(5, 5), 0);
-
 }
 
 void Scene_Play::spawnPlayer()
@@ -59,7 +57,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CUserInput>();
 	m_player->addComponent<CName>("Player1");
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
-	
+
 	// TODO: be sure to add the remaining components to the player
 }
 
@@ -72,10 +70,8 @@ void Scene_Play::update()
 	sCollision();
 	sAnimation();
 	sRender();
-	GatorPhysics& physics = GatorPhysics::GetInstance();
+	GatorPhysics &physics = GatorPhysics::GetInstance();
 }
-
-
 
 void Scene_Play::sCollision()
 {
@@ -97,49 +93,59 @@ void Scene_Play::sUserInput()
 		}
 
 		// Update the SFML's render window dimensions to prevent weird sprite scaling
-		if (event.type == sf::Event::Resized) {
+		if (event.type == sf::Event::Resized)
+		{
 			sf::FloatRect view(0, 0, event.size.width, event.size.height);
 			GameEngine::GetInstance().window().setView(sf::View(view));
 		}
 
 		// Lambda to process key or mouse events for the player
-		auto processInputEvent = [](const sf::Event& event, const sf::Event::EventType& eventType) {
-			auto& entities = EntityManager::GetInstance().getEntities();
-			for (auto& entity : entities) {
+		auto processInputEvent = [](const sf::Event &event, const sf::Event::EventType &eventType)
+		{
+			auto &entities = EntityManager::GetInstance().getEntities();
+			for (auto &entity : entities)
+			{
 				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
-				if (!entity->getComponent<CUserInput>()) continue;
+				if (!entity->getComponent<CUserInput>())
+					continue;
 
-				auto findAndDispatch = [entity](auto& inputMap, const auto& eventButton) {
-					//For each key in the inputmap
+				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
+				{
+					// For each key in the inputmap
 					std::cout << "Event button: " << eventButton << std::endl;
-					for (auto& actionKeys : inputMap) {
-						if (actionKeys.first == eventButton) {
+					for (auto &actionKeys : inputMap)
+					{
+						if (actionKeys.first == eventButton)
+						{
 							ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
 						}
 					}
 				};
 
 				// Find potential actions and dispatch them based on the event type
-				if (eventType == sf::Event::KeyPressed) {
-					auto& inputMap = entity->getComponent<CUserInput>()->keyMap;
+				if (eventType == sf::Event::KeyPressed)
+				{
+					auto &inputMap = entity->getComponent<CUserInput>()->keyMap;
 					findAndDispatch(inputMap, event.key.code);
 				}
-				else {
-					auto& inputMap = entity->getComponent<CUserInput>()->mouseMap;
+				else
+				{
+					auto &inputMap = entity->getComponent<CUserInput>()->mouseMap;
 					findAndDispatch(inputMap, event.mouseButton.button);
 				}
 			}
 		};
 
 		// Process key or mouse input events with the lambda
-		if (event.type == sf::Event::KeyPressed) {
+		if (event.type == sf::Event::KeyPressed)
+		{
 			processInputEvent(event, sf::Event::KeyPressed);
 		}
-		else if (event.type == sf::Event::MouseButtonPressed) {
+		else if (event.type == sf::Event::MouseButtonPressed)
+		{
 			processInputEvent(event, sf::Event::MouseButtonPressed);
 		}
-
 	}
 
 	if (Editor::state == Editor::State::Testing)
@@ -162,21 +168,20 @@ void Scene_Play::sUserInput()
 
 void Scene_Play::sPhysics()
 {
-	//For each entity move them based on their velocity and physics components
+	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
 		if (entity->hasComponent<CTransform>())
 		{
-			auto& transform = entity->getComponent<CTransform>();
-			//Update the position based on the velocity
+			auto transform = entity->getComponent<CTransform>();
+			// Update the position based on the velocity
 			transform->position = transform->position + transform->velocity;
 		}
 	}
 
-	//Any other movement that should be done based on other physics components
-	//should be done below here
+	// Any other movement that should be done based on other physics components
+	// should be done below here
 }
-
 
 void Scene_Play::onEnd()
 {
@@ -184,20 +189,20 @@ void Scene_Play::onEnd()
 	//		 use m_game->changeScene(correct params);
 }
 
-
-
 void Scene_Play::sAnimation()
 {
-	//Need to add GetComponent, AddComponent templates to entity.
-	auto& entityManager = EntityManager::GetInstance();
-	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+	// Need to add GetComponent, AddComponent templates to entity.
+	auto &entityManager = EntityManager::GetInstance();
+	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
 
-	for (auto& entity : entityList) {
-		if (entity->hasComponent<CAnimation>()) {
-			auto& transformComponent = entity->getComponent<CTransform>();
+	for (auto &entity : entityList)
+	{
+		if (entity->hasComponent<CAnimation>())
+		{
+			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-			auto& animationComponent = entity->getComponent<CAnimation>();
+			auto animationComponent = entity->getComponent<CAnimation>();
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
@@ -206,24 +211,25 @@ void Scene_Play::sAnimation()
 
 			GameEngine::GetInstance().window().draw(sprite);
 			animationComponent->update();
-
 		}
 	}
 }
 
 void Scene_Play::sRender()
 {
-	auto& entityManager = EntityManager::GetInstance();
+	auto &entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
 
-	for (auto& entity : entityList) { // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>()) {
-			auto& transformComponent = entity->getComponent<CTransform>();
+	for (auto &entity : entityList)
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CSprite>())
+		{
+			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-			auto& spriteComponent = entity->getComponent<CSprite>();
-			spriteComponent->sprite_.setPosition(position.x, position.y - 40); //Removed the +150 from the y position
+			auto spriteComponent = entity->getComponent<CSprite>();
+			spriteComponent->sprite_.setPosition(position.x, position.y - 40); // Removed the +150 from the y position
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -244,7 +250,7 @@ void Scene_Play::sMovement()
 	}
 }
 
-//void Scene_Play::sAnimation()
+// void Scene_Play::sAnimation()
 //{
 //	if (!m_paused) { GameEngine::GetInstance().window().clear(sf::Color(100, 100, 255)); }
 //	else { GameEngine::GetInstance().window().clear(sf::Color(50, 50, 150)); }
@@ -274,8 +280,8 @@ void Scene_Play::sMovement()
 //		{
 //			auto& animation = e->getComponent<CAnimation>()->animation_;
 //			animation.getSprite().setRotation(transform->angle);
-//			animation.getSprite().setPosition(transform->position.x, transform->position.y); 
+//			animation.getSprite().setPosition(transform->position.x, transform->position.y);
 //		}
 //	}
 //
-//}
+// }
