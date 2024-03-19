@@ -97,7 +97,7 @@ public:
 
 	template <typename T> 
 	void removeComponent() {
-		getComponenent<T>() = T();; // Resetting the shared pointer to nullptr
+		getComponenent<T>() = T(); // Resetting the shared pointer to nullptr
 		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
 	}
 };
