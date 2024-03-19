@@ -63,7 +63,6 @@ void GameEngine::init(const std::string& path)
 	assetManager.AddAnimation("RunningAnimation", ani2);
 	
 	//123
-
 	m_window.setFramerateLimit(60);
 }
 
@@ -75,42 +74,42 @@ void GameEngine::update()
 
 void GameEngine::sUserInput()
 {
-	sf::Event event;
-	while (m_window.pollEvent(event))
-	{
-		ImGui::SFML::ProcessEvent(event);
+	//sf::Event event;
+	//while (m_window.pollEvent(event))
+	//{
+	//	ImGui::SFML::ProcessEvent(event);
 
-		if (event.type == sf::Event::Closed) {
-			//m_window.close();
-		}
+	//	if (event.type == sf::Event::Closed) {
+	//		//m_window.close();
+	//	}
 
-		// Update the SFML's render window dimensions to prevent weird sprite scaling
-		if (event.type == sf::Event::Resized) {
-			sf::FloatRect view(0, 0, event.size.width, event.size.height);
-			m_window.setView(sf::View(view));
-		}
+	//	// Update the SFML's render window dimensions to prevent weird sprite scaling
+	//	if (event.type == sf::Event::Resized) {
+	//		sf::FloatRect view(0, 0, event.size.width, event.size.height);
+	//		m_window.setView(sf::View(view));
+	//	}
 
-		// The game engine handles the following key presses:
-		// - Enter: Toggles the game's running state
-		// - Escape: Closes the game
-		if (event.type == sf::Event::KeyPressed) {
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) 
-			{
-				if (m_running)
-				{
-					quit();
-				}
-				else
-				{
-					run();
-				}
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-			{
-				m_window.close();
-			}
-		}
-	}
+	//	// The game engine handles the following key presses:
+	//	// - Enter: Toggles the game's running state
+	//	// - Escape: Closes the game
+	//	if (event.type == sf::Event::KeyPressed) {
+	//		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) 
+	//		{
+	//			if (m_running)
+	//			{
+	//				quit();
+	//			}
+	//			else
+	//			{
+	//				run();
+	//			}
+	//		}
+	//		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+	//		{
+	//			m_window.close();
+	//		}
+	//	}
+	//}
 }
 
 

@@ -42,9 +42,9 @@ add_executable(
     "src/ActionBus.cpp" 
     "src/components/CUserInput.h"
     "src/Animation.cpp"
-    "src/CAnimation.cpp"
-    "src/CSprite.cpp"
-    "src/GameEngine.cpp")
+    "src/components/CAnimation.cpp"
+    "src/components/CSprite.cpp"
+    "src/GameEngine.cpp" "src/components/CSprite.h" "src/components/includes.h" "src/components/CRigidBody.h")
 
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics

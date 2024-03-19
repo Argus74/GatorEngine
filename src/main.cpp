@@ -25,21 +25,11 @@ int main()
 
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
         window.clear(sf::Color(0, 0, 0));
         ImGui::SFML::Render(window);
-
         newGame.update();
-
         window.display();
     }
     ImGui::SFML::Shutdown();

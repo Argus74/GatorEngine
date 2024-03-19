@@ -168,6 +168,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
     DrawProperty("Disappear", animation->disappear_);
 }
 
+
+
 // TODO: Add new overloads for future components here
 
 template <typename T>

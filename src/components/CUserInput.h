@@ -11,7 +11,7 @@
 #include <SFML/Window.hpp>
 
 #include "../ActionBus.h"
-
+#include "Component.h"
 class CUserInput {
 public:
 	bool has = false;

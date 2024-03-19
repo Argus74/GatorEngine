@@ -1,49 +1,15 @@
 #pragma once
 
-#include "Components.h"
+#include "components/includes.h"
 
 #include <tuple>
 #include <string>
 
 #include <SFML/Graphics.hpp>
 #include "Vec2.h"
-#include "Components.h"
-#include "components/CUserInput.h"
 #include "GatorPhysics.h"
 
-class CTransform : public Component {
-	public:
-	Vec2 position, scale, velocity;
-	float angle;
-	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
-	CTransform(Vec2 pos) : position(pos), scale(Vec2(1, 1)), angle(0) {}
-	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
-		: position(pos), scale(scl), angle(ang) {}
-}; 
 
-class CName : public Component {
-public:
-	std::string name;
-	CName() : name("Default") {}
-	CName(const std::string& n) : name(n) {}
-};
-
-class CShape : public Component {
-public:
-	std::string type;
-	sf::Color color;
-	CShape() : type("Rectangle"), color(sf::Color::White) {}
-	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
-};
-
-class CRigidBody : public Component {
-	public:
-		bool staticBody;
-		b2Body* body;
-		b2Fixture* fixture;
-		CRigidBody() : staticBody(true) {}
-		CRigidBody(bool flag, b2Body* b, b2Fixture* f) : staticBody(flag), body(b), fixture(f) {}
-};
 
 
 typedef std::tuple< //ass we add more components, we add them here
@@ -97,7 +63,7 @@ public:
 
 	template <typename T> 
 	void removeComponent() {
-		getComponenent<T>() = T();; // Resetting the shared pointer to nullptr
+		getComponenent<T>() = T(); // Resetting the shared pointer to nullptr
 		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
 	}
 };

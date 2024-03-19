@@ -2,7 +2,7 @@
 #include "GatorPhysics.h"
 #include "AssetManager.h"
 #include "GameEngine.h"
-#include "Components.h"
+#include "components/Component.h"
 
 #include <fstream>
 #include <iostream>
@@ -16,6 +16,7 @@ Scene_Play::Scene_Play()
 	//The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CName>("Ground");
 	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
 	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
@@ -56,6 +57,7 @@ void Scene_Play::spawnPlayer()
 	m_player->getComponent<CAnimation>()->animation_ = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
 	m_player->addComponent<CTransform>(Vec2(224, 200));
 	m_player->addComponent<CUserInput>();
+	m_player->addComponent<CName>("Player1");
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 	
 	// TODO: be sure to add the remaining components to the player
@@ -65,7 +67,8 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	sUserInput();
-	sPhysicsAndMovement();
+	sMovement();
+	sPhysics();
 	sCollision();
 	sAnimation();
 	sRender();
@@ -83,14 +86,14 @@ void Scene_Play::sUserInput()
 {
 	// Clear the bus from previous frame's input
 	ActionBus::GetInstance().Clear();
-	std::cout << "sUserInput" << std::endl;
+	//std::cout << "sUserInput" << std::endl;
 	sf::Event event;
 	while (GameEngine::GetInstance().window().pollEvent(event))
 	{
 		ImGui::SFML::ProcessEvent(event);
 
 		if (event.type == sf::Event::Closed) {
-			//GameEngine::GetInstance().window().close();
+			GameEngine::GetInstance().window().close();
 		}
 
 		// Update the SFML's render window dimensions to prevent weird sprite scaling
@@ -157,7 +160,7 @@ void Scene_Play::sUserInput()
 	// sRender outside of testing check here?
 }
 
-void Scene_Play::sPhysicsAndMovement()
+void Scene_Play::sPhysics()
 {
 	//For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
@@ -196,9 +199,9 @@ void Scene_Play::sAnimation()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto& animationComponent = entity->getComponent<CAnimation>();
 			animationComponent->changeSpeed();
-
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
-			sprite.setPosition(position.x, position.y); //Removed the +150 from the y position
+			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
 			sprite.setScale(scale.x, scale.y);
 
 			GameEngine::GetInstance().window().draw(sprite);
@@ -225,6 +228,19 @@ void Scene_Play::sRender()
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
+	}
+}
+
+void Scene_Play::sMovement()
+{
+	for (auto entity : EntityManager::GetInstance().getEntities()) {
+		float speed = 5.0;
+		if (ActionBus::GetInstance().Received(entity, MoveRight))
+			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);
+		else if (ActionBus::GetInstance().Received(entity, MoveLeft))
+			entity->getComponent<CTransform>()->velocity = Vec2(-speed, 0);		
+		else
+			entity->getComponent<CTransform>()->velocity = Vec2(0, 0);
 	}
 }
 

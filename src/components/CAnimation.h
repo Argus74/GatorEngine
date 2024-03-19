@@ -1,32 +1,6 @@
 #pragma once
+#include "Component.h"
 
-#include "AssetManager.h"
-#include <imgui-SFML.h>
-#include <SFML/Graphics.hpp>
-
-class Component
-{
-public:
-	bool has = false;
-};
-
-class CSprite : public Component {
-public:
-	std::string name_ = "DefaultSprite";
-	sf::Texture texture_;
-	bool drawSprite_ = true;
-	sf::Sprite sprite_;
-	CSprite();
-	CSprite(const std::string& name);
-
-	bool loadFromAssetManager();
-	bool loadFromAssetManager(const std::string& textureName);
-	void setPosition(float x, float y);
-	void setPosition(Vec2 pos);
-	void setScale(float xScale, float yScale);
-	void setScale(Vec2 pos);
-	void setTexturePortion(sf::Rect<int> portion);
-};
 
 class CAnimation : public Component {
 public:
@@ -47,4 +21,3 @@ public:
 	void setAnimation(const Animation& newAnimation);
 
 };
-

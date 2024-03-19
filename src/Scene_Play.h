@@ -25,9 +25,10 @@ public:
 	void update();
 	void onEnd();
 	void sUserInput();
-	void sPhysicsAndMovement();
+	void sPhysics();
 	void sCollision();
 	void sAnimation();
 	void sRender();
+	void sMovement();
 	void spawnPlayer();
 };

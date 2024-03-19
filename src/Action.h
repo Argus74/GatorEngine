@@ -4,9 +4,9 @@
 
 class Action
 {
-	std::string m_name = "NONE";
-	std::string m_type = "NONE";
-	Vec2		m_pos = Vec2(0, 0);
+	std::string name_ = "NONE";
+	std::string type_ = "NONE";
+	Vec2		pos_ = Vec2(0, 0);
 
 public:
 

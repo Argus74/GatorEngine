@@ -1,5 +1,5 @@
-#include "Components.h"
-#include "AssetManager.h"
+#include "CAnimation.h"
+#include "../AssetManager.h"
 
 CAnimation::CAnimation() { 
 	auto& assetManager = AssetManager::GetInstance();

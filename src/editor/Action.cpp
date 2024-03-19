@@ -7,24 +7,24 @@
 Action::Action() { }
 
 Action::Action(const std::string& name, const std::string& type)
-	: m_name(name), m_type(type) { }
+	: name_(name), type_(type) { }
 
 Action::Action(const std::string& name, Vec2 pos)
-	: m_name(name), m_pos(pos) { }  // Assuming you want to initialize m_name and m_pos here
+	: name_(name), pos_(pos) { }  // Assuming you want to initialize name_ and pos_ here
 
 Action::Action(const std::string& name, const std::string& type, Vec2 pos)
-	: m_name(name), m_type(type), m_pos(pos) { }
+	: name_(name), type_(type), pos_(pos) { }
 
 const std::string& Action::name() const {
-	return m_name;
+	return name_;
 }
 
 const std::string& Action::type() const {
-	return m_type;
+	return type_;
 }
 
 const Vec2& Action::pos() const {
-	return m_pos;
+	return pos_;
 }
 
 std::string Action::toString() const {

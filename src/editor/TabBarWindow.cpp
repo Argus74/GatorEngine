@@ -15,9 +15,9 @@ TabBarWindow::TabBarWindow()
     assetManager.AddTexture("SelectIcon", "assets/SelectIcon.png");
     assetManager.AddTexture("SpriteIcon", "assets/SpriteIcon.png");
     assetManager.AddTexture("GameObjectIcon", "assets/GameObjectIcon.png");
-    icons.push_back(assetManager.GetTexture("SelectIcon"));
-    icons.push_back(assetManager.GetTexture("SpriteIcon"));
-    icons.push_back(assetManager.GetTexture("GameObjectIcon"));
+    icons_.push_back(assetManager.GetTexture("SelectIcon"));
+    icons_.push_back(assetManager.GetTexture("SpriteIcon"));
+    icons_.push_back(assetManager.GetTexture("GameObjectIcon"));
 }
 
 void TabBarWindow::SetPosition()
@@ -34,7 +34,7 @@ void TabBarWindow::DrawFrames()
 {
     if (ImGui::BeginTabBar("MainTabs"))
     {
-        // Math to resize icons and maintain their relative position
+        // Math to resize icons_ and maintain their relative position
         float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
         float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
 
@@ -45,7 +45,7 @@ void TabBarWindow::DrawFrames()
                 // TODO: Make button/text positions more dynamic, responsive
                 // Select button
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20, imageY));
-                if (ImGui::ImageButton("Select Button", icons[0], sf::Vector2f(imageSize, imageSize)))
+                if (ImGui::ImageButton("Select Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
                 {
                     // do stuff if button clicked
                 }
@@ -54,16 +54,16 @@ void TabBarWindow::DrawFrames()
 
                 // Sprite button
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
-                if (ImGui::ImageButton("Sprite Button", icons[1], sf::Vector2f(imageSize, imageSize)))
+                if (ImGui::ImageButton("Sprite Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
                 {
-                    // do stuff if button clicked
+                    
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 16, imageY + imageSize + 10));
                 ImGui::Text("Sprite");
 
                 // Game Object button
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
-                if (ImGui::ImageButton("Game Object Button", icons[2], sf::Vector2f(imageSize, imageSize)))
+                if (ImGui::ImageButton("Game Object Button", icons_[2], sf::Vector2f(imageSize, imageSize)))
                 {
                     // do stuff if button clicked
                 }
@@ -78,7 +78,7 @@ void TabBarWindow::DrawFrames()
         {
             // Sprite button
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
-            if (ImGui::ImageButton("Start Button", icons[0], sf::Vector2f(imageSize, imageSize)))
+            if (ImGui::ImageButton("Start Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
             {
                 Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
@@ -88,7 +88,7 @@ void TabBarWindow::DrawFrames()
 
             // Game Object button
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
-            if (ImGui::ImageButton("Stop Button", icons[1], sf::Vector2f(imageSize, imageSize)))
+            if (ImGui::ImageButton("Stop Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
             {
                 Editor::state = Editor::State::None; // Testing stopped: Reset state to none
                 // TODO: end game: unload content/reset entity pos?

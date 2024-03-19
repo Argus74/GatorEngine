@@ -20,7 +20,7 @@ public:
 
 private:
 	// List of textures for the buttons in the tab bar. Duplicated from AssetManager.
-	std::vector<sf::Texture> icons;
+	std::vector<sf::Texture> icons_;
 };
 
 #endif // TABBARWINDOW_H

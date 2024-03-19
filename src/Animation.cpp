@@ -41,23 +41,23 @@ void Animation::Update() {
     sprite_.setOrigin(size_.x / 2, size_.y / 2);
 };
 
-const Vec2& Animation::getSize() const
+const Vec2& Animation::GetSize() const
 {
 	return size_;
 }
 
 
-const std::string& Animation::getName() const
+const std::string& Animation::GetName() const
 {
 	return name_;
 }
 
-sf::Sprite& Animation::getSprite()
+sf::Sprite& Animation::GetSprite()
 {
 	return sprite_;
 }
 
-bool Animation::hasEnded() const
+bool Animation::HasEnded() const
 {
 	// TODO: detect when animation has ended (last frame was played) and return true
 	return false;

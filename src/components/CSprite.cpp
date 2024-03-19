@@ -1,5 +1,5 @@
-#include "Components.h"
-#include "AssetManager.h"
+#include "CSprite.h"
+#include "../AssetManager.h"
 
 
 CSprite::CSprite() {
