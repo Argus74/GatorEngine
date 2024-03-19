@@ -15,6 +15,7 @@ Scene_Play::Scene_Play()
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CName>()->name = "GroundObject";
 	// ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
 	// Need to select ground portion of the texture
 	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
@@ -54,6 +55,7 @@ void Scene_Play::spawnPlayer()
 	m_player->getComponent<CAnimation>()->animation_ = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
 	m_player->addComponent<CTransform>(Vec2(224, 200));
 	m_player->addComponent<CUserInput>();
+	m_player->addComponent<CName>()->name = "PlayerObject";
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
