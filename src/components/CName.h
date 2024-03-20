@@ -3,6 +3,6 @@
 class CName : public Component {
 public:
 	std::string name;
-	CName() : name("Default") {}
-	CName(const std::string& n) : name(n) {}
+	CName() : Component("Name"),  name("Default") {}
+	CName(const std::string& n) : Component("Name"), name(n) {}
 };

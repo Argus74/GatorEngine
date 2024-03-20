@@ -1,5 +1,5 @@
 #include "CTransform.h"
-CTransform::CTransform(Vec2 position, Vec2 velocity)
+CTransform::CTransform(Vec2 position, Vec2 velocity) : Component("Transform")
 {
 	this->position = position;
 	this->velocity = velocity;

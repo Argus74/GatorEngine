@@ -7,6 +7,8 @@
 class Component
 {
 public:
-	bool has = false;
+	const char* componentName;
+	bool has;
+	Component(const char* n) : componentName(n), has(false) {} // This ctr forces the componentname to be set
 };
 
