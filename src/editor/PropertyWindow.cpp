@@ -168,6 +168,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
     DrawProperty("Disappear", animation->disappear_);
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody)
+{
+	DrawProperty("Is Static", rigidbody->staticBody);
+}
 
 
 // TODO: Add new overloads for future components here
