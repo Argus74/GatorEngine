@@ -50,14 +50,21 @@ public:
 		return component;
 	}
 
+	// Retrieve the component of a given type (read-only version)
 	template <typename T>
 	std::shared_ptr<T> getComponent() const {
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
 
+	// Retrieve the component of a given type (read/write version)
+	template <typename T> 
+	std::shared_ptr<T>& getComponent() {
+		return std::get<std::shared_ptr<T>>(m_components);
+	}
+
 	template <typename T> 
 	void removeComponent() {
-		getComponenent<T>() = T(); // Resetting the shared pointer to nullptr
+		getComponent<T>().reset(); // Resetting the shared pointer to nullptr
 		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
 	}
 };
