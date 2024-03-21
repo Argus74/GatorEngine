@@ -241,6 +241,7 @@ void Scene_Play::sRender()
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
+		if (!entity->hasComponent<CTransform>()) continue;
 		float speed = 5.0;
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
 			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);
