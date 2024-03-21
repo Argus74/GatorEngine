@@ -54,7 +54,19 @@ public:
 		return component;
 	}
 
-	// Retrieve the component of a given type (read-only version)
+	// Initialize a new component based on argument or argument's type
+	template <typename T>
+	void addComponent(std::shared_ptr<T>& newComponent) {
+		// If uninitialized, initialize a new component using argument's type
+		if (!newComponent) {
+			addComponent<T>();
+			return;
+		}
+		// Otherwise, initialize using the argument itself
+		getComponent<T>() = newComponent;
+		newComponent->has = true;
+	}
+
 	// Retrieve the component of the templated type (read-only version)
 	template <typename T>
 	std::shared_ptr<T> getComponent() const {
@@ -72,6 +84,12 @@ public:
 	void removeComponent() {
 		getComponent<T>().reset(); // Resetting the shared pointer to nullptr
 		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
+	}
+
+	// Remove the component of the argument type
+	template <typename T>
+	void removeComponent(std::shared_ptr<T>& newComponent) {
+		removeComponent<T>();
 	}
 };
 
