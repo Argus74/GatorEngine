@@ -2,6 +2,7 @@
 #include "Component.h"
 class CSprite : public Component {
 public:
+	DECLARE_COMPONENT_NAME("Sprite");
 	std::string name_ = "DefaultSprite";
 	sf::Texture texture_;
 	bool drawSprite_ = true;

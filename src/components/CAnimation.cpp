@@ -1,7 +1,7 @@
 #include "CAnimation.h"
 #include "../AssetManager.h"
 
-CAnimation::CAnimation() : Component("Animation") {
+CAnimation::CAnimation() {
 	auto& assetManager = AssetManager::GetInstance();
 	animation_ = assetManager.GetAnimation(name_);
 	animationSpeed_ = animation_.speed_;

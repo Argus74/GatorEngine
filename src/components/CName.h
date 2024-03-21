@@ -2,7 +2,8 @@
 #include "Component.h"
 class CName : public Component {
 public:
+	DECLARE_COMPONENT_NAME("Name");
 	std::string name;
-	CName() : Component("Name"),  name("Default") {}
-	CName(const std::string& n) : Component("Name"), name(n) {}
+	CName() : name("Default") {}
+	CName(const std::string& n) : name(n) {}
 };
