@@ -38,9 +38,7 @@ void SceneLayoutWindow::DrawFrames() {
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (int i = 0; i < entityList.size(); i++) {
 
-		if (!entityList[i]->hasComponent<CTransform>()) {
-			continue;
-		}
+		if (!entityList[i]->hasComponent<CTransform>()) continue;
 
 		// Make border non-zero if this is the active entity
 		short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
