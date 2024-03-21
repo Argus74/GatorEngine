@@ -69,17 +69,19 @@ void SceneLayoutWindow::DrawFrames() {
 		// If out-of-bounds, snap back to bounds
 		// TODO: This may break once we start camera stuff... if we ever do?
 		// TODO: Do you want to clamp more since we're using a center origin for sprites?
-		if (transform.position.x < 0) {
-			transform.position.x = 0;
+		short centerToEdgeX = dimensions[2] / 2;
+		short centerToEdgeY = dimensions[3] / 2;
+		if (transform.position.x - centerToEdgeX < 0) {
+			transform.position.x = centerToEdgeX;
 		}
-		if (transform.position.y < 0) {
-			transform.position.y = 0;
+		if (transform.position.y - centerToEdgeY < 0) {
+			transform.position.y = centerToEdgeY;
 		}
-		if (transform.position.x + transform.scale.x > (ImGui::GetMainViewport()->Size.x * .80)) {
-			transform.position.x = ImGui::GetMainViewport()->Size.x * .80 - transform.scale.x;
+		if (transform.position.x + centerToEdgeX > (ImGui::GetMainViewport()->Size.x * .80)) {
+			transform.position.x = ImGui::GetMainViewport()->Size.x * .80 - centerToEdgeX;
 		}
-		if (transform.position.y + transform.scale.y > (ImGui::GetMainViewport()->Size.y * .80 - 20)) {
-			transform.position.y = (ImGui::GetMainViewport()->Size.y * .80 - 20) - transform.scale.y;
+		if (transform.position.y + centerToEdgeY > (ImGui::GetMainViewport()->Size.y * .80 - 20)) {
+			transform.position.y = (ImGui::GetMainViewport()->Size.y * .80 - 20) - centerToEdgeY;
 		}
 
 		ImGui::PopStyleVar();
