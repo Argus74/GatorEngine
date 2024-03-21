@@ -9,21 +9,15 @@
 #include "Vec2.h"
 #include "GatorPhysics.h"
 
-
-
-
 typedef std::tuple< //ass we add more components, we add them here
-	std::shared_ptr<CTransform>,
 	std::shared_ptr<CName>,
+	std::shared_ptr<CTransform>,
 	std::shared_ptr<CShape>,
 	std::shared_ptr<CUserInput>,
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CRigidBody>
-
 > ComponentTuple;
-
-
 
 class Entity {
 	size_t id_;
