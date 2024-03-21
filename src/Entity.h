@@ -91,6 +91,20 @@ public:
 	void removeComponent(std::shared_ptr<T>& newComponent) {
 		removeComponent<T>();
 	}
+
+	// Helper function(s) to iterate through the m_components tuple and apply some lambda. 
+	// See PropertyWindow for example usage.
+	template<std::size_t Index = 0, typename Func>
+	typename std::enable_if < Index < std::tuple_size<ComponentTuple>::value>::type
+	forEachComponent(Func func) {
+		func(std::get<Index>(m_components), Index);
+		forEachComponent<Index + 1>(func);
+	}
+	template<std::size_t Index = 0, typename Func>
+	typename std::enable_if<Index == std::tuple_size<ComponentTuple>::value>::type
+	forEachComponent(Func) {
+		// End of recursion: do nothing
+	}
 };
 
 
