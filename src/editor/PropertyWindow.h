@@ -19,11 +19,7 @@ private:
 
     // Draw a component section
     template <typename T>
-	void DrawComponent(const char* name, const T& component);
-
-	// Draw a + button in the header of a User Input component
-	// TODO: Make waaaay more generic
-	void DrawUserInputAddButton(std::shared_ptr<CUserInput> userinput);
+	void DrawComponent(T& component);
 
     // Draw the properties of a component
     void DrawComponentProperties(std::shared_ptr<CUserInput> userinput);
@@ -49,6 +45,14 @@ private:
     void DrawInputField(Action &val);
     void DrawInputField(sf::Keyboard::Key &val);
     void DrawInputField(sf::Mouse::Button& val);
+
+	// Draw a button that opens a popup for some subject
+	template <typename T>
+	void DrawPopupButton(const char* name, T& subject, ImVec2 size); // todo rename
+	
+	// Draw the actual popup for a subject
+	void DrawPopup(std::shared_ptr<CUserInput> userinput);
+	void DrawPopup(std::shared_ptr<Entity> entity);
 
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags;

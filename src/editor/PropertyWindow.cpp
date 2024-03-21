@@ -9,7 +9,7 @@
 #include "../Entity.h"
 #include "Editor.h"
 
-PropertyWindow::PropertyWindow()
+PropertyWindow::PropertyWindow() 
 {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
@@ -24,7 +24,7 @@ PropertyWindow::PropertyWindow()
     tree_node_flags |= ImGuiTreeNodeFlags_DefaultOpen;
 }
 
-void PropertyWindow::SetPosition()
+void PropertyWindow::SetPosition() 
 {
     // 20% of viewport's width, (almost) 40% of its height
     const ImGuiViewport *mainViewport = ImGui::GetMainViewport();
@@ -38,7 +38,7 @@ void PropertyWindow::SetPosition()
     ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
 }
 
-void PropertyWindow::PreDraw()
+void PropertyWindow::PreDraw() 
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 5));
@@ -48,82 +48,72 @@ void PropertyWindow::PreDraw()
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 }
 
-void PropertyWindow::DrawFrames()
+void PropertyWindow::DrawFrames() 
 {
-
     // Draw blank window if no active entity
-    if (!Editor::active_entity_)
+    if (!Editor::active_entity_) 
     {
         name_ = " ";
         return;
     }
 
-    // Update title of Property Window to include the tag of the entity
-    name_ = "Properties - " + Editor::active_entity_->getComponent<CName>()->name;
+    // Name the window with entity's CName, if it exists
+    bool hasCName = Editor::active_entity_->hasComponent<CName>();
+    std::string nameTag = hasCName ? Editor::active_entity_->getComponent<CName>()->name : "NULL";
+    name_ = "Properties - " + nameTag;
 
-    // Draw a section for each components of the entity
-    if (Editor::active_entity_->getComponent<CName>())
+    // Draw a section for each component of the entity
+    Editor::active_entity_->forEachComponent([&](auto& component, int index) 
     {
-		DrawComponent("Name", Editor::active_entity_->getComponent<CName>());
-	}
-    if (Editor::active_entity_->getComponent<CTransform>())
-    {
-        DrawComponent("Transform", Editor::active_entity_->getComponent<CTransform>());
-    }
-    if (Editor::active_entity_->getComponent<CShape>())
-    {
-        DrawComponent("Shape", Editor::active_entity_->getComponent<CShape>());
-    }
-    if (Editor::active_entity_->getComponent<CUserInput>())
-	{
-		DrawComponent("User Input", Editor::active_entity_->getComponent<CUserInput>());
-	}
-    if (Editor::active_entity_->hasComponent<CAnimation>()) {
-        DrawComponent("Animation", Editor::active_entity_->getComponent<CAnimation>());
-    }
-    if (Editor::active_entity_->hasComponent<CSprite>()) {
-        DrawComponent("Sprite", Editor::active_entity_->getComponent<CSprite>());
-    }
+        if (component && component->has) 
+        {
+            DrawComponent(component);
+        }
+    });
 
-    // Maybe TODO: At end of window, draw a button for adding new components
-    if (ImGui::Button("Add Component", ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f)))
-    {
-        // Editor::active_entity_->addComponent(newComponent);
-    }
+    // Draw a button for adding new components
+    DrawPopupButton("Add Component", Editor::active_entity_,
+        ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f));
 }
 
-void PropertyWindow::PostDraw()
+void PropertyWindow::PostDraw() 
 {
     ImGui::PopStyleVar(6);
 }
 
 template <typename T>
-void PropertyWindow::DrawComponent(const char *name, const T &component)
+void PropertyWindow::DrawComponent(T& component) 
 {
     bool isOpen = true;
 
-    if (ImGui::CollapsingHeader(name, &isOpen, tree_node_flags))
+    if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags)) 
     {
-        // Hacky solution to draw a button for the UserInput component
-        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) {
-            DrawUserInputAddButton(component);
+        // Hacky solution to draw a button within header that allows user to add a new binding
+        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) 
+        {
+            // Position the button to the right of the header
+            static const char* name = "Add Input";
+            ImGui::SameLine(); // same line as header
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+            ImGui::PopStyleColor();
         }
 
-        if (ImGui::BeginTable(name, 2, table_flags))
+        if (ImGui::BeginTable(component->componentName, 2, table_flags)) 
         {
             DrawComponentProperties(component);
             ImGui::EndTable();
         }
     }
 
-    // Maybe TODO: Allow removing of component from entity if user closes the header
-    if (!isOpen)
+    if (!isOpen) 
     {
-        //Editor::active_entity_->removeComponent(component);
+        Editor::active_entity_->removeComponent(component);
     }
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) 
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
     DrawProperty("Position", transform->position);
@@ -132,20 +122,19 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transfo
     DrawProperty("Angle", transform->angle);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CName> name)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CName> name) 
 {
-    // TODO: Update below. These are based on the placeholder components in Entity.h
     DrawProperty("Name", name->name);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape) 
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
     DrawProperty("Type", shape->type);
     DrawProperty("Color", shape->color);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput) 
 {
     for (auto& entry : userinput->mouseMap) {
         DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);
@@ -155,20 +144,20 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinp
     }
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite) 
 {
     DrawProperty("Sprite Name", sprite->name_);
     DrawProperty("Draw Sprite", sprite->drawSprite_);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation) 
 {
     DrawProperty("Animation Name", animation->name_);
     DrawProperty("Animation Speed", animation->animationSpeed_);
     DrawProperty("Disappear", animation->disappear_);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
 {
 	DrawProperty("Is Static", rigidbody->staticBody);
 }
@@ -196,7 +185,7 @@ void PropertyWindow::DrawProperty(const char *name, T &val)
     ImGui::PopID();
 }
 
-void PropertyWindow::DrawInputField(std::string& val)
+void PropertyWindow::DrawInputField(std::string& val) 
 {
     // Only set value if user presses Enter or loses focus
     std::string buffer = val;
@@ -237,79 +226,115 @@ void PropertyWindow::DrawInputField(bool &val)
     ImGui::Checkbox("##Bool", &val);
 }
 
-void PropertyWindow::DrawInputField(sf::Keyboard::Key& val)
+void PropertyWindow::DrawInputField(sf::Keyboard::Key& val) 
 {
     int selection = static_cast<int>(val);
     ImGui::Combo("##Keys", &selection, kSFMLKeyNames, IM_ARRAYSIZE(kSFMLKeyNames));
     val = static_cast<sf::Keyboard::Key>(selection);
 }
 
-void PropertyWindow::DrawInputField(sf::Mouse::Button& val)
+void PropertyWindow::DrawInputField(sf::Mouse::Button& val) 
 {
 	int selection = static_cast<int>(val);
 	ImGui::Combo("##MouseButtons", &selection, kSFMLMouseNames, IM_ARRAYSIZE(kSFMLMouseNames));
 	val = static_cast<sf::Mouse::Button>(selection);
 }
 
-void PropertyWindow::DrawInputField(Action& val)
+void PropertyWindow::DrawInputField(Action& val) 
 {
     int selection = static_cast<int>(val);
     ImGui::Combo("##Actions", &selection, kActionNames, IM_ARRAYSIZE(kActionNames));
     val = static_cast<Action>(selection);
 }
 
-void PropertyWindow::DrawUserInputAddButton(std::shared_ptr<CUserInput> userinput) 
+template <typename T>
+void PropertyWindow::DrawPopupButton(const char* name, T& subject, ImVec2 size) 
 {
-    // Button within header that, when pressed, allows user to add a new binding
-    static const char* buttonTitle = "+ New Item";
-    ImGui::SameLine(); // same line as header
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(buttonTitle).x * 1.05) - 40); // Right flush by 40 pixels
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-    if (ImGui::Button(buttonTitle, ImVec2(ImGui::CalcTextSize(buttonTitle).x * 1.05, ImGui::GetTextLineHeight() * 1.75)))
+    if (ImGui::Button(name, size)) 
     {
-        ImGui::OpenPopup("InputSelection");
+        ImGui::OpenPopup(name);
     }
-    ImGui::PopStyleColor();
 
-    // Display a pop-up to prompt user to select the input to add
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 10.0f));
-    if (ImGui::BeginPopup("InputSelection"))
+    if (ImGui::BeginPopup(name)) 
     {
-        // Decide which input type to use so we can display the correct map below
-        ImGui::Text("Select input type");
-        static int typeSelection = 0;
-        ImGui::RadioButton("Keyboard", &typeSelection, 0);
-        ImGui::RadioButton("Mouse", &typeSelection, 1);
-        ImGui::NewLine();
-
-        // Use a drop-down (Combo) to select an input from the correct map
-        ImGui::Text("Select input");
-        static int inputSelection = 0;
-        if (typeSelection == 0) 
-        {
-            DrawInputField(reinterpret_cast<sf::Keyboard::Key&>(inputSelection));
-        }
-        else 
-        {
-            DrawInputField(reinterpret_cast<sf::Mouse::Button&>(inputSelection));
-        }
-        ImGui::NewLine();
-
-        // When pressed, add the input to its map, so long as it doesn't already exist
-        if (ImGui::Button("Create")) 
-        {
-            if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
-            {
-                userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
-            } 
-            else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) 
-            {
-                userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
-            }
-            ImGui::CloseCurrentPopup();
-        }
+        DrawPopup(subject);
         ImGui::EndPopup();
     }
     ImGui::PopStyleVar();
 }
 
+void PropertyWindow::DrawPopup(std::shared_ptr<CUserInput> userinput) 
+{
+    // Decide which input type to use so we can display the correct map below
+    ImGui::Text("Select input type");
+    static int typeSelection = 0;
+    ImGui::RadioButton("Keyboard", &typeSelection, 0);
+    ImGui::RadioButton("Mouse", &typeSelection, 1);
+    ImGui::NewLine();
+
+    // Use a drop-down (Combo) to select an input from the correct map
+    ImGui::Text("Select input");
+    static int inputSelection = 0;
+        if (typeSelection == 0) 
+        {
+        DrawInputField(reinterpret_cast<sf::Keyboard::Key&>(inputSelection));
+    }
+        else 
+        {
+        DrawInputField(reinterpret_cast<sf::Mouse::Button&>(inputSelection));
+    }
+    ImGui::NewLine();
+
+    // When pressed, add the input to its map, so long as it doesn't already exist
+        if (ImGui::Button("Create")) 
+        {
+            if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
+            {
+            userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+        }
+        else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) {
+            userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
+        }
+        ImGui::CloseCurrentPopup();
+    }
+}
+
+void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
+{
+    // Use a drop-down (Combo) to select an input from the correct map
+    ImGui::Text("Select component");
+    static int selection = 0;
+    static const char* selectionName = "";
+
+    if (ImGui::BeginCombo("##Components", selectionName))
+    {
+        Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        {
+            // Don't display components that already exist
+            if (component && component->has) return;
+
+            bool isSelected = (selection == index);
+            if (ImGui::Selectable(component->componentName, isSelected))
+            {
+                selection = index;
+                selectionName = component->componentName;
+            }
+        });
+        ImGui::EndCombo();
+    }
+    ImGui::NewLine();
+
+    // Draw button that, when pressed, find & initialize the component if it is nullptr
+    if (ImGui::Button("Create"))
+    {
+        Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        {
+            if (!component && selection == index)
+            {
+                Editor::active_entity_->addComponent(component);
+            }
+        });
+        ImGui::CloseCurrentPopup();
+    }
+}
