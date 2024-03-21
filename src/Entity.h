@@ -74,7 +74,7 @@ public:
 	}
 
 	// Retrieve the component of the templated type (read/write version)
-	template <typename T> 
+	template <typename T>
 	std::shared_ptr<T>& getComponent() {
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
@@ -95,7 +95,7 @@ public:
 	// Helper function(s) to iterate through the m_components tuple and apply some lambda. 
 	// See PropertyWindow for example usage.
 	template<std::size_t Index = 0, typename Func>
-	typename std::enable_if < Index < std::tuple_size<ComponentTuple>::value>::type
+	typename std::enable_if <Index<std::tuple_size<ComponentTuple>::value>::type
 	forEachComponent(Func func) {
 		func(std::get<Index>(m_components), Index);
 		forEachComponent<Index + 1>(func);
