@@ -35,13 +35,17 @@ public:
 
 	const std::string& tag() const;
 	bool isAlive();
+
 	// Component Accessors and Modifiers 
+
+	// Check whether this component is initialized
 	template <typename T>
 	bool hasComponent() const {
 		auto ptr = std::get<std::shared_ptr<T>>(m_components);
 		return ptr != nullptr && ptr->has;
 	}
 
+	// Initialize a new component based on template type, with optional argument list for component constructor
 	template <typename T, typename... TArgs>
 	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
 		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
@@ -51,17 +55,19 @@ public:
 	}
 
 	// Retrieve the component of a given type (read-only version)
+	// Retrieve the component of the templated type (read-only version)
 	template <typename T>
 	std::shared_ptr<T> getComponent() const {
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
 
-	// Retrieve the component of a given type (read/write version)
+	// Retrieve the component of the templated type (read/write version)
 	template <typename T> 
 	std::shared_ptr<T>& getComponent() {
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
 
+	// Remove the component of the templated type
 	template <typename T> 
 	void removeComponent() {
 		getComponent<T>().reset(); // Resetting the shared pointer to nullptr
