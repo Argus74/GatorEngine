@@ -1,7 +1,7 @@
 #pragma once
 #include "imgui-SFML.h"
 #include "SFML/Graphics/Transform.hpp"
-#include "Vec2.h"
+#include "../Vec2.h"
 #include "Component.h"
 
 class CTransform : public Component {
