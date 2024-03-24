@@ -229,7 +229,8 @@ void Scene_Play::sRender()
 			Vec2 scale = transformComponent->scale;
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
-			spriteComponent->sprite_.setPosition(position.x, position.y - 40); // Removed the +150 from the y position
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -240,6 +241,7 @@ void Scene_Play::sRender()
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
+		if (!entity->hasComponent<CTransform>()) continue;
 		float speed = 5.0;
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
 			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);

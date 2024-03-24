@@ -12,9 +12,10 @@
 
 #include "../ActionBus.h"
 #include "Component.h"
-class CUserInput {
+
+class CUserInput : public Component {
 public:
-	bool has = false;
+	DECLARE_COMPONENT_NAME("User Input");
 	std::map<sf::Mouse::Button, Action> mouseMap;
 	std::map<sf::Keyboard::Key, Action> keyMap;
 	CUserInput() {}

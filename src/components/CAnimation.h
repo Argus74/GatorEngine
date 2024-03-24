@@ -4,6 +4,7 @@
 
 class CAnimation : public Component {
 public:
+	DECLARE_COMPONENT_NAME("Animation");
 	Animation animation_;
 	sf::Sprite sprite_;
 	std::string name_ = "DefaultAnimation";

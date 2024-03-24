@@ -4,6 +4,7 @@
 
 class CShape : public Component {
 public:
+	DECLARE_COMPONENT_NAME("Shape");
 	std::string type;
 	sf::Color color;
 	CShape() : type("Rectangle"), color(sf::Color::White) {}

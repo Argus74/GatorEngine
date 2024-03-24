@@ -3,6 +3,7 @@
 #include <Box2D/Box2D.h>
 class CRigidBody : public Component {
 public:
+	DECLARE_COMPONENT_NAME("Rigid Body");
 	bool staticBody;
 	b2Body* body;
 	b2Fixture* fixture;

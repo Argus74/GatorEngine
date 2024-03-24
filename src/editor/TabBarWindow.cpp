@@ -4,6 +4,7 @@
 #include "imgui-SFML.h"
 
 #include "../AssetManager.h"
+#include "../EntityManager.h"
 
 TabBarWindow::TabBarWindow()
 {
@@ -47,6 +48,7 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20, imageY));
                 if (ImGui::ImageButton("Select Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
                 {
+                    Editor::state = Editor::State::Selecting;
                     // do stuff if button clicked
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20 + imageSize / 2 - 17, imageY + imageSize + 10));
@@ -56,7 +58,12 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
                 if (ImGui::ImageButton("Sprite Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
                 {
-                    
+                    Editor::state = Editor::State::None;
+                    auto entity = EntityManager::GetInstance().addEntity("Sprite");
+                    entity->addComponent<CTransform>();
+                    entity->addComponent<CName>("Sprite");
+                    entity->addComponent<CSprite>();
+                    // todo add rigidbody component..?
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 16, imageY + imageSize + 10));
                 ImGui::Text("Sprite");
@@ -65,7 +72,10 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
                 if (ImGui::ImageButton("Game Object Button", icons_[2], sf::Vector2f(imageSize, imageSize)))
                 {
-                    // do stuff if button clicked
+                    Editor::state = Editor::State::None;
+                    auto entity = EntityManager::GetInstance().addEntity("GameObject");
+                    entity->addComponent<CTransform>();
+                    entity->addComponent<CName>("Game Object");
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 34, imageY + imageSize + 10));
                 ImGui::Text("Game Object");
