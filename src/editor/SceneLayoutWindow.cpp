@@ -33,37 +33,42 @@ void SceneLayoutWindow::PreDraw() {
 
 void SceneLayoutWindow::DrawFrames() {
 	// TODO: Add logic here to prevent drawing buttons when not in moving or selecting state;
-
 	// Draw a draggable selection box for each entity with a transform component
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (int i = 0; i < entityList.size(); i++) {
 
-		if (!entityList[i]->hasComponent<CTransform>()) continue;
-
-		// Make border non-zero if this is the active entity
-		short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
-
-		// Calculate selection box dimensions and draw it
-		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
-		ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
-
-		std::string label = "##DraggableBox" + std::to_string(i);
-		if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
-			// On click, set this entity as the active entity
-			Editor::active_entity_ = entityList[i];
-		}
-
-		// If this selection box is being dragged, move the entity
-		// TODO: Add logic here to prevent moving when not in moving state
-		// TODO: Investigate why button drags behind sprite a bit
 		auto& transform = *(entityList[i]->getComponent<CTransform>());
-		if (ImGui::IsItemActive() &&
-			ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-			transform.position.x += ImGui::GetIO().MouseDelta.x;
-			transform.position.y += ImGui::GetIO().MouseDelta.y;
-		}
+		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
+		if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving) {
+			if (!entityList[i]->hasComponent<CTransform>()) continue;
 
+			// Make border non-zero if this is the active entity
+			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+
+			// Calculate selection box dimensions and draw it
+			ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
+
+			std::string label = "##DraggableBox" + std::to_string(i);
+			if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
+				// On click, set this entity as the active entity
+				Editor::active_entity_ = entityList[i];
+			}
+
+			// If this selection box is being dragged, move the entity
+			// TODO: Add logic here to prevent moving when not in moving state
+			// TODO: Investigate why button drags behind sprite a bit
+			auto& transform = *(entityList[i]->getComponent<CTransform>());
+			if (ImGui::IsItemActive() &&
+				ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+				transform.position.x += ImGui::GetIO().MouseDelta.x;
+				transform.position.y += ImGui::GetIO().MouseDelta.y;
+				Editor::state = Editor::State::Moving;
+			}
+
+
+			ImGui::PopStyleVar();
+		}
 		// If out-of-bounds, snap back to bounds
 		// TODO: This may break once we start camera stuff... if we ever do?
 		// TODO: Do you want to clamp more since we're using a center origin for sprites?
@@ -82,7 +87,6 @@ void SceneLayoutWindow::DrawFrames() {
 			transform.position.y = (ImGui::GetMainViewport()->Size.y * .80 - 20) - centerToEdgeY;
 		}
 
-		ImGui::PopStyleVar();
 	}
 }
 
