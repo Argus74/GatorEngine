@@ -35,8 +35,16 @@ add_executable(
     "src/editor/TabBarWindow.cpp"
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
-    "src/Game.cpp"
-)
+    "src/Scene.cpp"
+    "src/Scene_Play.cpp"
+    "src/GatorPhysics.cpp"
+    "src/editor/SceneLayoutWindow.cpp"
+    "src/ActionBus.cpp" 
+    "src/components/CUserInput.h"
+    "src/Animation.cpp"
+    "src/components/CAnimation.cpp"
+    "src/components/CSprite.cpp"
+    "src/GameEngine.cpp" "src/components/CSprite.h" "src/components/includes.h" "src/components/CRigidBody.h")
 
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics

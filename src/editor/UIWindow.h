@@ -47,9 +47,6 @@ protected:
 
 	// ImGui options for the UIWindow. 
 	ImGuiWindowFlags window_flags_;
-
-	// Active entity to modify. TODO: Not sure if this is the best place for this.
-	static std::shared_ptr<Entity> active_entity_;
 };
 
 #endif // UIWINDOW_H

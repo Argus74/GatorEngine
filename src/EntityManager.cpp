@@ -15,7 +15,6 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
 	m_toAdd.push_back(newEntity);
-	m_entityMap[tag].push_back(newEntity);
 	return newEntity;
 }
 
@@ -67,4 +66,30 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities(const std::string& tag)
 {
 	return m_entityMap[tag];
+}
+
+void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
+{
+	for (int i  = 0; i < m_entities.size(); i++) {
+		if (m_entities[i] == entity) {
+			m_entities.erase(m_entities.begin() + i);
+			break;
+		}
+	}
+	for (auto& pair : m_entityMap) {
+		for (int i = 0; i < pair.second.size(); i++) {
+			if (pair.second[i] == entity) {
+				pair.second.erase(pair.second.begin() + i);
+				break;
+			}
+		}
+	}
+}
+
+void EntityManager::reset()
+{
+	m_entities.clear();
+	m_entityMap.clear();
+	m_toAdd.clear();
+	m_totalEntities = 0;
 }

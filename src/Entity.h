@@ -1,69 +1,110 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
 
-#include <memory>
+#include "components/includes.h"
+
+#include <tuple>
 #include <string>
 
 #include <SFML/Graphics.hpp>
-
 #include "Vec2.h"
-class CTransform {
-public:
-	Vec2 position, scale, velocity;
-	float angle;
-	CTransform() : position(Vec2(0, 0)), scale(Vec2(1, 1)), angle(0) {}
-	CTransform(const Vec2& pos, const Vec2& scl, float ang) 
+#include "GatorPhysics.h"
 
-		: position(pos), scale(scl), angle(ang) {}
-}; 
-
-class CName {
-public:
-	std::string name;
-	CName() : name("Default") {}
-	CName(const std::string& n) : name(n) {}
-};
-
-class CShape {
-public:
-	std::string type;
-	sf::Color color;
-	CShape() : type("Rectangle"), color(sf::Color::White) {}
-	CShape(const std::string& t, const sf::Color& c) : type(t), color(c) {}
-};
-
+typedef std::tuple< //ass we add more components, we add them here
+	std::shared_ptr<CName>,
+	std::shared_ptr<CTransform>,
+	std::shared_ptr<CShape>,
+	std::shared_ptr<CUserInput>,
+	std::shared_ptr<CAnimation>,
+	std::shared_ptr<CSprite>,
+	std::shared_ptr<CRigidBody>
+> ComponentTuple;
 
 class Entity {
-	size_t m_id;
-	std::string m_tag;
-	bool is_alive;
-
+	size_t id_;
+	std::string tag_;
+	bool is_alive_;
+	friend class EntityManager;
 public:
-	std::shared_ptr<CTransform> cTransform;
-	std::shared_ptr<CName> cName;
-	std::shared_ptr<CShape> cShape;
+	ComponentTuple m_components;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
 	~Entity();
-
 	void destroy();
+	size_t id() const;
+
 	const std::string& tag() const;
 	bool isAlive();
-	// Component Accessors
 
-	// Accessor and mutator for the CTransform component
-	std::shared_ptr<CTransform> getTransform() const;
-	void setTransform(const std::shared_ptr<CTransform>& transform);
+	// Component Accessors and Modifiers 
 
-	// Accessor and mutator for the CName component
-	std::shared_ptr<CName> getNameComponent() const;
-	void setNameComponent(const std::shared_ptr<CName>& name);
+	// Check whether this component is initialized
+	template <typename T>
+	bool hasComponent() const {
+		auto ptr = std::get<std::shared_ptr<T>>(m_components);
+		return ptr != nullptr && ptr->has;
+	}
 
-	// Accessor and mutator for the CShape component
-	std::shared_ptr<CShape> getShape() const;
-	void setShape(const std::shared_ptr<CShape>& shape);
+	// Initialize a new component based on template type, with optional argument list for component constructor
+	template <typename T, typename... TArgs>
+	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
+		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
+		std::get<std::shared_ptr<T>>(m_components) = component;
+		component->has = true; 
+		return component;
+	}
+
+	// Initialize a new component based on argument or argument's type
+	template <typename T>
+	void addComponent(std::shared_ptr<T>& newComponent) {
+		// If uninitialized, initialize a new component using argument's type
+		if (!newComponent) {
+			addComponent<T>();
+			return;
+		}
+		// Otherwise, initialize using the argument itself
+		getComponent<T>() = newComponent;
+		newComponent->has = true;
+	}
+
+	// Retrieve the component of the templated type (read-only version)
+	template <typename T>
+	std::shared_ptr<T> getComponent() const {
+		return std::get<std::shared_ptr<T>>(m_components);
+	}
+
+	// Retrieve the component of the templated type (read/write version)
+	template <typename T>
+	std::shared_ptr<T>& getComponent() {
+		return std::get<std::shared_ptr<T>>(m_components);
+	}
+
+	// Remove the component of the templated type
+	template <typename T> 
+	void removeComponent() {
+		getComponent<T>().reset(); // Resetting the shared pointer to nullptr
+		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
+	}
+
+	// Remove the component of the argument type
+	template <typename T>
+	void removeComponent(std::shared_ptr<T>& newComponent) {
+		removeComponent<T>();
+	}
+
+	// Helper function(s) to iterate through the m_components tuple and apply some lambda. 
+	// See PropertyWindow for example usage.
+	template<std::size_t Index = 0, typename Func>
+	typename std::enable_if <Index<std::tuple_size<ComponentTuple>::value>::type
+	forEachComponent(Func func) {
+		func(std::get<Index>(m_components), Index);
+		forEachComponent<Index + 1>(func);
+	}
+	template<std::size_t Index = 0, typename Func>
+	typename std::enable_if<Index == std::tuple_size<ComponentTuple>::value>::type
+	forEachComponent(Func) {
+		// End of recursion: do nothing
+	}
 };
 
-#endif // ENTITY_H
 

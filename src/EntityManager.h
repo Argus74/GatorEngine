@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include "Entity.h"
+#include "GatorPhysics.h"
 
 class EntityManager
 {
@@ -24,6 +25,10 @@ public:
 
 	// Get entities with a specific tag
 	std::vector<std::shared_ptr<Entity>>& getEntities(const std::string& tag);
+
+	void removeEntity(std::shared_ptr<Entity> entity);
+
+	void reset();
 
 private:
 	// Constructor

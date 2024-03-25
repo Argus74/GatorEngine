@@ -1,11 +1,8 @@
 #include "CTransform.h"
-
-
-
-
-CTransform::CTransform()
+CTransform::CTransform(Vec2 position, Vec2 velocity)
 {
-
+	this->position = position;
+	this->velocity = velocity;
 }
 
 void CTransform::Translate(sf::Vector2f offset)

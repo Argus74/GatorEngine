@@ -30,7 +30,6 @@ public:
 
     // Scales vector
     void scale(float s)
-
     {
         x = s;
         y = s;
@@ -59,4 +58,3 @@ public:
         return Vec2(x * s, y * s);
     }
 };
-
