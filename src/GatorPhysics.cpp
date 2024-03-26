@@ -25,6 +25,7 @@ void GatorPhysics::update()
 		//If anything happened to the positions/rotation of the entities, update their physics bodies
 		//float physicsY = (worldY - node.first->getComponent<CTransform>()->position.y);
 		node.second->SetTransform(b2Vec2(node.first->getComponent<CTransform>()->position.x, node.first->getComponent<CTransform>()->position.y), node.first->getComponent<CTransform>()->angle);
+		node.second->SetAwake(true);
 	}
 
 	//Step the physics world
@@ -49,7 +50,7 @@ void GatorPhysics::createBody(Entity* entity, bool is_static)
 	bool has_sprite = entity->hasComponent<CSprite>();
 	bool has_animations = entity->hasComponent<CAnimation>();
 	sf::Sprite& sprite = has_sprite ? entity->getComponent<CSprite>()->sprite_ : entity->getComponent<CAnimation>()->animation_.sprite_;
-	newBox.SetAsBox(sprite.getLocalBounds().getSize().x, sprite.getLocalBounds().getSize().x);
+	newBox.SetAsBox(sprite.getLocalBounds().getSize().x/2, sprite.getLocalBounds().getSize().y/2);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &newBox;

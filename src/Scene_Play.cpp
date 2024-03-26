@@ -70,6 +70,7 @@ void Scene_Play::update()
 	sCollision();
 	sAnimation();
 	sRender();
+	//sRenderColliders();
 	GatorPhysics &physics = GatorPhysics::GetInstance();
 }
 
@@ -237,6 +238,30 @@ void Scene_Play::sRender()
 		}
 	}
 }
+
+void Scene_Play::sRenderColliders() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+
+	for (auto& entity : entityList)
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CRigidBody>())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			b2Vec2 position = rigidBodyComponent->body->GetPosition();
+			b2Vec2 size = rigidBodyComponent->body->GetFixtureList()->GetAABB(0).GetExtents();
+			auto spriteComponent = sf::RectangleShape();
+			spriteComponent.setOrigin(size.x, size.y);
+			spriteComponent.setFillColor(sf::Color::White);
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			spriteComponent.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
+			spriteComponent.setSize(sf::Vector2f(size.x * 2, size.y * 2));
+			GameEngine::GetInstance().window().draw(spriteComponent);
+		}
+	}
+}
+
 
 void Scene_Play::sMovement()
 {
