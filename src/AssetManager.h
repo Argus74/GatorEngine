@@ -10,6 +10,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
 #include "Animation.h"
+#include <string>
 
 //namespace sf { //forward declaration
 //	class Texture;
@@ -39,8 +40,22 @@ public:
 	sf::Font& GetFont(const std::string& name);
 	Animation& GetAnimation(const std::string& name);
 
+	// Function that extracts a filename from a filepath
+	static std::string ExtractFilename(const std::string& path) {
+		// Find the last slash in the path
+		size_t lastSlashPos = path.find_last_of("/\\");
 
-	//Maybe create a template function here to process the directory that contains the assets, can add later on depending on what we decide
+		// Extract the filename with extension
+		std::string filenameWithExtension = path.substr(lastSlashPos + 1);
+
+		// Find the last dot in the filename
+		size_t lastDotPos = filenameWithExtension.find_last_of('.');
+
+		// Extract the filename without the extension
+		std::string filenameWithoutExtension = filenameWithExtension.substr(0, lastDotPos);
+
+		return filenameWithoutExtension;
+	};
 
 	//Plaing a sound using the stored sounds that are in our map
 	sf::Sound PlaySound(const std::string& name);

@@ -99,6 +99,8 @@ if (WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
             $<TARGET_FILE_DIR:GatorEngine>)
+
+       
 endif()
 
 
