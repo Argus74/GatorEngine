@@ -21,6 +21,11 @@ set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "Do not build Box2D testbed" FORCE)
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
+#Add nativefiledialog-extended
+set(NATIVE_FILE_DIALOG_DIR ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended)
+add_subdirectory(${NATIVE_FILE_DIALOG_DIR})
+
+
 # Main executable
 add_executable(
     GatorEngine 
@@ -53,6 +58,7 @@ target_link_libraries(GatorEngine PRIVATE
     sfml-audio
     ImGui-SFML::ImGui-SFML
     box2d
+    nfd
 )
 
 # Set the include directories for the GatorEngine target

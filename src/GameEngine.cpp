@@ -54,6 +54,8 @@ void GameEngine::init(const std::string &path)
 	assetManager.AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
 	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
+	assetManager.AddTexture("Ninja", "assets/Main Characters/Ninja Frog/Fall (32x32).png");
+	assetManager.AddTexture("Ninja Jump", "assets/Main Characters/Ninja Frog/Double Jump (32x32).png");
 	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
 	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
 	assetManager.AddAnimation("DefaultAnimation", ani);

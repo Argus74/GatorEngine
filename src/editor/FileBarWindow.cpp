@@ -23,6 +23,13 @@ void FileBarWindow::DrawFrames() {
             ImGui::MenuItem("Stuff Here");
             ImGui::EndMenu();
         }
+
+        //For now placing the Upload Sprite in the File Bar
+        if (ImGui::BeginMenu("Upload Sprite"))
+        {
+            ImGui::MenuItem("Stuff Here");
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 }

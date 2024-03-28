@@ -230,6 +230,8 @@ void Scene_Play::sRender()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			auto texture = GameEngine::GetInstance().assets().GetTexture(spriteComponent->name_);
+			spriteComponent->sprite_.setTexture(texture);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
 			if (spriteComponent->drawSprite_)
