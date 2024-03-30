@@ -17,8 +17,8 @@ ExplorerWindow::ExplorerWindow() {
 	// TODO: Maybe don't store ref to icon here
 	// Load icon texture and store reference for easy access.
 	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexture("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
-	icon_ = assetManager.GetTexture("GameObjectIconSmall");
+	assetManager.AddTexturePrivate("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
+	icon_ = assetManager.GetTexturePrivate("GameObjectIconSmall");
 }
 
 void ExplorerWindow::SetPosition() {

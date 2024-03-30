@@ -28,11 +28,10 @@ public:
 	AssetManager(AssetManager&&) = delete;
 	AssetManager& operator=(AssetManager&&) = delete;
 
-	//This list will keep track of which textures are in our asset database, 
-	std::vector<const char*> TextureNameList;
 
 	// Asset addition methods 
 	void AddTexture(const std::string& name, const std::string& path);
+	void AddTexturePrivate(const std::string& name, const std::string& path); //Used for Assets needed for Gator Engine, E.G Icon Buttons, or Sprite Buttons	
 	void AddSound(const std::string& name, const std::string& path);
 	void AddFont(const std::string& name, const std::string& path);
 	void AddAnimation(const std::string& name, const Animation& animation);
@@ -56,6 +55,7 @@ public:
 
 	// Asset retrieval methods 
 	sf::Texture& GetTexture(const std::string& name);
+	sf::Texture& GetTexturePrivate(const std::string& name); //Used for Assets needed for Gator Engine, E.G Icon Buttons, or Sprite Buttons	
 	sf::SoundBuffer& GetSound(const std::string& name);
 	sf::Font& GetFont(const std::string& name);
 	Animation& GetAnimation(const std::string& name);
@@ -84,9 +84,11 @@ private:
 	AssetManager();
 
 	std::map<std::string, sf::Texture*> textures_;
+	std::map<std::string, sf::Texture*> gameEngineTextures_;  //Used for Assets needed for Gator Engine, E.G Icon Buttons, or Sprite Buttons	
 	std::map<std::string, sf::SoundBuffer*> sounds_; //Sounds are stored as a sound buffer, and then played with a function using SMFL::Sound
 	std::map<std::string, sf::Font*> fonts_;
 	std::map<std::string, Animation*> animations_;
+	
 };
 
 

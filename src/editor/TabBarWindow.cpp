@@ -13,12 +13,12 @@ TabBarWindow::TabBarWindow()
 
     // Load icon refs here for (possibly, hopefully) easier access
     auto &assetManager = AssetManager::GetInstance();
-    assetManager.AddTexture("SelectIcon", "assets/SelectIcon.png");
-    assetManager.AddTexture("SpriteIcon", "assets/SpriteIcon.png");
-    assetManager.AddTexture("GameObjectIcon", "assets/GameObjectIcon.png");
-    icons_.push_back(assetManager.GetTexture("SelectIcon"));
-    icons_.push_back(assetManager.GetTexture("SpriteIcon"));
-    icons_.push_back(assetManager.GetTexture("GameObjectIcon"));
+    assetManager.AddTexturePrivate("SelectIcon", "assets/SelectIcon.png");
+    assetManager.AddTexturePrivate("SpriteIcon", "assets/SpriteIcon.png");
+    assetManager.AddTexturePrivate("GameObjectIcon", "assets/GameObjectIcon.png");
+    icons_.push_back(assetManager.GetTexturePrivate("SelectIcon"));
+    icons_.push_back(assetManager.GetTexturePrivate("SpriteIcon"));
+    icons_.push_back(assetManager.GetTexturePrivate("GameObjectIcon"));
 }
 
 void TabBarWindow::SetPosition()
