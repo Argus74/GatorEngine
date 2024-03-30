@@ -4,6 +4,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
+#include <filesystem>
 
 AssetManager& AssetManager::GetInstance() {
     static AssetManager instance;
@@ -71,6 +72,20 @@ void AssetManager::AddFont(const std::string& name, const std::string& path) {
 void AssetManager::AddAnimation(const std::string& name, const Animation& animation) {
     Animation* ani = new Animation(animation);
     animations_[name] = ani;
+}
+
+void AssetManager::IntializeTextureAssets(std::string path) {
+    // Adding all assets that are in Start Assets
+    for (const auto& entry : std::filesystem::recursive_directory_iterator("assets/StartAssets")) {
+        // Check if the entry is a file with a ".png" extension
+        if (entry.is_regular_file() && entry.path().extension() == ".png") {
+            // Extract the file name without extension to use as a texture name
+            std::string textureName = entry.path().stem().string();
+
+            // Add the texture to the asset manager
+            AddTexture(textureName, entry.path().string());
+        }
+    }
 }
 
 sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers

@@ -24,6 +24,9 @@ Scene_Play::Scene_Play()
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
 	tree->addComponent<CSprite>(m_game->assets().getTexture("Tree"));*/
+
+
+
 }
 
 Scene_Play::Scene_Play(const std::string &levelPath) : m_levelPath(levelPath)
@@ -230,8 +233,8 @@ void Scene_Play::sRender()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			auto texture = GameEngine::GetInstance().assets().GetTexture(spriteComponent->name_);
-			spriteComponent->sprite_.setTexture(texture);
+			//auto texture = GameEngine::GetInstance().assets().GetTexture(spriteComponent->name_);
+			//spriteComponent->sprite_.setTexture(texture);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
 			if (spriteComponent->drawSprite_)

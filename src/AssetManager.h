@@ -28,17 +28,40 @@ public:
 	AssetManager(AssetManager&&) = delete;
 	AssetManager& operator=(AssetManager&&) = delete;
 
+	//This list will keep track of which textures are in our asset database, 
+	std::vector<const char*> TextureNameList;
+
 	// Asset addition methods 
 	void AddTexture(const std::string& name, const std::string& path);
 	void AddSound(const std::string& name, const std::string& path);
 	void AddFont(const std::string& name, const std::string& path);
 	void AddAnimation(const std::string& name, const Animation& animation);
 
+	// Intialize Start Assets
+	void IntializeTextureAssets(std::string path);
+	//Creating a list of Texture Name pointers, this is necessary to populate the drop down selection list when selecting a sprite
+	std::vector<const char*> GenerateTextureNamePointers() {
+		std::vector<const char*> textureNamePointers;
+
+		// Reserve space in the vector for efficiency.
+		textureNamePointers.reserve(textures_.size());
+
+		for (const auto& texturePair : textures_) {
+			// Add the address of the string key in the map.
+			textureNamePointers.push_back(texturePair.first.c_str());
+		}
+
+		return textureNamePointers;
+	};
+
 	// Asset retrieval methods 
 	sf::Texture& GetTexture(const std::string& name);
 	sf::SoundBuffer& GetSound(const std::string& name);
 	sf::Font& GetFont(const std::string& name);
 	Animation& GetAnimation(const std::string& name);
+
+	//Plaing a sound using the stored sounds that are in our map
+	sf::Sound PlaySound(const std::string& name);
 
 	// Function that extracts a filename from a filepath
 	static std::string ExtractFilename(const std::string& path) {
@@ -56,9 +79,6 @@ public:
 
 		return filenameWithoutExtension;
 	};
-
-	//Plaing a sound using the stored sounds that are in our map
-	sf::Sound PlaySound(const std::string& name);
 
 private:
 	AssetManager();

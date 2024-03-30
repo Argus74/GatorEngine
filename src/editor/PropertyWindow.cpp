@@ -146,7 +146,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinp
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite) 
 {
-    DrawProperty("Sprite Name", sprite->name_);
+    DrawProperty("Sprite", sprite);
     DrawProperty("Draw Sprite", sprite->drawSprite_);
 }
 
@@ -224,6 +224,34 @@ void PropertyWindow::DrawInputField(int &val)
 void PropertyWindow::DrawInputField(bool &val)
 {
     ImGui::Checkbox("##Bool", &val);
+}
+
+
+void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
+{
+    auto& assetManager = AssetManager::GetInstance();
+    auto spriteNameList = assetManager.GenerateTextureNamePointers();
+    int selection = 0;
+
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    const char* preview_value = val->name_.c_str();
+
+    // Use BeginCombo and EndCombo for a custom preview value
+    if (ImGui::BeginCombo("##Sprites", preview_value)) {
+        for (int i = 0; i < spriteNameList.size(); i++) {
+            bool is_selected = (selection == i);
+            if (ImGui::Selectable(spriteNameList[i], is_selected)) {
+                selection = i;
+                val->sprite_.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
+                val->name_ = spriteNameList[selection];
+            }
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 }
 
 void PropertyWindow::DrawInputField(sf::Keyboard::Key& val) 

@@ -45,6 +45,7 @@ private:
     void DrawInputField(Action &val);
     void DrawInputField(sf::Keyboard::Key &val);
     void DrawInputField(sf::Mouse::Button& val);
+	void DrawInputField(std::shared_ptr<CSprite>& sprite);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>
