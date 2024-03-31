@@ -9,7 +9,7 @@
 
 Scene_Play::Scene_Play()
 {
-	spawnPlayer();
+	//spawnPlayer();
 	// Create a platform and a tree:
 	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
@@ -233,10 +233,15 @@ void Scene_Play::sRender()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			//auto texture = GameEngine::GetInstance().assets().GetTexture(spriteComponent->name_);
-			//spriteComponent->sprite_.setTexture(texture);
-			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
+			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			// Set the position of the sprite to the center position
+			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
+
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
