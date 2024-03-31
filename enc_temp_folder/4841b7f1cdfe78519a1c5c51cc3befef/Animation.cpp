@@ -35,7 +35,7 @@ void Animation::Update() {
         currentFrame_++;
 
         // Subtract 1 from the accumulator to prepare for the next frame
-        frameAccumulator -= 1.0f;
+        frameAccumulator -= 1.0f; // Or use 'fmod(frameAccumulator, 1.0f)' for more precision
     }
 
     // Check if the animation has reached the end
