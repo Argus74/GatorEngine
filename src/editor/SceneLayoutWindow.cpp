@@ -119,7 +119,6 @@ std::vector<float> SceneLayoutWindow::GetSelectionBoxDimensions(const std::share
 	dimensions[0] = transform.position.x - (dimensions[2] / 2);
 	dimensions[1] = transform.position.y - (dimensions[3] / 2);
 
-	std::cout << dimensions[0] << ", " << dimensions[1] << ", " << dimensions[2] << ", " << dimensions[3] << std::endl;
 
 	return dimensions;
 }

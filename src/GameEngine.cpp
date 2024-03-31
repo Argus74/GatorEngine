@@ -58,7 +58,7 @@ void GameEngine::init(const std::string &path)
 	assetManager.AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimation"), 11, 1);
 	assetManager.AddAnimation("DefaultAnimation", ani);
-	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimation"), 11, 1);
+	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimation"), 12, 1);
 	assetManager.AddAnimation("RunningAnimation", ani2);
 	
 	//123

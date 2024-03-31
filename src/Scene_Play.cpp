@@ -9,7 +9,7 @@
 
 Scene_Play::Scene_Play()
 {
-	//spawnPlayer();
+	spawnPlayer();
 	// Create a platform and a tree:
 	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
@@ -209,7 +209,12 @@ void Scene_Play::sAnimation()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
-			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = sprite.getLocalBounds();
+			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			// Set the position of the sprite to the center position
+			sprite.setPosition(position.x, position.y + yOffset);
 			sprite.setScale(scale.x, scale.y);
 
 			GameEngine::GetInstance().window().draw(sprite);
