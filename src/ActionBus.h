@@ -36,6 +36,7 @@ static const char* kActionNames[] = {
 	"Move Down",
 	"Move Left",
 	"Move Right",
+	"Jump"
 };
 
 static enum Action {
@@ -44,6 +45,7 @@ static enum Action {
 	MoveDown,
 	MoveLeft,
 	MoveRight,
+	Jump,
 	NUM_ACTIONS
 };
 
