@@ -3,6 +3,15 @@ project(GatorEngine)
 
 set(CMAKE_CXX_STANDARD 17)
 
+include(FetchContent)
+
+FetchContent_Declare(luajit
+    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT.git
+    GIT_TAG        879f3976f3657c11464206b2d49e21accdfb62bc
+)
+
+FetchContent_MakeAvailable(luajit)
+
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
 add_subdirectory(${SFML_DIR})
@@ -44,7 +53,11 @@ add_executable(
     "src/Animation.cpp"
     "src/components/CAnimation.cpp"
     "src/components/CSprite.cpp"
-    "src/GameEngine.cpp" "src/components/CSprite.h" "src/components/includes.h" "src/components/CRigidBody.h")
+    "src/GameEngine.cpp" 
+    "src/components/CSprite.h" 
+    "src/components/includes.h" 
+    "src/components/CRigidBody.h" 
+    "src/lua_interpreter/LuaManager.cpp")
 
 target_link_libraries(GatorEngine PRIVATE
     sfml-graphics
@@ -53,6 +66,7 @@ target_link_libraries(GatorEngine PRIVATE
     sfml-audio
     ImGui-SFML::ImGui-SFML
     box2d
+    libluajit
 )
 
 # Set the include directories for the GatorEngine target
@@ -92,6 +106,11 @@ if (WIN32)
         add_custom_command(TARGET GatorEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
+            $<TARGET_FILE_DIR:GatorEngine>)
+        # Copy ImGui DLLs
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
 endif()
 
