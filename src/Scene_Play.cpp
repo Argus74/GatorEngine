@@ -12,6 +12,10 @@ Scene_Play::Scene_Play()
 	spawnPlayer();
 	// Create a platform and a tree:
 	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
+	// Create a platform and a tree:
+	std::shared_ptr<Entity> ground2 = m_entityManager.addEntity("Ground");
+	// Create a platform and a tree:
+	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
@@ -21,6 +25,25 @@ Scene_Play::Scene_Play()
 	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 
+
+	// The parameters to construct a transform are position and scale and angle of rotation
+	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
+	ground2->addComponent<CSprite>("Ground");
+	ground2->addComponent<CName>("Ground2");
+	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
+	//Need to select ground portion of the texture
+	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	GatorPhysics::GetInstance().createBody(ground2.get(), true);
+
+
+	// The parameters to construct a transform are position and scale and angle of rotation
+	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
+	ground3->addComponent<CSprite>("Ground");
+	ground3->addComponent<CName>("Ground3");
+	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
+	//Need to select ground portion of the texture
+	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
 	tree->addComponent<CSprite>(m_game->assets().getTexture("Tree"));*/
@@ -71,7 +94,7 @@ void Scene_Play::update()
 	sAnimation();
 	sRender();
 	//sRenderColliders();
-	GatorPhysics &physics = GatorPhysics::GetInstance();
+	//GatorPhysics &physics = GatorPhysics::GetInstance();
 }
 
 void Scene_Play::sCollision()
@@ -169,6 +192,24 @@ void Scene_Play::sUserInput()
 
 void Scene_Play::sPhysics()
 {
+
+	//First check if any new entities have a new rigid body component and
+	// have not been added to the physics world
+	
+	for (auto entity : EntityManager::GetInstance().getEntities())
+	{
+		if (entity->hasComponent<CRigidBody>())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
+			//If the entity is not in the physics world, add it
+			if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end())
+			{
+				GatorPhysics::GetInstance().createBody(entity.get(), rigidBodyComponent->staticBody);
+			}
+		}
+	}
+
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
@@ -209,7 +250,8 @@ void Scene_Play::sAnimation()
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
 			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
 			sprite.setScale(scale.x, scale.y);
-
+			float angle = transformComponent->angle * -1;
+			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
 			animationComponent->update();
 		}
@@ -231,7 +273,9 @@ void Scene_Play::sRender()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
+			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
+			float angle = transformComponent->angle * -1;
+			spriteComponent->sprite_.setRotation(angle);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -250,13 +294,22 @@ void Scene_Play::sRenderColliders() {
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			b2Vec2 position = rigidBodyComponent->body->GetPosition();
+			//These sizes are half widths and half heights
 			b2Vec2 size = rigidBodyComponent->body->GetFixtureList()->GetAABB(0).GetExtents();
+			float xScale = entity->getComponent<CTransform>()->scale.x;
+			float yScale = entity->getComponent<CTransform>()->scale.y;
+			float entityWidth = size.x * 2 / xScale / GatorPhysics::GetInstance().getScale();
+			float entityHeight = size.y * 2 / yScale / GatorPhysics::GetInstance().getScale();
 			auto spriteComponent = sf::RectangleShape();
-			spriteComponent.setOrigin(size.x, size.y);
+			spriteComponent.setOrigin(entityWidth / 2, entityHeight / 2);
 			spriteComponent.setFillColor(sf::Color::White);
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			spriteComponent.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
-			spriteComponent.setSize(sf::Vector2f(size.x * 2, size.y * 2));
+			float worldY = GameEngine::GetInstance().window().getSize().y;
+			float entityY = ((position.y / GatorPhysics::GetInstance().getScale()) - worldY) * -1;
+			float entityX = position.x / GatorPhysics::GetInstance().getScale();
+			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
+			
+			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
 			GameEngine::GetInstance().window().draw(spriteComponent);
 		}
 	}
@@ -268,12 +321,28 @@ void Scene_Play::sMovement()
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
 		if (!entity->hasComponent<CTransform>()) continue;
 		float speed = 5.0;
+		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
+		//Vec2 finalAcceleration = Vec2(0, 0);
+		b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+		
+		b2Vec2 resultMovement = b2Vec2(0, 0);
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
-			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);
-		else if (ActionBus::GetInstance().Received(entity, MoveLeft))
-			entity->getComponent<CTransform>()->velocity = Vec2(-speed, 0);		
-		else
-			entity->getComponent<CTransform>()->velocity = Vec2(0, 0);
+			resultMovement += b2Vec2(speed, 0);
+		//finalVelocity = finalVelocity + Vec2(speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, MoveLeft))
+			resultMovement += b2Vec2(-speed, 0);
+		//finalVelocity = finalVelocity + Vec2(-speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, Jump))
+			body->ApplyForceToCenter(b2Vec2(0, 30), true);
+
+		b2Vec2 velocity = body->GetLinearVelocity();
+		resultMovement = b2Vec2(resultMovement.x, velocity.y);
+
+		body->SetLinearVelocity(resultMovement);
+
+
 	}
 }
 
