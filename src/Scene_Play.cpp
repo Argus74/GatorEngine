@@ -147,19 +147,6 @@ void Scene_Play::sUserInput()
 		}
 	}
 
-	if (Editor::state == Editor::State::Testing)
-	{
-		EntityManager::GetInstance().update();
-		// other systems here
-	}
-	else
-	{
-		/*
-			m_player->cTransform->position = Vec2(400, 400);
-			- resetting player position back to a mock position if not testing, could be an idea to reset everything here?
-		*/
-	}
-
 	// sRender outside of testing check here?
 }
 
