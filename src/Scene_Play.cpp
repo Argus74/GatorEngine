@@ -129,7 +129,6 @@ void Scene_Play::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
 				if (!entity->getComponent<CUserInput>())
 					continue;
@@ -137,7 +136,6 @@ void Scene_Play::sUserInput()
 				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
 				{
 					// For each key in the inputmap
-					std::cout << "Event button: " << eventButton << std::endl;
 					for (auto &actionKeys : inputMap)
 					{
 						if (actionKeys.first == eventButton)
@@ -170,21 +168,6 @@ void Scene_Play::sUserInput()
 		{
 			processInputEvent(event, sf::Event::MouseButtonPressed);
 		}
-	}
-
-	if (Editor::state == Editor::State::Testing)
-	{
-		EntityManager::GetInstance().update();
-		// other systems here
-		m_currentFrame++;
-	}
-	else
-	{
-		m_currentFrame = 0;
-		/*
-			m_player->cTransform->position = Vec2(400, 400);
-			- resetting player position back to a mock position if not testing, could be an idea to reset everything here?
-		*/
 	}
 
 	// sRender outside of testing check here?
