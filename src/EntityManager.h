@@ -28,6 +28,8 @@ public:
 
 	void removeEntity(std::shared_ptr<Entity> entity);
 
+	void cloneEntity(const std::shared_ptr<Entity>& entity);
+
 	void reset();
 
 private:

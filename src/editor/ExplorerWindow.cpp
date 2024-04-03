@@ -63,9 +63,32 @@ void ExplorerWindow::DrawFrames() {
 				Editor::active_entity_ = entity;
 				Editor::state = Editor::State::Selecting;
 			}
+
+			if ((ImGui::Selectable(label.c_str(), isSelected) 
+				|| ImGui::IsItemClicked(ImGuiMouseButton_Right)) 
+				&& Editor::state != Editor::State::Testing) {
+				Editor::active_entity_ = entity;
+				Editor::state = Editor::State::Selecting;
+			}
+
+			// Open context menu on right-click // TODO: Bug if right-click while context menu open
+			ImGui::OpenPopupOnItemClick("EntityContextMenu", ImGuiPopupFlags_MouseButtonRight);
 		}
 		ImGui::EndListBox();
 	}
+
+	// Draw context menu
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+	if (ImGui::BeginPopupContextItem("EntityContextMenu")) {
+		if (ImGui::Selectable("Clone")) {
+			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+		}
+		if (ImGui::Selectable("Delete")) {
+			EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+		}
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar();
 }
 
 void ExplorerWindow::PostDraw() {

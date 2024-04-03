@@ -57,6 +57,14 @@ private:
 	void DrawPopup(std::shared_ptr<CAnimation> animation);
 	void DrawPopup(std::shared_ptr<Entity> entity);
 
+	// Draw a button that opens a popup for some subject
+	template <typename T>
+	void DrawPopupButton(const char* name, T& subject, ImVec2 size); // todo rename
+	
+	// Draw the actual popup for a subject
+	void DrawPopup(std::shared_ptr<CUserInput> userinput);
+	void DrawPopup(std::shared_ptr<Entity> entity);
+
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags;
 

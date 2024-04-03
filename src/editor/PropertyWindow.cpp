@@ -99,7 +99,6 @@ void PropertyWindow::DrawComponent(T& component)
             DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
             ImGui::PopStyleColor();
         }
-
         if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
             // Position the button to the right of the header
             static const char* name = "Create Animation";
@@ -290,6 +289,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CAnimation>& val)
         ImGui::EndCombo();
     }
 }
+
 
 void PropertyWindow::DrawInputField(sf::Keyboard::Key& val) 
 {

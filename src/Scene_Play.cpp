@@ -12,6 +12,10 @@ Scene_Play::Scene_Play()
 	spawnPlayer();
 	// Create a platform and a tree:
 	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
+	// Create a platform and a tree:
+	std::shared_ptr<Entity> ground2 = m_entityManager.addEntity("Ground");
+	// Create a platform and a tree:
+	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
@@ -21,6 +25,25 @@ Scene_Play::Scene_Play()
 	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 
+
+	// The parameters to construct a transform are position and scale and angle of rotation
+	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
+	ground2->addComponent<CSprite>("Ground");
+	ground2->addComponent<CName>("Ground2");
+	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
+	//Need to select ground portion of the texture
+	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	GatorPhysics::GetInstance().createBody(ground2.get(), true);
+
+
+	// The parameters to construct a transform are position and scale and angle of rotation
+	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
+	ground3->addComponent<CSprite>("Ground");
+	ground3->addComponent<CName>("Ground3");
+	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
+	//Need to select ground portion of the texture
+	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
 	tree->addComponent<CSprite>(m_game->assets().getTexture("Tree"));*/
@@ -73,7 +96,8 @@ void Scene_Play::update()
 	sCollision();
 	sAnimation();
 	sRender();
-	GatorPhysics &physics = GatorPhysics::GetInstance();
+	//sRenderColliders();
+	//GatorPhysics &physics = GatorPhysics::GetInstance();
 }
 
 void Scene_Play::sCollision()
@@ -108,7 +132,6 @@ void Scene_Play::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
 				if (!entity->getComponent<CUserInput>())
 					continue;
@@ -116,7 +139,6 @@ void Scene_Play::sUserInput()
 				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
 				{
 					// For each key in the inputmap
-					std::cout << "Event button: " << eventButton << std::endl;
 					for (auto &actionKeys : inputMap)
 					{
 						if (actionKeys.first == eventButton)
@@ -151,26 +173,29 @@ void Scene_Play::sUserInput()
 		}
 	}
 
-	if (Editor::state == Editor::State::Testing)
-	{
-		EntityManager::GetInstance().update();
-		// other systems here
-		m_currentFrame++;
-	}
-	else
-	{
-		m_currentFrame = 0;
-		/*
-			m_player->cTransform->position = Vec2(400, 400);
-			- resetting player position back to a mock position if not testing, could be an idea to reset everything here?
-		*/
-	}
-
 	// sRender outside of testing check here?
 }
 
 void Scene_Play::sPhysics()
 {
+
+	//First check if any new entities have a new rigid body component and
+	// have not been added to the physics world
+	
+	for (auto entity : EntityManager::GetInstance().getEntities())
+	{
+		if (entity->hasComponent<CRigidBody>())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
+			//If the entity is not in the physics world, add it
+			if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end())
+			{
+				GatorPhysics::GetInstance().createBody(entity.get(), rigidBodyComponent->staticBody);
+			}
+		}
+	}
+
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
@@ -216,7 +241,8 @@ void Scene_Play::sAnimation()
 			// Set the position of the sprite to the center position
 			sprite.setPosition(position.x, position.y + yOffset);
 			sprite.setScale(scale.x, scale.y);
-
+			float angle = transformComponent->angle * -1;
+			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
 			animationComponent->update();
 		}
@@ -242,10 +268,13 @@ void Scene_Play::sRender()
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
-
-			// Set the position of the sprite to the center position
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-			spriteComponent->sprite_.setScale(scale.x, scale.y);
+      spriteComponent->sprite_.setScale(scale.x, scale.y);
+      
+      //Rotation
+			float angle = transformComponent->angle * -1;
+			spriteComponent->sprite_.setRotation(angle);
+			
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -253,17 +282,66 @@ void Scene_Play::sRender()
 	}
 }
 
+void Scene_Play::sRenderColliders() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+
+	for (auto& entity : entityList)
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CRigidBody>())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			b2Vec2 position = rigidBodyComponent->body->GetPosition();
+			//These sizes are half widths and half heights
+			b2Vec2 size = rigidBodyComponent->body->GetFixtureList()->GetAABB(0).GetExtents();
+			float xScale = entity->getComponent<CTransform>()->scale.x;
+			float yScale = entity->getComponent<CTransform>()->scale.y;
+			float entityWidth = size.x * 2 / xScale / GatorPhysics::GetInstance().getScale();
+			float entityHeight = size.y * 2 / yScale / GatorPhysics::GetInstance().getScale();
+			auto spriteComponent = sf::RectangleShape();
+			spriteComponent.setOrigin(entityWidth / 2, entityHeight / 2);
+			spriteComponent.setFillColor(sf::Color::White);
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			float worldY = GameEngine::GetInstance().window().getSize().y;
+			float entityY = ((position.y / GatorPhysics::GetInstance().getScale()) - worldY) * -1;
+			float entityX = position.x / GatorPhysics::GetInstance().getScale();
+			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
+			
+			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
+			GameEngine::GetInstance().window().draw(spriteComponent);
+		}
+	}
+}
+
+
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
 		if (!entity->hasComponent<CTransform>()) continue;
 		float speed = 5.0;
+		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
+		//Vec2 finalAcceleration = Vec2(0, 0);
+		b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+		
+		b2Vec2 resultMovement = b2Vec2(0, 0);
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
-			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);
-		else if (ActionBus::GetInstance().Received(entity, MoveLeft))
-			entity->getComponent<CTransform>()->velocity = Vec2(-speed, 0);		
-		else
-			entity->getComponent<CTransform>()->velocity = Vec2(0, 0);
+			resultMovement += b2Vec2(speed, 0);
+		//finalVelocity = finalVelocity + Vec2(speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, MoveLeft))
+			resultMovement += b2Vec2(-speed, 0);
+		//finalVelocity = finalVelocity + Vec2(-speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, Jump))
+			body->ApplyForceToCenter(b2Vec2(0, 30), true);
+
+		b2Vec2 velocity = body->GetLinearVelocity();
+		resultMovement = b2Vec2(resultMovement.x, velocity.y);
+
+		body->SetLinearVelocity(resultMovement);
+
+
 	}
 }
 
