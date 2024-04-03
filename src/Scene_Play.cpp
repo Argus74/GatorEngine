@@ -151,11 +151,9 @@ void Scene_Play::sUserInput()
 	{
 		EntityManager::GetInstance().update();
 		// other systems here
-		m_currentFrame++;
 	}
 	else
 	{
-		m_currentFrame = 0;
 		/*
 			m_player->cTransform->position = Vec2(400, 400);
 			- resetting player position back to a mock position if not testing, could be an idea to reset everything here?
