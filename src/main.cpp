@@ -12,9 +12,11 @@
 #include "EntityManager.h"
 #include "GameEngine.h"
 #include "Scene_Play.h"
-
+#include "lua_interpreter/LuaManager.hpp"
 int main()
 {
+    LuaManager luaManager;
+    luaManager.TestExample();
     GameEngine& newGame = GameEngine::GetInstance();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
