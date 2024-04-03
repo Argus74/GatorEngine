@@ -9,8 +9,3 @@ Scene::Scene()
 {
 
 }
-
-size_t Scene::currentFrame() const
-{
-	return m_currentFrame;
-}

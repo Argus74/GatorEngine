@@ -291,13 +291,13 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CUserInput> userinput)
         {
             if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
             {
-            userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+                userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+            }
+            else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) {
+                userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
+            }
+            ImGui::CloseCurrentPopup();
         }
-        else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) {
-            userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
-        }
-        ImGui::CloseCurrentPopup();
-    }
 }
 
 void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
