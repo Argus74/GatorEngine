@@ -91,6 +91,7 @@ void Scene_Play::update()
 	sMovement();
 	sPhysics();
 	sCollision();
+	sBackground();
 	sAnimation();
 	sRender();
 	//sRenderColliders();
@@ -327,6 +328,28 @@ void Scene_Play::sMovement()
 
 
 	}
+}
+
+// Handles clearing of window and drawing scene background
+void Scene_Play::sBackground() {
+	// Find first component of type CBackground and draw it
+	auto entityList = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entityList) {
+		if (entity->hasComponent<CBackground>()) {
+			auto backgroundComponent = entity->getComponent<CBackground>();
+			// If using texture, draw that; otherwise, use color
+			if (backgroundComponent->use_texture) {
+				sf::Sprite sprite(backgroundComponent->sprite);
+				GameEngine::GetInstance().window().draw(sprite);
+			} else {
+				GameEngine::GetInstance().window().clear(backgroundComponent->color);
+			}
+			return;
+		}
+	}
+
+	// Otherwise, default to a black background
+	GameEngine::GetInstance().window().clear(sf::Color(0, 0, 0));
 }
 
 // void Scene_Play::sAnimation()
