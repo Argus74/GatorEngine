@@ -335,15 +335,9 @@ void Scene_Play::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CBackground>()) {
-			auto backgroundComponent = entity->getComponent<CBackground>();
-			// If using texture, draw that; otherwise, use color
-			if (backgroundComponent->use_texture) {
-				sf::Sprite sprite(backgroundComponent->sprite);
-				GameEngine::GetInstance().window().draw(sprite);
-			} else {
-				GameEngine::GetInstance().window().clear(backgroundComponent->color);
-			}
+		if (entity->hasComponent<CBackgroundColor>()) {
+			auto background = entity->getComponent<CBackgroundColor>();
+			GameEngine::GetInstance().window().clear(background->color);
 			return;
 		}
 	}

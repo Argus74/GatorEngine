@@ -162,14 +162,9 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbo
 	DrawProperty("Is Static", rigidbody->staticBody);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackground> background)
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
 {
 	DrawProperty("Color", background->color);
-	DrawProperty("Use Texture", background->use_texture);
-    if (background->use_texture)
-    {
-	    DrawProperty("Texture", background->sprite);
-	}
 }
 
 // TODO: Add new overloads for future components here
@@ -254,11 +249,6 @@ void PropertyWindow::DrawInputField(Action& val)
     int selection = static_cast<int>(val);
     ImGui::Combo("##Actions", &selection, kActionNames, IM_ARRAYSIZE(kActionNames));
     val = static_cast<Action>(selection);
-}
-
-void PropertyWindow::DrawInputField(sf::Sprite& val)
-{
-    // TODO: IS ON ALEC'S BRANCH
 }
 
 template <typename T>
