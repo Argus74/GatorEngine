@@ -318,7 +318,7 @@ void Scene_Play::sRenderColliders() {
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>()) continue;
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
 		float speed = 5.0;
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
