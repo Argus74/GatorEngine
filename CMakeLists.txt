@@ -12,6 +12,12 @@ FetchContent_Declare(luajit
 
 FetchContent_MakeAvailable(luajit)
 
+# FetchContent_Declare(
+ # nativefiledialog-extended
+ # GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+ # GIT_TAG        17b6e8ce219c0677f94b63636abb9296b28841ca
+#)
+#FetchContent_MakeAvailable(nativefiledialog-extended)
 
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
@@ -86,10 +92,6 @@ add_custom_command(TARGET GatorEngine POST_BUILD
     ${CMAKE_SOURCE_DIR}/assets
     $<TARGET_FILE_DIR:GatorEngine>/assets)
 
-add_custom_command(TARGET GatorEngine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    $<TARGET_FILE_DIR:nfd>
-    $<TARGET_FILE_DIR:GatorEngine>)
 
 if (WIN32)
         # Copy SFML DLLs
@@ -133,6 +135,10 @@ if (WIN32)
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
 
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended
+            $<TARGET_FILE_DIR:GatorEngine>)
 
 
 endif()
