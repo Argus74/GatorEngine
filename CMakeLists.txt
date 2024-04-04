@@ -9,15 +9,14 @@ FetchContent_Declare(luajit
     GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT.git
     GIT_TAG        879f3976f3657c11464206b2d49e21accdfb62bc
 )
-
 FetchContent_MakeAvailable(luajit)
 
-# FetchContent_Declare(
- # nativefiledialog-extended
- # GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
- # GIT_TAG        17b6e8ce219c0677f94b63636abb9296b28841ca
-#)
-#FetchContent_MakeAvailable(nativefiledialog-extended)
+FetchContent_Declare(
+    nativefiledialog-extended
+    GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+    GIT_TAG        17b6e8ce219c0677f94b63636abb9296b28841ca
+)
+FetchContent_MakeAvailable(nativefiledialog-extended)
 
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
@@ -38,8 +37,8 @@ set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
 #Add nativefiledialog-extended
-set(NATIVE_FILE_DIALOG_DIR ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended)
-add_subdirectory(${NATIVE_FILE_DIALOG_DIR})
+# set(NATIVE_FILE_DIALOG_DIR ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended)
+# add_subdirectory(${NATIVE_FILE_DIALOG_DIR})
 
 
 # Main executable
@@ -84,7 +83,7 @@ target_link_libraries(GatorEngine
 )
 
 # Set the include directories for the GatorEngine target
-target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR} ${NATIVE_FILE_DIALOG_DIR})
+target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR})
 
 # Copy asset folder
 add_custom_command(TARGET GatorEngine POST_BUILD
@@ -134,7 +133,6 @@ if (WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
-
 
 endif()
 
