@@ -13,7 +13,6 @@ FetchContent_Declare(luajit
 FetchContent_MakeAvailable(luajit)
 
 
-
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
 add_subdirectory(${SFML_DIR})
@@ -87,6 +86,11 @@ add_custom_command(TARGET GatorEngine POST_BUILD
     ${CMAKE_SOURCE_DIR}/assets
     $<TARGET_FILE_DIR:GatorEngine>/assets)
 
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${NATIVE_FILE_DIALOG_DIR}
+    $<TARGET_FILE_DIR:GatorEngine>/nativefiledialog-extended)
+
 if (WIN32)
         # Copy SFML DLLs
         add_custom_command(TARGET GatorEngine POST_BUILD
@@ -122,11 +126,14 @@ if (WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/extern/luajit.dll
             $<TARGET_FILE_DIR:GatorEngine>)
+
         # Copy lua scripts
         add_custom_command(TARGET GatorEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
+
+
 
 endif()
 
