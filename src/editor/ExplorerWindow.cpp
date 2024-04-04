@@ -64,12 +64,7 @@ void ExplorerWindow::DrawFrames() {
 				Editor::state = Editor::State::Selecting;
 			}
 
-			if ((ImGui::Selectable(label.c_str(), isSelected) 
-				|| ImGui::IsItemClicked(ImGuiMouseButton_Right)) 
-				&& Editor::state != Editor::State::Testing) {
-				Editor::active_entity_ = entity;
-				Editor::state = Editor::State::Selecting;
-			}
+			
 
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
 			ImGui::OpenPopupOnItemClick("EntityContextMenu", ImGuiPopupFlags_MouseButtonRight);
