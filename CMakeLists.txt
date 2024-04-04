@@ -59,14 +59,14 @@ add_executable(
     "src/components/CRigidBody.h" 
     "src/lua_interpreter/LuaManager.cpp")
 
-target_link_libraries(GatorEngine PRIVATE
+target_link_libraries(GatorEngine
+    libluajit
     sfml-graphics
     sfml-window
     sfml-system
     sfml-audio
     ImGui-SFML::ImGui-SFML
     box2d
-    libluajit
 )
 
 # Set the include directories for the GatorEngine target
@@ -107,7 +107,13 @@ if (WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             $<TARGET_FILE_DIR:ImGui-SFML::ImGui-SFML>
             $<TARGET_FILE_DIR:GatorEngine>)
-        # Copy ImGui DLLs
+
+        # Copy Luajit DLLs
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/extern/luajit.dll
+            $<TARGET_FILE_DIR:GatorEngine>)
+        # Copy lua scripts
         add_custom_command(TARGET GatorEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
