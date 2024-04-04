@@ -135,11 +135,6 @@ if (WIN32)
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
 
-        add_custom_command(TARGET GatorEngine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended
-            $<TARGET_FILE_DIR:GatorEngine>)
-
 
 endif()
 
