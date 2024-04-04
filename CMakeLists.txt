@@ -89,7 +89,7 @@ add_custom_command(TARGET GatorEngine POST_BUILD
 add_custom_command(TARGET GatorEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${NATIVE_FILE_DIALOG_DIR}
-    $<TARGET_FILE_DIR:GatorEngine>/nativefiledialog-extended)
+    $<TARGET_FILE_DIR:GatorEngine>/extern/nativefiledialog-extended)
 
 if (WIN32)
         # Copy SFML DLLs
