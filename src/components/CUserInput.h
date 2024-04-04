@@ -16,8 +16,8 @@
 class CUserInput : public Component {
 public:
 	DECLARE_COMPONENT_NAME("User Input");
-	std::map<sf::Mouse::Button, Action> mouseMap;
-	std::map<sf::Keyboard::Key, Action> keyMap;
+	std::map<sf::Mouse::Button, Action> mouse_map;
+	std::map<sf::Keyboard::Key, Action> key_map;
 	CUserInput() {}
 };
 

@@ -3,21 +3,21 @@
 
 #include <memory>
 
-class Scene
+class Scene_Old
 {
 
 protected:
-	EntityManager&	m_entityManager = EntityManager::GetInstance();
-	bool			m_paused = false;
-	bool			m_hasEnded = false;
-	size_t			m_currentFrame = 0;
+	EntityManager&	entity_manager_ = EntityManager::GetInstance();
+	bool			paused_ = false;
+	bool			has_ended_ = false;
+	size_t			current_frame_ = 0;
 
 	
 	void setPaused(bool paused);
 
 public:
 	virtual void onEnd() = 0;
-	Scene();
+	Scene_Old();
 
 	virtual void update() = 0;
 	virtual void sRender() = 0;

@@ -56,10 +56,10 @@ private:
 	void DrawPopup(std::shared_ptr<Entity> entity);
 
     // ImGui customization options for tables (the rows under each component header)
-    ImGuiTableFlags table_flags;
+    ImGuiTableFlags table_flags_;
 
     // ImGui customization options for tree nodes (the component header bars)
-    ImGuiTreeNodeFlags tree_node_flags;
+    ImGuiTreeNodeFlags tree_node_flags_;
 };
 
 // Used to map SFML key enums to strings for display in the property window

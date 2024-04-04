@@ -8,9 +8,9 @@
 class GatorPhysics {
 
 private:
-		int32 velocityIterations = 6;
-		int32 positionIterations = 2;
-		float timeStep = 1.0f / 60.0f;
+		int32 velocity_iterations_ = 6;
+		int32 position_iterations_ = 2;
+		float time_step_ = 1.0f / 60.0f;
 
 		GatorPhysics();
 		b2Vec2 gravity_ = b2Vec2(0, 10);
@@ -22,6 +22,6 @@ public:
 		b2World* getWorld();
 		void update();
 		void setGravity(Vec2 gravity);
-		void createBody(Entity* entity, bool is_static);
+		void createBody(Entity* entity, bool isStatic);
 		void destroyBody(Entity* entity);
 };

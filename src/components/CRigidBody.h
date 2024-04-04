@@ -4,9 +4,9 @@
 class CRigidBody : public Component {
 public:
 	DECLARE_COMPONENT_NAME("Rigid Body");
-	bool staticBody;
+	bool static_body;
 	b2Body* body;
 	b2Fixture* fixture;
-	CRigidBody() : staticBody(true) {}
-	CRigidBody(bool flag, b2Body* b, b2Fixture* f) : staticBody(flag), body(b), fixture(f) {}
+	CRigidBody() : static_body(true) {}
+	CRigidBody(bool flag, b2Body* b, b2Fixture* f) : static_body(flag), body(b), fixture(f) {}
 };

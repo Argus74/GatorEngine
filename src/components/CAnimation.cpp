@@ -3,19 +3,19 @@
 
 CAnimation::CAnimation() { 
 	auto& assetManager = AssetManager::GetInstance();
-	animation_ = assetManager.GetAnimation(name_);
-	animationSpeed_ = animation_.speed_;
+	animation = assetManager.GetAnimation(name);
+	animation_speed = animation.speed;
 }
 
 void CAnimation::setAnimation(const Animation& newAnimation) {
-	animation_ = newAnimation;
+	animation = newAnimation;
 }
 
 void CAnimation::changeSpeed() {
-	animation_.speed_ = animationSpeed_;
+	animation.speed = animation_speed;
 }
 
 void CAnimation::update() {
-	animation_.Update();
+	animation.Update();
 
 }

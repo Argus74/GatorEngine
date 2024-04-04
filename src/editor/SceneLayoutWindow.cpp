@@ -39,11 +39,11 @@ void SceneLayoutWindow::DrawFrames() {
 
 		auto& transform = *(entityList[i]->getComponent<CTransform>());
 		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
-		if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving) {
+		if (Editor::kState == Editor::State::Selecting || Editor::kState == Editor::State::Moving) {
 			if (!entityList[i]->hasComponent<CTransform>()) continue;
 
 			// Make border non-zero if this is the active entity
-			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
+			short borderSize = (Editor::kActiveEntity == entityList[i]) ? kBORDER_SIZE : 0;
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
 
 			// Calculate selection box dimensions and draw it
@@ -52,7 +52,7 @@ void SceneLayoutWindow::DrawFrames() {
 			std::string label = "##DraggableBox" + std::to_string(i);
 			if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
 				// On click, set this entity as the active entity
-				Editor::active_entity_ = entityList[i];
+				Editor::kActiveEntity = entityList[i];
 			}
 
 			// If this selection box is being dragged, move the entity
@@ -63,7 +63,7 @@ void SceneLayoutWindow::DrawFrames() {
 				ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 				transform.position.x += ImGui::GetIO().MouseDelta.x;
 				transform.position.y += ImGui::GetIO().MouseDelta.y;
-				Editor::state = Editor::State::Moving;
+				Editor::kState = Editor::State::Moving;
 			}
 
 
@@ -100,12 +100,12 @@ std::vector<float> SceneLayoutWindow::GetSelectionBoxDimensions(const std::share
 
 	// Set selection box size, depending on the entity's current sprite
 	if (entity->hasComponent<CSprite>()) {
-		auto& sprite = entity->getComponent<CSprite>()->sprite_;
+		auto& sprite = entity->getComponent<CSprite>()->sprite;
 		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2); // to make border line up correctly
 		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
 	}
 	else if (entity->hasComponent<CAnimation>()) {
-		auto& sprite = entity->getComponent<CAnimation>()->animation_.sprite_;
+		auto& sprite = entity->getComponent<CAnimation>()->animation.sprite;
 		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2);
 		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
 	}

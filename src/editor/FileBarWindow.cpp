@@ -31,7 +31,7 @@ void FileBarWindow::DrawFrames() {
             if (ImGui::MenuItem("Upload Sprite")) { 
                 auto& assetManager = AssetManager::GetInstance();
                 nfdchar_t* outPath = NULL;
-                nfdfilteritem_t filterItem[1] = { { "Image files", "png;jpg;jpeg" } };
+                nfdfilteritem_t filterItem[1] = { { "Image files", "png,jpg,jpeg" } };
                 nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
 
                 

@@ -13,15 +13,15 @@ PropertyWindow::PropertyWindow()
 {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
-    table_flags = 0;
-    table_flags |= ImGuiTableFlags_Borders;
-    table_flags &= ~ImGuiTableFlags_BordersOuterV;
-    table_flags &= ~ImGuiTableFlags_BordersOuterH;
-    table_flags |= ImGuiTableFlags_NoPadInnerX;
-    table_flags |= ImGuiTableFlags_NoPadOuterX;
+    table_flags_ = 0;
+    table_flags_ |= ImGuiTableFlags_Borders;
+    table_flags_ &= ~ImGuiTableFlags_BordersOuterV;
+    table_flags_ &= ~ImGuiTableFlags_BordersOuterH;
+    table_flags_ |= ImGuiTableFlags_NoPadInnerX;
+    table_flags_ |= ImGuiTableFlags_NoPadOuterX;
 
-    tree_node_flags = 0;
-    tree_node_flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    tree_node_flags_ = 0;
+    tree_node_flags_ |= ImGuiTreeNodeFlags_DefaultOpen;
 }
 
 void PropertyWindow::SetPosition() 
@@ -51,19 +51,19 @@ void PropertyWindow::PreDraw()
 void PropertyWindow::DrawFrames() 
 {
     // Draw blank window if no active entity
-    if (!Editor::active_entity_ || Editor::state == Editor::State::Testing) 
+    if (!Editor::kActiveEntity || Editor::kState == Editor::State::Testing) 
     {
         name_ = " ";
         return;
     }
 
     // Name the window with entity's CName, if it exists
-    bool hasCName = Editor::active_entity_->hasComponent<CName>();
-    std::string nameTag = hasCName ? Editor::active_entity_->getComponent<CName>()->name : "NULL";
+    bool hasCName = Editor::kActiveEntity->hasComponent<CName>();
+    std::string nameTag = hasCName ? Editor::kActiveEntity->getComponent<CName>()->name : "NULL";
     name_ = "Properties - " + nameTag;
 
     // Draw a section for each component of the entity
-    Editor::active_entity_->forEachComponent([&](auto& component, int index) 
+    Editor::kActiveEntity->forEachComponent([&](auto& component, int index) 
     {
         if (component && component->has) 
         {
@@ -72,7 +72,7 @@ void PropertyWindow::DrawFrames()
     });
 
     // Draw a button for adding new components
-    DrawPopupButton("Add Component", Editor::active_entity_,
+    DrawPopupButton("Add Component", Editor::kActiveEntity,
         ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f));
 }
 
@@ -86,7 +86,7 @@ void PropertyWindow::DrawComponent(T& component)
 {
     bool isOpen = true;
 
-    if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags)) 
+    if (ImGui::CollapsingHeader(component->kComponentName, &isOpen, tree_node_flags_)) 
     {
         // Hacky solution to draw a button within header that allows user to add a new binding
         if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) 
@@ -100,7 +100,7 @@ void PropertyWindow::DrawComponent(T& component)
             ImGui::PopStyleColor();
         }
 
-        if (ImGui::BeginTable(component->componentName, 2, table_flags)) 
+        if (ImGui::BeginTable(component->kComponentName, 2, table_flags_)) 
         {
             DrawComponentProperties(component);
             ImGui::EndTable();
@@ -109,7 +109,7 @@ void PropertyWindow::DrawComponent(T& component)
 
     if (!isOpen) 
     {
-        Editor::active_entity_->removeComponent(component);
+        Editor::kActiveEntity->removeComponent(component);
     }
 }
 
@@ -136,10 +136,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape)
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput) 
 {
-    for (auto& entry : userinput->mouseMap) {
+    for (auto& entry : userinput->mouse_map) {
         DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);
     }
-    for (auto& entry : userinput->keyMap) {
+    for (auto& entry : userinput->key_map) {
         DrawProperty(kSFMLKeyNames[static_cast<int>(entry.first)], entry.second);
     }
 }
@@ -147,19 +147,19 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinp
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite) 
 {
     DrawProperty("Sprite", sprite);
-    DrawProperty("Draw Sprite", sprite->drawSprite_);
+    DrawProperty("Draw Sprite", sprite->draw_sprite);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation) 
 {
-    DrawProperty("Animation Name", animation->name_);
-    DrawProperty("Animation Speed", animation->animationSpeed_);
-    DrawProperty("Disappear", animation->disappear_);
+    DrawProperty("Animation Name", animation->name);
+    DrawProperty("Animation Speed", animation->animation_speed);
+    DrawProperty("Disappear", animation->disappear);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
 {
-	DrawProperty("Is Static", rigidbody->staticBody);
+	DrawProperty("Is Static", rigidbody->static_body);
 }
 
 
@@ -234,7 +234,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
-    const char* preview_value = val->name_.c_str();
+    const char* preview_value = val->name.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Sprites", preview_value)) {
@@ -242,8 +242,8 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(spriteNameList[i], is_selected)) {
                 selection = i;
-                val->sprite_.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
-                val->name_ = spriteNameList[selection];
+                val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
+                val->name = spriteNameList[selection];
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -317,12 +317,12 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CUserInput> userinput)
     // When pressed, add the input to its map, so long as it doesn't already exist
         if (ImGui::Button("Create")) 
         {
-            if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
+            if (typeSelection == 0 && userinput->key_map.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->key_map.end())
             {
-            userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+            userinput->key_map.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
         }
-        else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) {
-            userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
+        else if (userinput->mouse_map.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouse_map.end()) {
+            userinput->mouse_map.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
         }
         ImGui::CloseCurrentPopup();
     }
@@ -337,16 +337,16 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
 
     if (ImGui::BeginCombo("##Components", selectionName))
     {
-        Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
         {
             // Don't display components that already exist
             if (component && component->has) return;
 
             bool isSelected = (selection == index);
-            if (ImGui::Selectable(component->componentName, isSelected))
+            if (ImGui::Selectable(component->kComponentName, isSelected))
             {
                 selection = index;
-                selectionName = component->componentName;
+                selectionName = component->kComponentName;
             }
         });
         ImGui::EndCombo();
@@ -356,11 +356,11 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
     // Draw button that, when pressed, find & initialize the component if it is nullptr
     if (ImGui::Button("Create"))
     {
-        Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
         {
             if (!component && selection == index)
             {
-                Editor::active_entity_->addComponent(component);
+                Editor::kActiveEntity->addComponent(component);
             }
         });
         ImGui::CloseCurrentPopup();

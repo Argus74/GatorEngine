@@ -28,7 +28,7 @@ void GatorPhysics::update()
 	}
 
 	//Step the physics world
-	world_.Step(timeStep, velocityIterations, positionIterations);
+	world_.Step(time_step_, velocity_iterations_, position_iterations_);
 
 	for (auto node : entity_to_bodies_) {
 		//Update the positions/rotation of the entities to match the physics bodies
@@ -42,19 +42,19 @@ void GatorPhysics::setGravity(Vec2 gravity)
 	gravity_ = b2Vec2(gravity.x, gravity.y);
 }
 
-void GatorPhysics::createBody(Entity* entity, bool is_static)
+void GatorPhysics::createBody(Entity* entity, bool isStatic)
 {
 	b2BodyDef newBodyDef;
 	b2PolygonShape newBox;
 	bool has_sprite = entity->hasComponent<CSprite>();
 	bool has_animations = entity->hasComponent<CAnimation>();
-	sf::Sprite& sprite = has_sprite ? entity->getComponent<CSprite>()->sprite_ : entity->getComponent<CAnimation>()->animation_.sprite_;
+	sf::Sprite& sprite = has_sprite ? entity->getComponent<CSprite>()->sprite : entity->getComponent<CAnimation>()->animation.sprite;
 	newBox.SetAsBox(sprite.getLocalBounds().getSize().x, sprite.getLocalBounds().getSize().x);
 
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &newBox;
 	
-	if (is_static)
+	if (isStatic)
 	{
 		newBodyDef.type = b2_staticBody;
 	}
@@ -69,7 +69,7 @@ void GatorPhysics::createBody(Entity* entity, bool is_static)
 	newBodyDef.position.Set(entity->getComponent<CTransform>()->position.x, worldY - entity->getComponent<CTransform>()->position.y - 150);
 	b2Body* newBody = world_.CreateBody(&newBodyDef);
 	b2Fixture* newFixture = newBody->CreateFixture(&fixtureDef);
-	entity->addComponent<CRigidBody>(is_static, newBody, newFixture);
+	entity->addComponent<CRigidBody>(isStatic, newBody, newFixture);
 	entity_to_bodies_[entity] = newBody;
 }
 

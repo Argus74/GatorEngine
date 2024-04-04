@@ -5,12 +5,12 @@
 class CAnimation : public Component {
 public:
 	DECLARE_COMPONENT_NAME("Animation");
-	Animation animation_;
-	sf::Sprite sprite_;
-	std::string name_ = "DefaultAnimation";
+	Animation animation;
+	sf::Sprite sprite;
+	std::string name = "DefaultAnimation";
 	//std::string jumpAnimationName_ = "";           Later on if we decide we can make it easy to switch to a jump animation based off the characters state. Up to y'all
-	float animationSpeed_;
-	bool disappear_;
+	float animation_speed;
+	bool disappear;
 	//bool jumpAnimation;
 	
 	CAnimation();

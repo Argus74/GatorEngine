@@ -3,10 +3,10 @@
 class CSprite : public Component {
 public:
 	DECLARE_COMPONENT_NAME("Sprite");
-	std::string name_ = "DefaultSprite";
-	sf::Texture texture_;
-	bool drawSprite_ = true;
-	sf::Sprite sprite_;
+	std::string name = "DefaultSprite";
+	sf::Texture texture;
+	bool draw_sprite = true;
+	sf::Sprite sprite;
 	CSprite();
 	CSprite(const std::string& name);
 

@@ -39,7 +39,7 @@ void TabBarWindow::DrawFrames()
         float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
         float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
 
-        if (Editor::state != Editor::State::Testing) // only available for use when user isn't testing the game
+        if (Editor::kState != Editor::State::Testing) // only available for use when user isn't testing the game
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
@@ -48,7 +48,7 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20, imageY));
                 if (ImGui::ImageButton("Select Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
                 {
-                    Editor::state = Editor::State::Selecting;
+                    Editor::kState = Editor::State::Selecting;
                     // do stuff if button clicked
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20 + imageSize / 2 - 17, imageY + imageSize + 10));
@@ -58,7 +58,7 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
                 if (ImGui::ImageButton("Sprite Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
                 {
-                    Editor::state = Editor::State::None;
+                    Editor::kState = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("Sprite");
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Sprite");
@@ -72,7 +72,7 @@ void TabBarWindow::DrawFrames()
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
                 if (ImGui::ImageButton("Game Object Button", icons_[2], sf::Vector2f(imageSize, imageSize)))
                 {
-                    Editor::state = Editor::State::None;
+                    Editor::kState = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("GameObject");
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Game Object");
@@ -90,7 +90,7 @@ void TabBarWindow::DrawFrames()
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
             if (ImGui::ImageButton("Start Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
             {
-                Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
+                Editor::kState = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
             }
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 13, imageY + imageSize + 10));
@@ -100,7 +100,7 @@ void TabBarWindow::DrawFrames()
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
             if (ImGui::ImageButton("Stop Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
             {
-                Editor::state = Editor::State::None; // Testing stopped: Reset state to none
+                Editor::kState = Editor::State::None; // Testing stopped: Reset state to none
                 // TODO: end game: unload content/reset entity pos?
             }
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 9, imageY + imageSize + 10));

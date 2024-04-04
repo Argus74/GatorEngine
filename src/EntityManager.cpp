@@ -13,8 +13,8 @@ EntityManager::EntityManager() {}
 // Add an entity with a given tag
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
-	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
-	m_toAdd.push_back(newEntity);
+	auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
+	to_add_.push_back(newEntity);
 	return newEntity;
 }
 
@@ -22,21 +22,21 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 void EntityManager::update()
 {
 	// Add new entities to the main vector and map
-	for (auto& entity : m_toAdd) {
-		m_entities.push_back(entity);
-		m_entityMap[entity->tag()].push_back(entity);
+	for (auto& entity : to_add_) {
+		entities_.push_back(entity);
+		entity_map_[entity->tag()].push_back(entity);
 	}
-	m_toAdd.clear();
+	to_add_.clear();
 
 	// Remove dead entities from the main vector
-	m_entities.erase(
-		std::remove_if(m_entities.begin(), m_entities.end(),
+	entities_.erase(
+		std::remove_if(entities_.begin(), entities_.end(),
 			[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
-		m_entities.end()
+		entities_.end()
 	);
 
 	// Remove dead entities from the map
-	for (auto& pair : m_entityMap) {
+	for (auto& pair : entity_map_) {
 		pair.second.erase(
 			std::remove_if(pair.second.begin(), pair.second.end(),
 				[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
@@ -46,9 +46,9 @@ void EntityManager::update()
 
 	// Additional logic to remove empty vectors from the map, if necessary.
 	// Used to ensure iterator remains valid through the loop.
-	for (auto it = m_entityMap.begin(); it != m_entityMap.end();) {
+	for (auto it = entity_map_.begin(); it != entity_map_.end();) {
 		if (it->second.empty()) {
-			it = m_entityMap.erase(it); // erase returns the next iterator
+			it = entity_map_.erase(it); // erase returns the next iterator
 		}
 		else {
 			++it; // only increment if we didn't erase
@@ -59,24 +59,24 @@ void EntityManager::update()
 // Get all entities
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 {
-	return m_entities;
+	return entities_;
 }
 
 // Get entities with a specific tag
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities(const std::string& tag)
 {
-	return m_entityMap[tag];
+	return entity_map_[tag];
 }
 
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
-	for (int i  = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] == entity) {
-			m_entities.erase(m_entities.begin() + i);
+	for (int i  = 0; i < entities_.size(); i++) {
+		if (entities_[i] == entity) {
+			entities_.erase(entities_.begin() + i);
 			break;
 		}
 	}
-	for (auto& pair : m_entityMap) {
+	for (auto& pair : entity_map_) {
 		for (int i = 0; i < pair.second.size(); i++) {
 			if (pair.second[i] == entity) {
 				pair.second.erase(pair.second.begin() + i);
@@ -88,8 +88,8 @@ void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 
 void EntityManager::reset()
 {
-	m_entities.clear();
-	m_entityMap.clear();
-	m_toAdd.clear();
-	m_totalEntities = 0;
+	entities_.clear();
+	entity_map_.clear();
+	to_add_.clear();
+	total_entities_ = 0;
 }

@@ -6,7 +6,7 @@
 
 // Helper macro to declare a Component class' "friendly" name
 // Make sure you use this macro in the class definition (public section) of all components
-#define DECLARE_COMPONENT_NAME(name) static constexpr const char* componentName = name;
+#define DECLARE_COMPONENT_NAME(name) static constexpr const char* kComponentName = name;
 
 class Component
 {

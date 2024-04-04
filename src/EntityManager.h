@@ -39,16 +39,16 @@ private:
 	using EntityMap = std::unordered_map<std::string, EntityVec>;
 
 	// Vector to store all entities
-	EntityVec m_entities;
+	EntityVec entities_;
 
 	// Vector to store entities to be added in the next frame
-	EntityVec m_toAdd;
+	EntityVec to_add_;
 
 	// Map to store entities based on their tag
-	EntityMap m_entityMap;
+	EntityMap entity_map_;
 
 	// Total number of entities ever created, for unique IDs
-	size_t m_totalEntities = 0;
+	size_t total_entities_ = 0;
 };
 
 #endif // ENTITYMANAGER_H

@@ -8,8 +8,9 @@
 #include <SFML/Graphics.hpp>
 #include "Vec2.h"
 #include "GatorPhysics.h"
+#include "util/Serializable.h"
 
-typedef std::tuple< //ass we add more components, we add them here
+typedef std::tuple< //as we add more components, we add them here
 	std::shared_ptr<CName>,
 	std::shared_ptr<CTransform>,
 	std::shared_ptr<CShape>,
@@ -19,13 +20,13 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CRigidBody>
 > ComponentTuple;
 
-class Entity {
+class Entity : public Serializable {
 	size_t id_;
 	std::string tag_;
 	bool is_alive_;
 	friend class EntityManager;
 public:
-	ComponentTuple m_components;
+	ComponentTuple components;
 
 	Entity(const std::string& tag, size_t id);
 	Entity();
@@ -41,7 +42,7 @@ public:
 	// Check whether this component is initialized
 	template <typename T>
 	bool hasComponent() const {
-		auto ptr = std::get<std::shared_ptr<T>>(m_components);
+		auto ptr = std::get<std::shared_ptr<T>>(components);
 		return ptr != nullptr && ptr->has;
 	}
 
@@ -49,7 +50,7 @@ public:
 	template <typename T, typename... TArgs>
 	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
 		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
-		std::get<std::shared_ptr<T>>(m_components) = component;
+		std::get<std::shared_ptr<T>>(components) = component;
 		component->has = true; 
 		return component;
 	}
@@ -70,13 +71,13 @@ public:
 	// Retrieve the component of the templated type (read-only version)
 	template <typename T>
 	std::shared_ptr<T> getComponent() const {
-		return std::get<std::shared_ptr<T>>(m_components);
+		return std::get<std::shared_ptr<T>>(components);
 	}
 
 	// Retrieve the component of the templated type (read/write version)
 	template <typename T>
 	std::shared_ptr<T>& getComponent() {
-		return std::get<std::shared_ptr<T>>(m_components);
+		return std::get<std::shared_ptr<T>>(components);
 	}
 
 	// Remove the component of the templated type
@@ -97,13 +98,33 @@ public:
 	template<std::size_t Index = 0, typename Func>
 	typename std::enable_if <Index<std::tuple_size<ComponentTuple>::value>::type
 	forEachComponent(Func func) {
-		func(std::get<Index>(m_components), Index);
+		func(std::get<Index>(components), Index);
 		forEachComponent<Index + 1>(func);
 	}
 	template<std::size_t Index = 0, typename Func>
 	typename std::enable_if<Index == std::tuple_size<ComponentTuple>::value>::type
 	forEachComponent(Func) {
 		// End of recursion: do nothing
+	}
+	
+	// JSON serialize functions
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("tag");
+		writer.String(tag_.c_str());	
+		writer.Key("components");
+		writer.StartArray();
+		forEachComponent([&](auto& component, int index) {
+			if (component && component->has) {
+				// component->serialize(writer);
+			}
+		});
+		writer.EndArray();
+		writer.EndObject();
+	}
+
+    void deserialize(const rapidjson::Value& value) override {
+
 	}
 };
 

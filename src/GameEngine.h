@@ -1,34 +1,46 @@
 #pragma once
-#include "Scene.h"
+#include "util/Scene.h"
+#include "EntityManager.h"
 #include "AssetManager.h"
-#include "./Editor/Editor.h"
+#include "./editor/Editor.h"
 #include <memory>
 
-typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
+// typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
 
 class GameEngine
 {
 
-protected:
-	sf::RenderWindow m_window = sf::RenderWindow(sf::VideoMode(1366, 768), "Gator Engine");
-	AssetManager& m_assets = AssetManager::GetInstance();
-	std::string	m_currentScene;
-	SceneMap m_sceneMap;
-	size_t m_simulationSpeed = 1;
-	bool m_running = true;
-	bool initialized_ = false;
-	void init(const std::string& path);
-	void sUserInput();
-	std::shared_ptr<Scene> currentScene;
-	std::map<sf::Keyboard::Key, bool> m_keyMap;
+// protected:
 
 private:
 	GameEngine();
+	sf::RenderWindow window_ = sf::RenderWindow(sf::VideoMode(1366, 768), "Gator Engine");
+
+	// std::string m_currentScene;
+	// SceneMap scene_map_;
+	size_t simulation_speed_ = 1;
+	bool running_ = true;
+	bool initialized_ = false;
+	size_t current_frame_ = 0;	
+
+	void init(const std::string& path);
+
+	void sUserInput();
+	void sMovement();
+	void sPhysics();
+	void sCollision();
+	void sAnimation();
+	void sRender();
+
+	// std::shared_ptr<Scene> current_scene_;
+	std::map<sf::Keyboard::Key, bool> key_map_;
+
 public:
-	sf::Clock* deltaClock;
+	// sf::Clock* delta_clock;
+	void addEntitiesForTest();
 	void update();
 	static GameEngine& GetInstance();
-	void ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
+	// void ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
 	void quit();
 	void run();
 	sf::RenderWindow& window();
