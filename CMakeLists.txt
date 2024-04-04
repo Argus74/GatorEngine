@@ -12,6 +12,8 @@ FetchContent_Declare(luajit
 
 FetchContent_MakeAvailable(luajit)
 
+
+
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
 add_subdirectory(${SFML_DIR})
@@ -77,7 +79,7 @@ target_link_libraries(GatorEngine
 )
 
 # Set the include directories for the GatorEngine target
-target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR})
+target_include_directories(GatorEngine PRIVATE ${SFML_INCLUDE_DIR} ${IMGUI_DIR} ${IMGUI_SFML_DIR} ${NATIVE_FILE_DIALOG_DIR})
 
 # Copy asset folder
 add_custom_command(TARGET GatorEngine POST_BUILD
