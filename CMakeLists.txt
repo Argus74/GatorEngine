@@ -134,6 +134,11 @@ if (WIN32)
             ${CMAKE_SOURCE_DIR}/src/lua_scripts
             $<TARGET_FILE_DIR:GatorEngine>)
 
+        add_custom_command(TARGET GatorEngine POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/extern/nfd.dll
+            $<TARGET_FILE_DIR:GatorEngine>)
+
 endif()
 
 
