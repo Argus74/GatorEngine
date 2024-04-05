@@ -31,6 +31,11 @@ public:
 	Entity(const std::string& tag, size_t id);
 	Entity();
 	~Entity();
+	Entity(const Entity&);
+	Entity& operator=(const Entity&);
+	Entity(Entity&&);
+	Entity& operator=(Entity&&);
+	void clone(const Entity&);
 	void destroy();
 	size_t id() const;
 
@@ -55,22 +60,24 @@ public:
 		return component;
 	}
 
-	// Initialize a new component based on argument or argument's type
+	// Retrieve the component of the templated type (read-only version)
+
 	template <typename T>
-	void addComponent(std::shared_ptr<T>& newComponent) {
+	void addComponent(const std::shared_ptr<T>& otherComponent) { // if this errors out, try removing the const
 		// If uninitialized, initialize a new component using argument's type
-		if (!newComponent) {
+		if (!otherComponent) {
 			addComponent<T>();
 			return;
 		}
-		// Otherwise, initialize using the argument itself
-		getComponent<T>() = newComponent;
+		// Otherwise, initialize using the argument itself (aka, make a deep copy of it)
+		auto newComponent = std::make_shared<std::remove_reference_t<decltype(*otherComponent)>>(*otherComponent);
 		newComponent->has = true;
+		getComponent<T>() = newComponent;
 	}
 
 	// Retrieve the component of the templated type (read-only version)
 	template <typename T>
-	std::shared_ptr<T> getComponent() const {
+	const std::shared_ptr<T> getComponent() const {
 		return std::get<std::shared_ptr<T>>(components);
 	}
 
@@ -78,6 +85,19 @@ public:
 	template <typename T>
 	std::shared_ptr<T>& getComponent() {
 		return std::get<std::shared_ptr<T>>(components);
+	}
+
+
+	// Retrieve the component of the argument type (read-only version)
+	template <typename T>
+	const std::shared_ptr<T> getComponent(const std::shared_ptr<T>& otherComponent) const {
+		return getComponent<T>();
+	}
+
+	// Retrieve the component of the argument type (read/write version)
+	template <typename T>
+	std::shared_ptr<T>& getComponent(const std::shared_ptr<T>& otherComponent) {
+		return getComponent<T>();
 	}
 
 	// Remove the component of the templated type
@@ -125,6 +145,12 @@ public:
 
     void deserialize(const rapidjson::Value& value) override {
 
+	}
+
+	// Remove the component of the argument type
+	template <typename T>
+	void removeComponent(const std::shared_ptr<T>& newComponent) {
+		removeComponent<T>();
 	}
 };
 

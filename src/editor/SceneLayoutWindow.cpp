@@ -36,7 +36,7 @@ void SceneLayoutWindow::DrawFrames() {
 	// Draw a draggable selection box for each entity with a transform component
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (int i = 0; i < entityList.size(); i++) {
-
+		if (!entityList[i]->hasComponent<CTransform>()) continue;
 		auto& transform = *(entityList[i]->getComponent<CTransform>());
 		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
 		if (Editor::kState == Editor::State::Selecting || Editor::kState == Editor::State::Moving) {

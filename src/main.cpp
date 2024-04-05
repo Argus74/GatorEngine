@@ -16,7 +16,7 @@
 #include "Scene_Play.h"
 #include "util/Serializable.h"
 #include "util/Scene.h"
-
+#include "lua_interpreter/LuaManager.h"
 // ---- SERIALIZATION WITH CLASSES EXAMPLE
 // class MyClass2 : public Serializable {
 // public:
@@ -60,15 +60,19 @@
 
 int main()
 {
+
     NFD_Init();
+    LuaManager luaManager;
+    luaManager.TestExample();
+
     GameEngine& newGame = GameEngine::GetInstance();
     newGame.addEntitiesForTest();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
     ImGui::SFML::Init(window);
     Editor editor;
-    // std::shared_ptr<Scene> scene = std::make_shared<Scene_Play>();
-    // newGame.ChangeScene("TestScene", scene);
+    //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
+    //newGame.ChangeScene("TestScene", scene);
 
     while (window.isOpen())
     {

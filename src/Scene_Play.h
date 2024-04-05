@@ -29,6 +29,7 @@ public:
 	void sCollision();
 	void sAnimation();
 	void sRender();
+	void sRenderColliders();
 	void sMovement();
 	void spawnPlayer();
 };

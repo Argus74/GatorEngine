@@ -6,7 +6,7 @@ Animation::Animation() {
 };
 
 Animation::Animation(const std::string& name, const sf::Texture& texture)
-	: Animation(name, texture, 1, 0)
+    : Animation(name, texture, 1, 0)
 {
 
 };
@@ -24,8 +24,19 @@ speed(animationSpeed)
 };
 
 void Animation::Update() {
-    // Increase the current frame based on the speed
-    current_frame += speed;
+    static float frameAccumulator = 0.0f; // Accumulator for fractional frames
+
+    // Increase the accumulator based on the speed
+    frameAccumulator += speed;
+
+    // Only advance the current frame if the accumulator has reached or exceeded 1
+    if (frameAccumulator >= 1.0f) {
+        // Increase the current frame
+        current_frame++;
+
+        // Subtract 1 from the accumulator to prepare for the next frame
+        frameAccumulator -= 1.0f;
+    }
 
     // Check if the animation has reached the end
     if (current_frame >= frame_count) {
@@ -59,6 +70,6 @@ sf::Sprite& Animation::GetSprite()
 
 bool Animation::HasEnded() const
 {
-	// TODO: detect when animation has ended (last frame was played) and return true
-	return false;
+    // TODO: detect when animation has ended (last frame was played) and return true
+    return false;
 }

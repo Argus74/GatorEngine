@@ -230,7 +230,7 @@ void PropertyWindow::DrawInputField(bool &val)
 void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
 {
     auto& assetManager = AssetManager::GetInstance();
-    auto spriteNameList = assetManager.GenerateTextureNamePointers();
+    auto spriteNameList = assetManager.GenerateAssetNameList("textures");
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
@@ -253,6 +253,34 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
         ImGui::EndCombo();
     }
 }
+
+void PropertyWindow::DrawInputField(std::shared_ptr<CAnimation>& val)
+{
+    auto& assetManager = AssetManager::GetInstance();
+    auto animationNameList = assetManager.GenerateAssetNameList("animations");
+    int selection = 0;
+
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    const char* preview_value = val->name.c_str();
+
+    // Use BeginCombo and EndCombo for a custom preview value
+    if (ImGui::BeginCombo("##Animations", preview_value)) {
+        for (int i = 0; i < animationNameList.size(); i++) {
+            bool is_selected = (selection == i);
+            if (ImGui::Selectable(animationNameList[i], is_selected)) {
+                selection = i;
+                val->animation = assetManager.GetAnimation(animationNameList[selection]);
+                val->name = animationNameList[selection];
+            }
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+}
+
 
 void PropertyWindow::DrawInputField(sf::Keyboard::Key& val) 
 {
@@ -324,6 +352,37 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CUserInput> userinput)
         else if (userinput->mouse_map.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouse_map.end()) {
             userinput->mouse_map.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
         }
+        ImGui::CloseCurrentPopup();
+    }
+}
+
+void PropertyWindow::DrawPopup(std::shared_ptr<CAnimation> animation) //Popup window for Creating Animation 
+{
+    auto& assetManager = AssetManager::GetInstance();
+    auto spriteNameList = assetManager.GenerateAssetNameList("textures");
+    static std::string spriteName = "DefaultSprite";
+
+    ImGui::Text("Select Sprite to Animate");
+    static int selection = 0;
+    
+
+    if (ImGui::Combo("##Objects", &selection, spriteNameList.data(), spriteNameList.size())) {
+        spriteName = spriteNameList[selection];
+    }
+   
+    ImGui::NewLine();
+    static int frameCount = 1;
+    static float animationSpeed = 1.0;
+    static std::string animationName = "Animation";
+    DrawProperty("Animation Name", animationName);
+    DrawProperty("Frame Count", frameCount);
+    DrawProperty("Animation Speed", animationSpeed);
+
+   
+    if (ImGui::Button("Create"))
+    {
+        Animation animation = Animation(animationName, assetManager.GetTexture(spriteName), frameCount, animationSpeed);
+        assetManager.AddAnimation(animationName, animation);
         ImGui::CloseCurrentPopup();
     }
 }

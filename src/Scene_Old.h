@@ -22,5 +22,4 @@ public:
 	virtual void update() = 0;
 	virtual void sRender() = 0;
 	virtual void sCollision() = 0;
-	size_t currentFrame() const;
 };

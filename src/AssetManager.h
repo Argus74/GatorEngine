@@ -39,18 +39,36 @@ public:
 	// Intialize Start Assets
 	void IntializeTextureAssets(std::string path);
 	//Creating a list of Texture Name pointers, this is necessary to populate the drop down selection list when selecting a sprite
-	std::vector<const char*> GenerateTextureNamePointers() {
-		std::vector<const char*> textureNamePointers;
+	std::vector<const char*> GenerateAssetNameList(std::string assetType) {
 
-		// Reserve space in the vector for efficiency.
-		textureNamePointers.reserve(textures_.size());
+		std::vector<const char*> nameList;
 
-		for (const auto& texturePair : textures_) {
-			// Add the address of the string key in the map.
-			textureNamePointers.push_back(texturePair.first.c_str());
+		if (assetType == "textures") {
+			// Reserve space in the vector for efficiency.
+			nameList.reserve(textures_.size());
+
+			for (const auto& texturePair : textures_) {
+				// Add the address of the string key in the map.
+				nameList.push_back(texturePair.first.c_str());
+			}
+
+			return nameList;
 		}
+		else if (assetType == "animations") {
+			// Reserve space in the vector for efficiency.
+			nameList.reserve(animations_.size());
 
-		return textureNamePointers;
+			for (const auto& animationPair : animations_) {
+				// Add the address of the string key in the map.
+				nameList.push_back(animationPair.first.c_str());
+			}
+
+			return nameList;
+		}
+		else {
+			return nameList;
+		}
+		
 	};
 
 	// Asset retrieval methods 

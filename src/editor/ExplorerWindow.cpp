@@ -66,6 +66,19 @@ void ExplorerWindow::DrawFrames() {
 		}
 		ImGui::EndListBox();
 	}
+
+	// Draw context menu
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+	if (ImGui::BeginPopupContextItem("EntityContextMenu")) {
+		if (ImGui::Selectable("Clone")) {
+			EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
+		}
+		if (ImGui::Selectable("Delete")) {
+			EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
+		}
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar();
 }
 
 void ExplorerWindow::PostDraw() {
