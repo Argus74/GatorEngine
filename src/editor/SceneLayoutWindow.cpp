@@ -40,6 +40,7 @@ void SceneLayoutWindow::DrawFrames() {
 		auto& transform = *(entityList[i]->getComponent<CTransform>());
 		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
 		if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving) {
+
 			// Make border non-zero if this is the active entity
 			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);

@@ -59,7 +59,8 @@ public:
 		return component;
 	}
 
-	// Initialize a new component based on argument or argument's type
+	// Retrieve the component of the templated type (read-only version)
+
 	template <typename T>
 	void addComponent(const std::shared_ptr<T>& otherComponent) { // if this errors out, try removing the const
 		// If uninitialized, initialize a new component using argument's type
@@ -84,6 +85,7 @@ public:
 	std::shared_ptr<T>& getComponent() {
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
+
 
 	// Retrieve the component of the argument type (read-only version)
 	template <typename T>

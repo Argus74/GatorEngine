@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 
+
 GameEngine::GameEngine() {}
 GameEngine &GameEngine::GetInstance()
 {
@@ -50,14 +51,14 @@ void GameEngine::init(const std::string &path)
 {
 	// Just temporary sprites for testing once, we get a file system going we will do this somewhere else
 	auto &assetManager = AssetManager::GetInstance();
+	
+	//Intializing all png files as textures in Start Assets folder
+	assetManager.IntializeTextureAssets("assets/StartAssets");
 	assetManager.AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
 	assetManager.AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
-	assetManager.AddTexture("DefaultSprite", "assets/DefaultSprite.png");
-	assetManager.AddTexture("DefaultAnimationTexture", "assets/DefaultAnimation.png");
-	assetManager.AddTexture("RunningAnimationTexture", "assets/RunningAnimation.png");
-	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimationTexture"), 11, 1);
+	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimation"), 11, 1);
 	assetManager.AddAnimation("DefaultAnimation", ani);
-	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimationTexture"), 11, 1);
+	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimation"), 12, 1);
 	assetManager.AddAnimation("RunningAnimation", ani2);
 	
 	//123

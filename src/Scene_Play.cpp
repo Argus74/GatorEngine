@@ -47,6 +47,9 @@ Scene_Play::Scene_Play()
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
 	tree->addComponent<CSprite>(m_game->assets().getTexture("Tree"));*/
+
+
+
 }
 
 Scene_Play::Scene_Play(const std::string &levelPath) : m_levelPath(levelPath)
@@ -231,7 +234,12 @@ void Scene_Play::sAnimation()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
-			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = sprite.getLocalBounds();
+			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			// Set the position of the sprite to the center position
+			sprite.setPosition(position.x, position.y + yOffset);
 			sprite.setScale(scale.x, scale.y);
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
@@ -256,10 +264,18 @@ void Scene_Play::sRender()
 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
+			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
+      spriteComponent->sprite_.setScale(scale.x, scale.y);
+      
+      //Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
-			spriteComponent->sprite_.setScale(scale.x, scale.y);
+			
+
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}

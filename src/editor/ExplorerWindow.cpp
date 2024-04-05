@@ -17,8 +17,8 @@ ExplorerWindow::ExplorerWindow() {
 	// TODO: Maybe don't store ref to icon here
 	// Load icon texture and store reference for easy access.
 	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexture("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
-	icon_ = assetManager.GetTexture("GameObjectIconSmall");
+	assetManager.AddTexturePrivate("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
+	icon_ = assetManager.GetTexturePrivate("GameObjectIconSmall");
 }
 
 void ExplorerWindow::SetPosition() {
@@ -59,9 +59,7 @@ void ExplorerWindow::DrawFrames() {
 			bool hasName = entity->hasComponent<CName>();
 			std::string entityName = hasName ? entity->getComponent<CName>()->name : "NULL";
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
-			if ((ImGui::Selectable(label.c_str(), isSelected) 
-				|| ImGui::IsItemClicked(ImGuiMouseButton_Right)) 
-				&& Editor::state != Editor::State::Testing) {
+			if (ImGui::Selectable(label.c_str(), isSelected) && Editor::state != Editor::State::Testing) {
 				Editor::active_entity_ = entity;
 				Editor::state = Editor::State::Selecting;
 			}

@@ -4,6 +4,8 @@
 #include "SFML/Graphics.hpp"
 #include <box2d/box2d.h>
 
+#include "nfd.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -15,8 +17,11 @@
 #include "lua_interpreter/LuaManager.hpp"
 int main()
 {
+
+    NFD_Init();
     LuaManager luaManager;
     luaManager.TestExample();
+
     GameEngine& newGame = GameEngine::GetInstance();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
@@ -35,5 +40,6 @@ int main()
         window.display();
     }
     ImGui::SFML::Shutdown();
+    NFD_Quit;
     return 0;
 }

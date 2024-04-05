@@ -4,6 +4,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
+#include <filesystem>
 
 AssetManager& AssetManager::GetInstance() {
     static AssetManager instance;
@@ -36,6 +37,11 @@ AssetManager::~AssetManager() {
     }
     animations_.clear();
 
+
+    for (auto& pair : gameEngineTextures_) {
+        delete pair.second;
+    }
+    gameEngineTextures_.clear();
 }
 
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {
@@ -46,6 +52,16 @@ void AssetManager::AddTexture(const std::string& name, const std::string& path) 
         return;
     }
     textures_[name] = texture;
+}
+
+void AssetManager::AddTexturePrivate(const std::string& name, const std::string& path) {
+    sf::Texture* texture = new sf::Texture();
+    if (!texture->loadFromFile(path)) {
+        std::cerr << "Failed to load texture: " << path << std::endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
+        delete texture;
+        return;
+    }
+    gameEngineTextures_[name] = texture;
 }
 
 void AssetManager::AddSound(const std::string& name, const std::string& path) {
@@ -73,6 +89,20 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
     animations_[name] = ani;
 }
 
+void AssetManager::IntializeTextureAssets(std::string path) {
+    // Adding all assets that are in Start Assets
+    for (const auto& entry : std::filesystem::recursive_directory_iterator("assets/StartAssets")) {
+        // Check if the entry is a file with a ".png" extension
+        if (entry.is_regular_file() && entry.path().extension() == ".png") {
+            // Extract the file name without extension to use as a texture name
+            std::string textureName = entry.path().stem().string();
+
+            // Add the texture to the asset manager
+            AddTexture(textureName, entry.path().string());
+        }
+    }
+}
+
 sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers
     if (sounds_.find(name) == sounds_.end()) {
         throw std::runtime_error("Sound buffer not found: " + name);
@@ -89,6 +119,14 @@ sf::Texture& AssetManager::GetTexture(const std::string& name) {
         throw std::runtime_error("Texture not found");
     }
     return *textures_[name];
+}
+
+sf::Texture& AssetManager::GetTexturePrivate(const std::string& name) {
+    if (gameEngineTextures_.find(name) == gameEngineTextures_.end()) {
+        std::cerr << "Texture not found: " << name << std::endl;
+        throw std::runtime_error("Texture not found");
+    }
+    return *gameEngineTextures_[name];
 }
 
 sf::SoundBuffer& AssetManager::GetSound(const std::string& name) {

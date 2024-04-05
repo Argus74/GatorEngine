@@ -45,6 +45,8 @@ private:
     void DrawInputField(Action &val);
     void DrawInputField(sf::Keyboard::Key &val);
     void DrawInputField(sf::Mouse::Button& val);
+	void DrawInputField(std::shared_ptr<CSprite>& sprite);
+	void DrawInputField(std::shared_ptr<CAnimation>& val);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>
@@ -52,8 +54,9 @@ private:
 	
 	// Draw the actual popup for a subject
 	void DrawPopup(std::shared_ptr<CUserInput> userinput);
+	void DrawPopup(std::shared_ptr<CAnimation> animation);
 	void DrawPopup(std::shared_ptr<Entity> entity);
-
+	
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags;
 
