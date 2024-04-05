@@ -31,5 +31,6 @@ public:
 	void sRender();
 	void sRenderColliders();
 	void sMovement();
+	void sBackground();
 	void spawnPlayer();
 };

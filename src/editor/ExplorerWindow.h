@@ -20,6 +20,9 @@ public:
 private:
 	// Icon to appear next to entity name
 	sf::Texture icon_;
+
+	// Helper to draw invisible buttons inbetween items for drag and drop
+	void DrawDropTarget(int i);
 };
 
 #endif // EXPLORERWINDOW_H

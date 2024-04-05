@@ -32,11 +32,10 @@ int main()
 
     while (window.isOpen())
     {
+        newGame.update();
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
-        window.clear(sf::Color(0, 0, 0));
         ImGui::SFML::Render(window);
-        newGame.update();
         window.display();
     }
     ImGui::SFML::Shutdown();

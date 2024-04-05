@@ -16,7 +16,8 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CUserInput>,
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
-	std::shared_ptr<CRigidBody>
+	std::shared_ptr<CRigidBody>,
+	std::shared_ptr<CBackgroundColor>
 > ComponentTuple;
 
 class Entity {

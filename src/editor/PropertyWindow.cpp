@@ -171,6 +171,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbo
 	DrawProperty("Is Static", rigidbody->staticBody);
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
+{
+	DrawProperty("Color", background->color);
+}
 
 // TODO: Add new overloads for future components here
 
