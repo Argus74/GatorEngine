@@ -129,6 +129,15 @@ void PropertyWindow::DrawComponent(T& component)
                 ImGui::EndTable();
             }
         }
+        if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
+            // Position the button to the right of the header
+            static const char* name = "Create Animation";
+            ImGui::SameLine(); // same line as header
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+            ImGui::PopStyleColor();
+        }
 
         if (!isOpen)
         {

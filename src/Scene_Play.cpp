@@ -221,6 +221,7 @@ void Scene_Play::onEnd()
 	//		 use m_game->changeScene(correct params);
 }
 
+
 void Scene_Play::sRender()
 {
 	auto &entityManager = EntityManager::GetInstance();
@@ -241,9 +242,9 @@ void Scene_Play::sRender()
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-			spriteComponent->sprite_.setScale(scale.x, scale.y);
+      spriteComponent->sprite_.setScale(scale.x, scale.y);
       
-			//Rotation
+      //Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
 			

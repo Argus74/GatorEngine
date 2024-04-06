@@ -25,7 +25,6 @@ Animation::Animation(const std::string& name, const sf::Texture& texture, size_t
 
 void Animation::Update() {
     
-    
     frameRemainder_ += speed_;  
     currentFrame_ += frameRemainder_ / 1; //Any whole frames are added to currentFrame while the rest go back to frameRemainder
     
