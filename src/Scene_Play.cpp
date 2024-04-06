@@ -243,7 +243,7 @@ void Scene_Play::sRender()
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
-      //Rotation
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
 			

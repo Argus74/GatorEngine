@@ -24,18 +24,14 @@ Animation::Animation(const std::string& name, const sf::Texture& texture, size_t
 };
 
 void Animation::Update() {
-    static float frameAccumulator = 0.0f; // Accumulator for fractional frames
+    
+    
+    frameRemainder_ += speed_;  
+    currentFrame_ += frameRemainder_ / 1; //Any whole frames are added to currentFrame while the rest go back to frameRemainder
+    
 
-    // Increase the accumulator based on the speed
-    frameAccumulator += speed_;
-
-    // Only advance the current frame if the accumulator has reached or exceeded 1
-    if (frameAccumulator >= 1.0f) {
-        // Increase the current frame
-        currentFrame_++;
-
-        // Subtract 1 from the accumulator to prepare for the next frame
-        frameAccumulator -= 1.0f;
+    while (frameRemainder_ >= 1.0f) { //Mod % 1 essentially, keep tracking of frame left overs
+        frameRemainder_ -= 1.0f;
     }
 
     // Check if the animation has reached the end
