@@ -180,7 +180,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 {
     DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animationSpeed_);
-    DrawProperty("Disappear", animation->disappear_);
+    //DrawProperty("Disappear", animation->disappear_); For now removing the ability to make the Animation to disappear after one run
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
