@@ -15,6 +15,7 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
 	m_toAdd.push_back(newEntity);
+	EntityManager::GetInstance().sortEntitiesForRendering();
 	return newEntity;
 }
 
@@ -31,6 +32,7 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : m_toAdd) {
 		m_entities.push_back(entity);
+		EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting render list
 	}
 	m_toAdd.clear();
 
@@ -69,11 +71,22 @@ void EntityManager::reset()
 	m_totalEntities = 0;
 }
 
+//Return Entity Manager's RenderingList
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
 	return entitiesRenderingList_;
 }
 
-
+//Sorts entities based off layer and order in the explorer window
 void EntityManager::sortEntitiesForRendering() {
-	
+	entitiesRenderingList_ = m_entities;
+	std::cout << "Sorted" << std::endl;
+	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
+	});
+
+	/*  Renderlist Debug output
+	for (const std::shared_ptr<Entity>& a : entitiesRenderingList_) {
+		std::cout << "Entity Name: " << a->getComponent<CName>()->name << ", Layer: " << a->getComponent<CInformation>()->layer << "  ";
+	}
+	std::cout << std::endl; */
 }

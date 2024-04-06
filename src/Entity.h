@@ -11,6 +11,7 @@
 
 typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CName>,
+	std::shared_ptr<CInformation>,
 	std::shared_ptr<CTransform>,
 	std::shared_ptr<CShape>,
 	std::shared_ptr<CUserInput>,
@@ -39,7 +40,6 @@ public:
 	void destroy();
 	size_t id() const;
 
-	const std::string& tag() const;
 	bool isAlive();
 
 	std::string tag_;

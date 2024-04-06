@@ -142,11 +142,13 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 				if (targetIndex < sourceIndex) sourceIndex++;
 				entityList.erase(entityList.begin() + sourceIndex);
 				// Otherwise, must be end of the list (targetIndex == -1), so just move there
+				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
 			}
 			else {
 				;
 				entityList.erase(entityList.begin() + sourceIndex);
 				entityList.push_back(entity);
+				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
 			}
 
 			// Once complete, make this the active entity

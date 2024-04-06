@@ -20,6 +20,7 @@ Scene_Play::Scene_Play()
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Ground");
 	ground->addComponent<CName>("Ground");
+	ground->addComponent<CInformation>();
 	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
 	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
@@ -30,6 +31,7 @@ Scene_Play::Scene_Play()
 	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
 	ground2->addComponent<CSprite>("Ground");
 	ground2->addComponent<CName>("Ground2");
+	ground2->addComponent<CInformation>();
 	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
 	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
@@ -40,6 +42,7 @@ Scene_Play::Scene_Play()
 	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
 	ground3->addComponent<CSprite>("Ground");
 	ground3->addComponent<CName>("Ground3");
+	ground3->addComponent<CInformation>();
 	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
 	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
@@ -82,6 +85,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CTransform>(Vec2(224, 200));
 	m_player->addComponent<CUserInput>();
 	m_player->addComponent<CName>("Player1");
+	m_player->addComponent<CInformation>();
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
@@ -95,7 +99,6 @@ void Scene_Play::update()
 	sPhysics();
 	sCollision();
 	sBackground();
-	sAnimation();
 	sRender();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
@@ -218,43 +221,11 @@ void Scene_Play::onEnd()
 	//		 use m_game->changeScene(correct params);
 }
 
-void Scene_Play::sAnimation()
-{
-	// Need to add GetComponent, AddComponent templates to entity.
-	auto &entityManager = EntityManager::GetInstance();
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
-
-	for (auto &entity : entityList)
-	{
-		if (entity->hasComponent<CAnimation>())
-		{
-			auto transformComponent = entity->getComponent<CTransform>();
-			Vec2 scale = transformComponent->scale;
-			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-			auto animationComponent = entity->getComponent<CAnimation>();
-			animationComponent->changeSpeed();
-			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			sf::Sprite sprite(animationComponent->animation_.sprite_);
-			// Set the origin of the sprite to its center
-			sf::FloatRect bounds = sprite.getLocalBounds();
-			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
-
-			// Set the position of the sprite to the center position
-			sprite.setPosition(position.x, position.y + yOffset);
-			sprite.setScale(scale.x, scale.y);
-			float angle = transformComponent->angle * -1;
-			sprite.setRotation(angle);
-			GameEngine::GetInstance().window().draw(sprite);
-			animationComponent->update();
-		}
-	}
-}
-
 void Scene_Play::sRender()
 {
 	auto &entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
+	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
 
 	for (auto &entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
@@ -279,6 +250,28 @@ void Scene_Play::sRender()
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
+		}
+
+		if (entity->hasComponent<CAnimation>())
+		{
+			auto transformComponent = entity->getComponent<CTransform>();
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			auto animationComponent = entity->getComponent<CAnimation>();
+			animationComponent->changeSpeed();
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			sf::Sprite sprite(animationComponent->animation_.sprite_);
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = sprite.getLocalBounds();
+			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			// Set the position of the sprite to the center position
+			sprite.setPosition(position.x, position.y + yOffset);
+			sprite.setScale(scale.x, scale.y);
+			float angle = transformComponent->angle * -1;
+			sprite.setRotation(angle);
+			GameEngine::GetInstance().window().draw(sprite);
+			animationComponent->update();
 		}
 	}
 }
@@ -362,38 +355,3 @@ void Scene_Play::sBackground() {
 	GameEngine::GetInstance().window().clear(sf::Color(0, 0, 0));
 }
 
-// void Scene_Play::sAnimation()
-//{
-//	if (!m_paused) { GameEngine::GetInstance().window().clear(sf::Color(100, 100, 255)); }
-//	else { GameEngine::GetInstance().window().clear(sf::Color(50, 50, 150)); }
-//
-//	// set the viewport of the window to be centered on the player if it's far
-//	auto& pPos = m_player->getComponent<CTransform>()->position;
-//	float windowCenterX = fmax(GameEngine::GetInstance().window().getSize().x / 2.0f, pPos.x);
-//	sf::View view = GameEngine::GetInstance().window().getView();
-//	// getCenter is incomplete
-//	view.setCenter(windowCenterX, GameEngine::GetInstance().window().getSize().y - view.getCenter().y);
-//	GameEngine::GetInstance().window().setView(view);
-//
-//	sf::CircleShape dot;
-//	dot.setFillColor(sf::Color::Red);
-//	dot.setRadius(8);
-//	dot.setOrigin(8, 8);
-//	dot.setPosition(m_mousePos.x, m_mousePos.y);
-//	GameEngine::GetInstance().window().draw(dot);
-//
-//	// draw all Entity textures / animation
-//
-//	for (auto e : m_entityManager.getEntities())
-//	{
-//		auto& transform = e->getComponent<CTransform>();
-//
-//		if (e->hasComponent<CAnimation>())
-//		{
-//			auto& animation = e->getComponent<CAnimation>()->animation_;
-//			animation.getSprite().setRotation(transform->angle);
-//			animation.getSprite().setPosition(transform->position.x, transform->position.y);
-//		}
-//	}
-//
-// }

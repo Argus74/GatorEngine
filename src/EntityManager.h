@@ -23,9 +23,6 @@ public:
 	// Get all entities
 	std::vector<std::shared_ptr<Entity>>& getEntities();
 
-	// Get entities with a specific tag
-	std::vector<std::shared_ptr<Entity>>& getEntities(const std::string& tag);
-
 	void removeEntity(std::shared_ptr<Entity> entity);
 
 	void cloneEntity(const std::shared_ptr<Entity>& entity);
