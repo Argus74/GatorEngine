@@ -86,40 +86,57 @@ void PropertyWindow::DrawComponent(T& component)
 {
     bool isOpen = true;
 
-    if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags)) 
+    // For the Information Component, Name Component, and Transform component we don't allow the user to remove the component 
+    if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>) 
     {
-        // Hacky solution to draw a button within header that allows user to add a new binding
-        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) 
+        if (ImGui::CollapsingHeader(component->componentName, tree_node_flags))
         {
-            // Position the button to the right of the header
-            static const char* name = "Add Input";
-            ImGui::SameLine(); // same line as header
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-            ImGui::PopStyleColor();
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
+
         }
-        if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
-            // Position the button to the right of the header
-            static const char* name = "Create Animation";
-            ImGui::SameLine(); // same line as header
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-            ImGui::PopStyleColor();
+    }
+    else {
+        if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags))
+        {
+            // Hacky solution to draw a button within header that allows user to add a new binding
+            if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>)
+            {
+                // Position the button to the right of the header
+                static const char* name = "Add Input";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
+                // Position the button to the right of the header
+                static const char* name = "Create Animation";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
         }
 
-        if (ImGui::BeginTable(component->componentName, 2, table_flags)) 
+        if (!isOpen)
         {
-            DrawComponentProperties(component);
-            ImGui::EndTable();
+            Editor::active_entity_->removeComponent(component);
         }
     }
 
-    if (!isOpen) 
-    {
-        Editor::active_entity_->removeComponent(component);
-    }
+    
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) 
