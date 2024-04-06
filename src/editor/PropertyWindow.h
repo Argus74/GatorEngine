@@ -44,7 +44,6 @@ private:
     void DrawInputField(int &val);
     void DrawInputField(bool &val);
     void DrawInputField(Action &val);
-	void DrawInputField(sf::Sprite& val);
     void DrawInputField(sf::Keyboard::Key &val);
     void DrawInputField(sf::Mouse::Button& val);
 	void DrawInputField(std::shared_ptr<CSprite>& sprite);

@@ -270,7 +270,7 @@ void Scene_Play::sRender()
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-      spriteComponent->sprite_.setScale(scale.x, scale.y);
+			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
       //Rotation
 			float angle = transformComponent->angle * -1;

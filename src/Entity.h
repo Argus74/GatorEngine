@@ -22,7 +22,7 @@ typedef std::tuple< //ass we add more components, we add them here
 
 class Entity {
 	size_t id_;
-	std::string tag_;
+	
 	bool is_alive_;
 	friend class EntityManager;
 public:
@@ -41,6 +41,9 @@ public:
 
 	const std::string& tag() const;
 	bool isAlive();
+
+	std::string tag_;
+	int layer_ = 1; //
 
 	// Component Accessors and Modifiers 
 

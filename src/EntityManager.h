@@ -32,6 +32,12 @@ public:
 
 	void reset();
 
+	//Sort Entities in rendering order
+	void sortEntitiesForRendering();
+
+	//Get Entities rendering order
+	std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
+
 private:
 	// Constructor
 	EntityManager();
@@ -46,11 +52,11 @@ private:
 	// Vector to store entities to be added in the next frame
 	EntityVec m_toAdd;
 
-	// Map to store entities based on their tag
-	EntityMap m_entityMap;
-
 	// Total number of entities ever created, for unique IDs
 	size_t m_totalEntities = 0;
+
+	// Vector that stores the true rendering order of Entities  
+	EntityVec entitiesRenderingList_;
 };
 
 #endif // ENTITYMANAGER_H
