@@ -43,7 +43,7 @@ public:
 	bool isAlive();
 
 	std::string tag_;
-	int layer_ = 1; //
+	int layer_ = 1; //Don't need this here to be honest
 
 	// Component Accessors and Modifiers 
 
