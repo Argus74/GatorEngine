@@ -87,12 +87,12 @@ int main()
     NFD_Quit;
 
     Scene scene;
-    scene.writeToJSONFile("../scenes/data.json");
+    scene.writeToJSONFile("scenes/data.json");
 
     Scene newScene;
     EntityManager::GetInstance().reset();
 
-    newScene.readFromJSONFile("../scenes/data.json");
+    newScene.readFromJSONFile("scenes/data.json");
 
     for (auto e : EntityManager::GetInstance().getEntities()) {
         e->forEachComponent([&](auto& component, int index){
