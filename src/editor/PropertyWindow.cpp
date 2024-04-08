@@ -273,11 +273,11 @@ void PropertyWindow::DrawInputField(bool &val)
 
 void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)
 {
-    int selection = 0; // Currently selected item index
-    const char* items[] = { "1", "2", "3", "4", "5" }; // List of items (integers as strings)
+    int selection = val->layer; // Currently selected item index
+    const char* items[] = { "0", "1", "2", "3", "4", "5" }; // List of items (integers as strings)
 
     // Convert the selected item index into a string for display
-    int previewIndex = val->layer - 1; 
+    int previewIndex = val->layer; 
     const char* previewValue = items[previewIndex];
 
     if (ImGui::BeginCombo("##Integers", previewValue)) {
@@ -285,7 +285,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)
             bool isSelected = (selection == i);
             if (ImGui::Selectable(items[i], isSelected)) {
                 selection = i; // Update the current selection
-                val->layer = i + 1;
+                val->layer = i;
                 EntityManager::GetInstance().sortEntitiesForRendering();
             }
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
