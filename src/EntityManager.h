@@ -30,6 +30,9 @@ public:
 
 	void cloneEntity(const std::shared_ptr<Entity>& entity);
 
+	// Reset all entities with CTransform component to their origin after testing
+	void resetPositions();
+
 	void reset();
 
 private:

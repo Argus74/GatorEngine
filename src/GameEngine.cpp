@@ -89,9 +89,13 @@ void GameEngine::update()
 {
 	EntityManager::GetInstance().update();
 	sUserInput();
-	sMovement();
-	sPhysics();
-	sCollision();
+
+	if (Editor::kState == Editor::State::Testing) {
+		sMovement();
+		sPhysics();
+		sCollision();
+	}
+
 	sAnimation();
 	sRender();
 	GatorPhysics &physics = GatorPhysics::GetInstance();
@@ -241,9 +245,11 @@ void GameEngine::sAnimation()
 			sf::Sprite sprite(animationComponent->animation.sprite);
 			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
 			sprite.setScale(scale.x, scale.y);
-
 			window_.draw(sprite);
-			animationComponent->update();
+
+			if (Editor::kState == Editor::State::Testing) {
+				animationComponent->update();
+			}
 		}
 	}
 }

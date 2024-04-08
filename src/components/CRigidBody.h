@@ -9,4 +9,14 @@ public:
 	b2Fixture* fixture;
 	CRigidBody() : static_body(true) {}
 	CRigidBody(bool flag, b2Body* b, b2Fixture* f) : static_body(flag), body(b), fixture(f) {}
+
+	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("staticBody");
+		writer.Bool(static_body);
+		writer.EndObject();
+	}
+    void deserialize(const rapidjson::Value& value) override {
+		static_body = value["staticBody"].GetBool();
+	}
 };

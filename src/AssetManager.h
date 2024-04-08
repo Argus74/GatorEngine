@@ -11,6 +11,7 @@
 #include <iostream>
 #include "Animation.h"
 #include <string>
+#include "util/Serializable.h"
 
 //namespace sf { //forward declaration
 //	class Texture;
@@ -19,7 +20,7 @@
 //	class Font;
 //} 
 
-class AssetManager {
+class AssetManager : public Serializable {
 public:
 	static AssetManager& GetInstance();
 	~AssetManager();
@@ -98,6 +99,26 @@ public:
 		return filenameWithoutExtension;
 	};
 
+	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("textures");
+		writer.StartObject();
+		for (const auto& pair : texture_paths_) {
+			writer.Key(pair.first.c_str());
+			writer.String(pair.second.c_str());
+		}
+		writer.EndObject();
+		writer.EndObject();
+	}
+
+    void deserialize(const rapidjson::Value& value) override {
+		for (auto it = value["textures"].MemberBegin(); it != value["textures"].MemberEnd(); ++it) {
+  	        if (it->value.IsString()) {
+  	            texture_paths_[it->name.GetString()] = it->value.GetString();
+				AddTexture(it->name.GetString(), it->value.GetString());
+            }
+        }
+	}
 private:
 	AssetManager();
 
@@ -106,7 +127,7 @@ private:
 	std::map<std::string, sf::SoundBuffer*> sounds_; //Sounds are stored as a sound buffer, and then played with a function using SMFL::Sound
 	std::map<std::string, sf::Font*> fonts_;
 	std::map<std::string, Animation*> animations_;
-	
+	std::map<std::string, std::string> texture_paths_;	
 };
 
 

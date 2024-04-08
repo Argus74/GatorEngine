@@ -93,6 +93,15 @@ void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 	}
 }
 
+void EntityManager::resetPositions() {
+	for (auto entity : entities_) {
+		if (entity->hasComponent<CTransform>()) {
+			auto transform = entity->getComponent<CTransform>();
+			transform->resetPosition();	
+		}
+	}
+}
+
 void EntityManager::reset()
 {
 	entities_.clear();

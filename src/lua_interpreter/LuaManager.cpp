@@ -27,7 +27,7 @@ void LuaManager::TestExample()
 	double sum;
 
 	/* Load the file containing the script we are going to run */
-	status = luaL_loadfile(l_, "script.lua");
+	status = luaL_loadfile(l_, "../src/lua_scripts/script.lua");
 	if (status) {
 		/* If something went wrong, error message is at the top of */
 		/* the stack */

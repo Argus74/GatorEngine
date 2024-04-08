@@ -8,22 +8,23 @@ class Scene : public Serializable {
 public:
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
+        writer.Key("assets");
+        AssetManager::GetInstance().serialize(writer);
         writer.Key("entities");
-        writer.StartArray();
+        writer.StartObject();
         for (auto entity : EntityManager::GetInstance().getEntities()) {
             entity.get()->serialize(writer);
         }
-        writer.EndArray();
-        writer.Key("assets");
-        writer.StartArray();
-        writer.EndArray();
+        writer.EndObject();
         writer.EndObject();
     }
 
     void deserialize(const rapidjson::Value& value) override {
-        for (auto it = value["entities"].GetArray().Begin(); it != value["entities"].GetArray().End(); it++) {
-            auto entity = EntityManager::GetInstance().addEntity(it->GetObject()["tag"].GetString());
+        for (auto it = value["entities"].MemberBegin(); it != value["entities"].MemberEnd(); it++) {
+            auto entity = EntityManager::GetInstance().addEntity(it->name.GetString());
+            entity->deserialize(it->value);
         }
+        EntityManager::GetInstance().update(); // maybe remove 
     }
 
 };

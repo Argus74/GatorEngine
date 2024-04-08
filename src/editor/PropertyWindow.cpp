@@ -116,7 +116,7 @@ void PropertyWindow::DrawComponent(T& component)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) 
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
-    DrawProperty("Position", transform->position);
+    DrawProperty("Origin", transform->origin);
     DrawProperty("Scale", transform->scale);
     DrawProperty("Velocity", transform->velocity);
     DrawProperty("Angle", transform->angle);
@@ -420,8 +420,12 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
             if (!component && selection == index)
             {
                 Editor::kActiveEntity->addComponent(component);
+                if (typeid(*component) == typeid(CRigidBody)) {
+                    GatorPhysics::GetInstance().createBody(Editor::kActiveEntity.get(), true);
+                }
             }
         });
+
         ImGui::CloseCurrentPopup();
     }
 }

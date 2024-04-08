@@ -14,6 +14,7 @@ public:
 	//bool jumpAnimation;
 	
 	CAnimation();
+	CAnimation(std::string name);
 	void changeSpeed();
 	void update();
 	
@@ -21,4 +22,16 @@ public:
 
 	void setAnimation(const Animation& newAnimation);
 
+	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(name.c_str());
+		writer.EndObject();
+	}
+
+    void deserialize(const rapidjson::Value& value) override {
+		name = value["name"].GetString();
+		animation = AssetManager::GetInstance().GetAnimation(name);
+		animation_speed = animation.speed;
+	}
 };

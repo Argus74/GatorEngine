@@ -86,9 +86,21 @@ int main()
     ImGui::SFML::Shutdown();
     NFD_Quit;
 
-    // Scene scene;
+    Scene scene;
+    scene.writeToJSONFile("../scenes/data.json");
 
-    // scene.writeToJSONFile("scenes/data.json");
+    Scene newScene;
+    EntityManager::GetInstance().reset();
+
+    newScene.readFromJSONFile("../scenes/data.json");
+
+    for (auto e : EntityManager::GetInstance().getEntities()) {
+        e->forEachComponent([&](auto& component, int index){
+            if (component && component->has) {
+                std::cout << "Component: " << component->kComponentName << std::endl;
+            }
+        });
+    } 
 
     // Scene newScene;
     // EntityManager::GetInstance().reset();

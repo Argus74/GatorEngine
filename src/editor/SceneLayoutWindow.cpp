@@ -61,8 +61,9 @@ void SceneLayoutWindow::DrawFrames() {
 			auto& transform = *(entityList[i]->getComponent<CTransform>());
 			if (ImGui::IsItemActive() &&
 				ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-				transform.position.x += ImGui::GetIO().MouseDelta.x;
-				transform.position.y += ImGui::GetIO().MouseDelta.y;
+				transform.origin.x += ImGui::GetIO().MouseDelta.x;
+				transform.origin.y += ImGui::GetIO().MouseDelta.y;
+				transform.resetPosition();
 				Editor::kState = Editor::State::Moving;
 			}
 

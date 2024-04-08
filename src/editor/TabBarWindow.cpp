@@ -100,8 +100,11 @@ void TabBarWindow::DrawFrames()
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
             if (ImGui::ImageButton("Stop Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
             {
-                Editor::kState = Editor::State::None; // Testing stopped: Reset state to none
-                // TODO: end game: unload content/reset entity pos?
+                if (Editor::kState == Editor::State::Testing) {
+                    Editor::kState = Editor::State::None; // Testing stopped: Reset state to none
+                    EntityManager::GetInstance().resetPositions();
+                    // TODO: end game: unload content?
+                }
             }
             ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 9, imageY + imageSize + 10));
             ImGui::Text("Stop");

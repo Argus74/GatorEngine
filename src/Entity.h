@@ -129,22 +129,37 @@ public:
 	
 	// JSON serialize functions
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.Key(tag_.c_str());
 		writer.StartObject();
-		writer.Key("tag");
-		writer.String(tag_.c_str());	
 		writer.Key("components");
-		writer.StartArray();
+		writer.StartObject();
 		forEachComponent([&](auto& component, int index) {
 			if (component && component->has) {
-				// component->serialize(writer);
+				writer.Key(component->kComponentName);
+				component->serialize(writer);
 			}
 		});
-		writer.EndArray();
+		writer.EndObject();
 		writer.EndObject();
 	}
 
-    void deserialize(const rapidjson::Value& value) override {
+	template <typename T>
+	std::shared_ptr<T> createComponentByName(const std::string& name) {
+    	if (name == T::kComponentName) { // Assuming each component class has a static `kComponentName` member
+        	return std::make_shared<T>();
+    	} else {
+        	return nullptr; // Return nullptr if no match
+    	}
+	}
 
+    void deserialize(const rapidjson::Value& value) override {
+		for (auto it = value["components"].MemberBegin(); it != value["components"].MemberEnd(); ++it) {
+			auto name = createComponentByName<CName>(it->name.GetString());
+			if (name != nullptr) {
+				addComponent(name);
+				name->deserialize(it->value);
+			}
+        }	
 	}
 
 	// Remove the component of the argument type

@@ -51,7 +51,9 @@ void AssetManager::AddTexture(const std::string& name, const std::string& path) 
         delete texture;
         return;
     }
+
     textures_[name] = texture;
+    texture_paths_[name] = path;
 }
 
 void AssetManager::AddTexturePrivate(const std::string& name, const std::string& path) {
