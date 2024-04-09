@@ -15,6 +15,7 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
 	m_toAdd.push_back(newEntity);
+	EntityManager::GetInstance().sortEntitiesForRendering();
 	return newEntity;
 }
 
@@ -31,7 +32,7 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : m_toAdd) {
 		m_entities.push_back(entity);
-		m_entityMap[entity->tag()].push_back(entity);
+		EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting render list
 	}
 	m_toAdd.clear();
 
@@ -42,25 +43,6 @@ void EntityManager::update()
 		m_entities.end()
 	);
 
-	// Remove dead entities from the map
-	for (auto& pair : m_entityMap) {
-		pair.second.erase(
-			std::remove_if(pair.second.begin(), pair.second.end(),
-				[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
-			pair.second.end()
-		);
-	}
-
-	// Additional logic to remove empty vectors from the map, if necessary.
-	// Used to ensure iterator remains valid through the loop.
-	for (auto it = m_entityMap.begin(); it != m_entityMap.end();) {
-		if (it->second.empty()) {
-			it = m_entityMap.erase(it); // erase returns the next iterator
-		}
-		else {
-			++it; // only increment if we didn't erase
-		}
-	}
 }
 
 // Get all entities
@@ -69,12 +51,7 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 	return m_entities;
 }
 
-// Get entities with a specific tag
-std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities(const std::string& tag)
-{
-	return m_entityMap[tag];
-}
-
+//Remove entity from our entity manager's list
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
 	for (int i  = 0; i < m_entities.size(); i++) {
@@ -83,20 +60,33 @@ void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 			break;
 		}
 	}
-	for (auto& pair : m_entityMap) {
-		for (int i = 0; i < pair.second.size(); i++) {
-			if (pair.second[i] == entity) {
-				pair.second.erase(pair.second.begin() + i);
-				break;
-			}
-		}
-	}
 }
 
+//Clear our entity list
 void EntityManager::reset()
 {
 	m_entities.clear();
-	m_entityMap.clear();
 	m_toAdd.clear();
+
 	m_totalEntities = 0;
+}
+
+//Return Entity Manager's RenderingList
+std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
+	return entitiesRenderingList_;
+}
+
+//Sorts entities based off layer and order in the explorer window
+void EntityManager::sortEntitiesForRendering() {
+	entitiesRenderingList_ = m_entities;
+	std::cout << "Sorted" << std::endl;
+	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
+	});
+
+	/*  Renderlist Debug output
+	for (const std::shared_ptr<Entity>& a : entitiesRenderingList_) {
+		std::cout << "Entity Name: " << a->getComponent<CName>()->name << ", Layer: " << a->getComponent<CInformation>()->layer << "  ";
+	}
+	std::cout << std::endl; */
 }

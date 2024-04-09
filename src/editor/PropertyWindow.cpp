@@ -86,40 +86,57 @@ void PropertyWindow::DrawComponent(T& component)
 {
     bool isOpen = true;
 
-    if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags)) 
+    // For the Information Component, Name Component, and Transform component we don't allow the user to remove the component 
+    if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>) 
     {
-        // Hacky solution to draw a button within header that allows user to add a new binding
-        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) 
+        if (ImGui::CollapsingHeader(component->componentName, tree_node_flags))
         {
-            // Position the button to the right of the header
-            static const char* name = "Add Input";
-            ImGui::SameLine(); // same line as header
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-            ImGui::PopStyleColor();
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
+
         }
-        if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
-            // Position the button to the right of the header
-            static const char* name = "Create Animation";
-            ImGui::SameLine(); // same line as header
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-            ImGui::PopStyleColor();
+    }
+    else {
+        if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags))
+        {
+            // Hacky solution to draw a button within header that allows user to add a new binding
+            if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>)
+            {
+                // Position the button to the right of the header
+                static const char* name = "Add Input";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
+                // Position the button to the right of the header
+                static const char* name = "Create Animation";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
         }
 
-        if (ImGui::BeginTable(component->componentName, 2, table_flags)) 
+        if (!isOpen)
         {
-            DrawComponentProperties(component);
-            ImGui::EndTable();
+            Editor::active_entity_->removeComponent(component);
         }
     }
 
-    if (!isOpen) 
-    {
-        Editor::active_entity_->removeComponent(component);
-    }
+    
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) 
@@ -163,7 +180,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 {
     DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animationSpeed_);
-    DrawProperty("Disappear", animation->disappear_);
+    //DrawProperty("Disappear", animation->disappear_); For now removing the ability to make the Animation to disappear after one run
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
@@ -171,6 +188,16 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbo
 	DrawProperty("Is Static", rigidbody->staticBody);
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
+{
+	DrawProperty("Color", background->color);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& information)
+{
+    DrawProperty("Layer", information);
+    DrawProperty("Tag", information->tag);
+}
 
 // TODO: Add new overloads for future components here
 
@@ -235,6 +262,31 @@ void PropertyWindow::DrawInputField(bool &val)
     ImGui::Checkbox("##Bool", &val);
 }
 
+void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)
+{
+    int selection = val->layer; // Currently selected item index
+    const char* items[] = { "0", "1", "2", "3", "4", "5" }; // List of items (integers as strings)
+
+    // Convert the selected item index into a string for display
+    int previewIndex = val->layer; 
+    const char* previewValue = items[previewIndex];
+
+    if (ImGui::BeginCombo("##Integers", previewValue)) {
+        for (int i = 0; i < IM_ARRAYSIZE(items); ++i) {
+            bool isSelected = (selection == i);
+            if (ImGui::Selectable(items[i], isSelected)) {
+                selection = i; // Update the current selection
+                val->layer = i;
+                EntityManager::GetInstance().sortEntitiesForRendering();
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+}
 
 void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
 {

@@ -58,10 +58,6 @@ size_t Entity::id() const
 	return id_;
 }
 
-const std::string& Entity::tag() const {
-	return tag_;
-}
-
 bool Entity::isAlive() {
 	return is_alive_;
 }

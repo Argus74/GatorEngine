@@ -63,7 +63,10 @@ void TabBarWindow::DrawFrames()
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Sprite");
                     entity->addComponent<CSprite>();
+                    entity->addComponent<CInformation>(); 
                     // todo add rigidbody component..?
+
+                    EntityManager::GetInstance().sortEntitiesForRendering();
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 16, imageY + imageSize + 10));
                 ImGui::Text("Sprite");
@@ -76,6 +79,8 @@ void TabBarWindow::DrawFrames()
                     auto entity = EntityManager::GetInstance().addEntity("GameObject");
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Game Object");
+                    entity->addComponent<CInformation>();
+                    EntityManager::GetInstance().sortEntitiesForRendering();
                 }
                 ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 34, imageY + imageSize + 10));
                 ImGui::Text("Game Object");

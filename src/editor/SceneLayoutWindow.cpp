@@ -34,7 +34,7 @@ void SceneLayoutWindow::PreDraw() {
 void SceneLayoutWindow::DrawFrames() {
 	// TODO: Add logic here to prevent drawing buttons when not in moving or selecting state;
 	// Draw a draggable selection box for each entity with a transform component
-	auto entityList = EntityManager::GetInstance().getEntities();
+	auto entityList = EntityManager::GetInstance().getEntitiesRenderingList(); //Drawing the draggable boxes in the order of the rendering list, Didn't really change much. Might be an Imgui thing - Alec
 	for (int i = 0; i < entityList.size(); i++) {
 		if (!entityList[i]->hasComponent<CTransform>()) continue;
 		auto& transform = *(entityList[i]->getComponent<CTransform>());

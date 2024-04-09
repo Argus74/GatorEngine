@@ -70,7 +70,8 @@ add_executable(
     "src/components/CSprite.h" 
     "src/components/includes.h" 
     "src/components/CRigidBody.h" 
-    "src/lua_interpreter/LuaManager.cpp")
+    "src/lua_interpreter/LuaManager.cpp" 
+    "src/components/CInformation.h")
 
 target_link_libraries(GatorEngine
     libluajit

@@ -11,17 +11,19 @@
 
 typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CName>,
+	std::shared_ptr<CInformation>,
 	std::shared_ptr<CTransform>,
 	std::shared_ptr<CShape>,
 	std::shared_ptr<CUserInput>,
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
-	std::shared_ptr<CRigidBody>
+	std::shared_ptr<CRigidBody>,
+	std::shared_ptr<CBackgroundColor>
 > ComponentTuple;
 
 class Entity {
 	size_t id_;
-	std::string tag_;
+	
 	bool is_alive_;
 	friend class EntityManager;
 public:
@@ -38,8 +40,10 @@ public:
 	void destroy();
 	size_t id() const;
 
-	const std::string& tag() const;
 	bool isAlive();
+
+	std::string tag_;
+	int layer_ = 1; //Don't need this here to be honest
 
 	// Component Accessors and Modifiers 
 
