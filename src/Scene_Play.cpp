@@ -125,15 +125,15 @@ void Scene_Play::sUserInput()
 		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
 			// Ctrl+D to copy active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
-			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
-		}
+				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+			}
 
 			// Ctrl+X to delete active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
-			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
-		}
+				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+			}
 
-		// Ctrl+Z hotkey does not exist. Good luck o7
+			// Ctrl+Z hotkey does not exist. Good luck o7
 		}
 
 		// Lambda to process key or mouse events for the player
