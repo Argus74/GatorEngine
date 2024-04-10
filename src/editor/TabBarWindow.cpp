@@ -40,7 +40,12 @@ void TabBarWindow::DrawFrames()
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
-                // TODO: Make button/text positions more dynamic, responsive
+                // Text
+                ImGui::PushItemWidth(ImGui::GetMainViewport()->Size.x / 5);
+                ImGui::SetCursorPos(ImVec2(GetGridPositionX(1), (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2));
+                ImGui::Text("Tools");
+                ImGui::PopItemWidth();
+
                 // Select button
                 auto selectButton = [&]() {
                     Editor::state = (Editor::state == Editor::State::Selecting) ? 
@@ -77,13 +82,12 @@ void TabBarWindow::DrawFrames()
                 // Sprite button
                 spriteNameList_ = AssetManager::GetInstance().GenerateAssetNameList("textures");
                 auto spriteButton = [&]() {
-                    Editor::state = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("Sprite");
-                    entity->addComponent<CTransform>();
+                    entity->addComponent<CTransform>(Vec2(50, 50));
                     entity->addComponent<CName>("Sprite");
                     entity->addComponent<CSprite>(spriteNameList_[selectedSpriteIndex_]);
-                    entity->addComponent<CInformation>(); 
-                    // todo add rigidbody component..?
+                    entity->addComponent<CInformation>();
+                    GatorPhysics::GetInstance().createBody(entity.get(), true);
                     EntityManager::GetInstance().sortEntitiesForRendering();
                 };
                 DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
@@ -91,9 +95,8 @@ void TabBarWindow::DrawFrames()
 
                 // Game Object button
                 auto gameObjectButton = [&]() {
-                    Editor::state = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("GameObject");
-                    entity->addComponent<CTransform>();
+                    entity->addComponent<CTransform>(Vec2(50, 50));
                     entity->addComponent<CName>("Game Object");
                     entity->addComponent<CInformation>();
                     EntityManager::GetInstance().sortEntitiesForRendering();
@@ -102,7 +105,6 @@ void TabBarWindow::DrawFrames()
 
                 // Background button
                 auto backgroundButton = [&]() {
-                    Editor::state = Editor::State::None;
                     auto& entity = EntityManager::GetInstance().addEntity("Background");
                     entity->addComponent<CBackgroundColor>();   
                     entity->addComponent<CSprite>("DefaultBackground");
@@ -137,7 +139,7 @@ void TabBarWindow::DrawFrames()
                     auto m_player = EntityManager::GetInstance().addEntity("Player");
                     m_player->addComponent<CName>("Player");
                     m_player->addComponent<CInformation>();
-                    m_player->addComponent<CTransform>(Vec2(100, 100));
+                    m_player->addComponent<CTransform>(Vec2(50, 50));
                     auto anim = m_player->addComponent<CAnimation>();
                     anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
                     auto input = m_player->addComponent<CUserInput>();
