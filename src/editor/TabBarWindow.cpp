@@ -144,7 +144,7 @@ void TabBarWindow::DrawFrames()
                     anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
                     auto input = m_player->addComponent<CUserInput>();
                     input->keyMap = { 
-                        {sf::Keyboard::W, Action::Jump}, 
+                        {sf::Keyboard::Space, Action::Jump}, 
                         {sf::Keyboard::S, Action::MoveDown}, // TODO: replace this?
                         {sf::Keyboard::A, Action::MoveLeft},
                         {sf::Keyboard::D, Action::MoveRight}
@@ -225,7 +225,9 @@ void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index,
 
         // Set the width of the combo box to match the text width
         ImGui::PushItemWidth(20);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
         ImGui::Combo("Sprite##", &selectedSpriteIndex_, spriteNameList_.data(), spriteNameList_.size());
+        ImGui::PopStyleVar();
         ImGui::PopItemWidth();
     }
 
