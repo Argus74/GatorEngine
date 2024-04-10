@@ -38,6 +38,8 @@ private:
 public:
 	// sf::Clock* delta_clock;
 	void addEntitiesForTest();
+	void changeScene(const std::string& path);
+	void saveScene(const std::string& path);
 	void update();
 	static GameEngine& GetInstance();
 	// void ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);

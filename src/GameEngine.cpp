@@ -9,7 +9,7 @@ GameEngine &GameEngine::GetInstance()
 
 	if (!instance_.initialized_)
 	{
-		instance_.init("../scenes/data.scene");
+		instance_.init("../scenes/Default.scene");
 		instance_.initialized_ = true;
 	}
 	return instance_;
@@ -61,6 +61,21 @@ void GameEngine::init(const std::string &path)
 	
 	//123
 	window_.setFramerateLimit(60);
+}
+
+void GameEngine::changeScene(const std::string& path) 
+{
+	EntityManager::GetInstance().reset();
+	Editor::kState = Editor::State::None;
+	Editor::kActiveEntity = nullptr;
+	Scene scene;
+	scene.readFromJSONFile(path);	
+}
+
+void GameEngine::saveScene(const std::string& path) 
+{
+	Scene scene;
+	scene.writeToJSONFile(path);
 }
 
 void GameEngine::addEntitiesForTest() 

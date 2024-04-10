@@ -11,7 +11,6 @@
 #include <iostream>
 #include "Animation.h"
 #include <string>
-#include "util/Serializable.h"
 
 //namespace sf { //forward declaration
 //	class Texture;
@@ -20,7 +19,7 @@
 //	class Font;
 //} 
 
-class AssetManager : public Serializable {
+class AssetManager {
 public:
 	static AssetManager& GetInstance();
 	~AssetManager();
@@ -99,26 +98,6 @@ public:
 		return filenameWithoutExtension;
 	};
 
-	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
-		writer.StartObject();
-		writer.Key("textures");
-		writer.StartObject();
-		for (const auto& pair : texture_paths_) {
-			writer.Key(pair.first.c_str());
-			writer.String(pair.second.c_str());
-		}
-		writer.EndObject();
-		writer.EndObject();
-	}
-
-    void deserialize(const rapidjson::Value& value) override {
-		for (auto it = value["textures"].MemberBegin(); it != value["textures"].MemberEnd(); ++it) {
-  	        if (it->value.IsString()) {
-  	            texture_paths_[it->name.GetString()] = it->value.GetString();
-				AddTexture(it->name.GetString(), it->value.GetString());
-            }
-        }
-	}
 private:
 	AssetManager();
 

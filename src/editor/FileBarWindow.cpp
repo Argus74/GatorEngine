@@ -1,5 +1,6 @@
 #include "FileBarWindow.h"
 #include "nfd.h"
+#include "../GameEngine.h"
 
 FileBarWindow::FileBarWindow() {
     name_ = "File Bar";
@@ -14,8 +15,28 @@ void FileBarWindow::DrawFrames() {
     {
         if (ImGui::BeginMenu("File"))
         {
-            ImGui::MenuItem("Open");
-            ImGui::MenuItem("Save");
+            if (ImGui::MenuItem("Open")) {
+                nfdchar_t* outPath = NULL;
+                nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
+                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+
+                
+                if (result == NFD_OKAY) { //If a file/path is selected in the dialog
+                    std::string pathString(outPath); 
+                    GameEngine::GetInstance().changeScene(pathString);
+                    std::cout << "Selected file: " << outPath << std::endl;
+                    NFD_FreePath(outPath);
+                }
+                else if (result == NFD_CANCEL) { //If no file or path is selecte
+                    std::cout << "Dialog canceled." << std::endl;
+                }
+                else {
+                    std::cerr << "Error: " << NFD_GetError() << std::endl;
+                }
+            }
+            if (ImGui::MenuItem("Save")) {
+                GameEngine::GetInstance().saveScene("../scenes/MyScene.scene");
+            }
             ImGui::EndMenu();
         }
 

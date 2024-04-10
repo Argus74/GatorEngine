@@ -8,8 +8,6 @@ class Scene : public Serializable {
 public:
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
-        writer.Key("assets");
-        AssetManager::GetInstance().serialize(writer);
         writer.Key("entities");
         writer.StartObject();
         for (auto entity : EntityManager::GetInstance().getEntities()) {
@@ -20,7 +18,6 @@ public:
     }
 
     void deserialize(const rapidjson::Value& value) override {
-        // AssetManager::GetInstance().deserialize(value["assets"]);
         for (auto it = value["entities"].MemberBegin(); it != value["entities"].MemberEnd(); it++) {
             auto entity = EntityManager::GetInstance().addEntity(it->name.GetString());
             entity->deserialize(it->value);
