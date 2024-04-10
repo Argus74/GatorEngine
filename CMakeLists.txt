@@ -112,7 +112,7 @@ add_executable(
     "src/components/includes.h" 
     "src/components/CRigidBody.h" 
     "src/lua_interpreter/LuaState.cpp"
-    )
+    "src/components/CInformation.h")
 
 target_link_libraries(GatorEngine
     sfml-graphics

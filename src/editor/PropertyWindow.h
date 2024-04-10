@@ -29,6 +29,8 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CSprite> sprite);
 	void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
+	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
+	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
 
     // Draw one property row of a component
     template <typename T>
@@ -45,8 +47,9 @@ private:
     void DrawInputField(Action &val);
     void DrawInputField(sf::Keyboard::Key &val);
     void DrawInputField(sf::Mouse::Button& val);
-	void DrawInputField(std::shared_ptr<CSprite>& sprite);
+	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
+	void DrawInputField(std::shared_ptr <CInformation>& val);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>
