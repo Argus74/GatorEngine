@@ -24,11 +24,8 @@ ExplorerWindow::ExplorerWindow() {
 	// Disable window-wide scrollbar to allow ListBox to scroll
 	window_flags_ |= ImGuiWindowFlags_NoScrollbar;
 
-	// TODO: Maybe don't store ref to icon here
 	// Load icon texture and store reference for easy access.
-	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexturePrivate("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
-	icon_ = assetManager.GetTexturePrivate("GameObjectIconSmall");
+	icon_ = AssetManager::GetInstance().GetTexturePrivate("GameObjectIconSmall");
 }
 
 void ExplorerWindow::SetPosition() {

@@ -18,34 +18,25 @@ Scene_Play::Scene_Play()
 	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
-	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CSprite>("Grass Tile");
 	ground->addComponent<CName>("Ground");
 	ground->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
-	ground2->addComponent<CSprite>("Ground");
+	ground2->addComponent<CSprite>("Grass Tile");
 	ground2->addComponent<CName>("Ground2");
 	ground2->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground2.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
-	ground3->addComponent<CSprite>("Ground");
+	ground3->addComponent<CSprite>("Grass Tile");
 	ground3->addComponent<CName>("Ground3");
 	ground3->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
