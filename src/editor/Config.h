@@ -30,6 +30,8 @@
 #define TAB_XOFFSET			0
 #define TAB_YOFFSET			FILE_HEIGHT // Under the file bar
 
+#define TAB_BUTTON_SIZE(MV)	WINDOW_HEIGHT(MV) * 0.075
+
 // SceneLayoutWindow
 #define SCENE_WIDTH(MV)		WINDOW_WIDTH(MV) * 0.80
 #define SCENE_HEIGHT(MV)	WINDOW_HEIGHT(MV) * 0.80 - FILE_HEIGHT

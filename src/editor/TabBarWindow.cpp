@@ -7,16 +7,18 @@
 #include "../AssetManager.h"
 #include "../EntityManager.h"
 
+
+float GetGridPositionX(int index)
+{
+    static short tileSize = ImGui::GetMainViewport()->Size.y * 0.075;
+    return ImGui::GetMainViewport()->Size.x / 20 + index * (tileSize + 40);
+}
+
+
 TabBarWindow::TabBarWindow()
 {
     name_ = "My Tabs";
     window_flags_ |= ImGuiWindowFlags_NoTitleBar;
-
-    // Load icon refs here for (possibly, hopefully) easier access
-    auto &assetManager = AssetManager::GetInstance();
-    icons_.push_back(assetManager.GetTexturePrivate("SelectIcon"));
-    icons_.push_back(assetManager.GetTexturePrivate("SpriteIcon"));
-    icons_.push_back(assetManager.GetTexturePrivate("GameObjectIcon"));
 }
 
 void TabBarWindow::SetPosition()
@@ -40,45 +42,115 @@ void TabBarWindow::DrawFrames()
             {
                 // TODO: Make button/text positions more dynamic, responsive
                 // Select button
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20, imageY));
-                if (ImGui::ImageButton("Select Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
-                {
-                    Editor::state = Editor::State::Selecting;
-                    // do stuff if button clicked
-                }
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 20 + imageSize / 2 - 17, imageY + imageSize + 10));
-                ImGui::Text("Select");
+                auto selectButton = [&]() {
+                    Editor::state = (Editor::state == Editor::State::Selecting) ? 
+                        Editor::State::None : 
+                        Editor::State::Selecting;
+				};
+                DrawButton("Select", AssetManager::GetInstance().GetTexturePrivate("SelectIcon"), 
+                    0, selectButton, (Editor::state == Editor::State::Selecting));
+
+                // Move button
+                auto moveButton = [&]() {
+                    Editor::state = (Editor::state == Editor::State::Moving) ?
+                        Editor::State::None :
+                        Editor::State::Moving;
+                };
+                DrawButton("Move", AssetManager::GetInstance().GetTexturePrivate("MoveIcon"), 
+                    1, moveButton, (Editor::state == Editor::State::Moving));
+
+                // Scale button
+                auto scaleButton = [&]() {
+                    Editor::state = (Editor::state == Editor::State::Resizing) ?
+                        Editor::State::None :
+                        Editor::State::Resizing;
+                };
+                DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 
+                    2, scaleButton, (Editor::state == Editor::State::Resizing));
+
+                //// TODO: Rotate button
+                //auto rotateButton = [&]() {
+                //    /*Editor::state = Editor::State::;*/
+                //};
+                //DrawButton("Rotate", icons_[0], 3, rotateButton);
 
                 // Sprite button
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
-                if (ImGui::ImageButton("Sprite Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
-                {
+                spriteNameList_ = AssetManager::GetInstance().GenerateAssetNameList("textures");
+                auto spriteButton = [&]() {
                     Editor::state = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("Sprite");
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Sprite");
-                    entity->addComponent<CSprite>();
+                    entity->addComponent<CSprite>(spriteNameList_[selectedSpriteIndex_]);
                     entity->addComponent<CInformation>(); 
                     // todo add rigidbody component..?
-
                     EntityManager::GetInstance().sortEntitiesForRendering();
-                }
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 16, imageY + imageSize + 10));
-                ImGui::Text("Sprite");
+                };
+                DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
+                    5, spriteButton);
 
                 // Game Object button
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
-                if (ImGui::ImageButton("Game Object Button", icons_[2], sf::Vector2f(imageSize, imageSize)))
-                {
+                auto gameObjectButton = [&]() {
                     Editor::state = Editor::State::None;
                     auto entity = EntityManager::GetInstance().addEntity("GameObject");
                     entity->addComponent<CTransform>();
                     entity->addComponent<CName>("Game Object");
                     entity->addComponent<CInformation>();
                     EntityManager::GetInstance().sortEntitiesForRendering();
-                }
-                ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 34, imageY + imageSize + 10));
-                ImGui::Text("Game Object");
+				};
+                DrawButton("Game Object", AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6, gameObjectButton);
+
+                // Background button
+                auto backgroundButton = [&]() {
+                    Editor::state = Editor::State::None;
+                    auto& entity = EntityManager::GetInstance().addEntity("Background");
+                    entity->addComponent<CBackgroundColor>();   
+                    entity->addComponent<CSprite>("DefaultBackground");
+                    entity->getComponent<CName>()->name = "Background";
+                    entity->getComponent<CInformation>()->layer = 0;
+                    entity->getComponent<CInformation>()->selectable = false; // Disable selection to avoid accidental moving of background
+
+                    // Calculate transform parameters that will make that default sprite^ fit window
+                    const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+                    float sceneWidth = SCENE_WIDTH(mainViewport);
+                    float sceneHeight = SCENE_HEIGHT(mainViewport);
+
+                    const Vec2 pos = Vec2(
+                        sceneWidth / 2,
+                        sceneHeight / 2
+                    );
+
+                    entity->getComponent<CTransform>()->position = pos;
+
+                    auto sprite = entity->getComponent<CSprite>()->sprite_;
+                    const Vec2 scl = Vec2(
+                        static_cast<float>(sceneWidth) / sprite.getLocalBounds().width,
+                        static_cast<float>(sceneHeight) / sprite.getLocalBounds().height
+                    );
+
+                    entity->getComponent<CTransform>()->scale = scl;
+                };
+                DrawButton("Background", AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 7, backgroundButton);
+
+                // Player button
+                auto playerButton = [&]() {
+                    auto m_player = EntityManager::GetInstance().addEntity("Player");
+                    m_player->addComponent<CName>("Player");
+                    m_player->addComponent<CInformation>();
+                    m_player->addComponent<CTransform>(Vec2(100, 100));
+                    auto anim = m_player->addComponent<CAnimation>();
+                    anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
+                    auto input = m_player->addComponent<CUserInput>();
+                    input->keyMap = { 
+                        {sf::Keyboard::W, Action::Jump}, 
+                        {sf::Keyboard::S, Action::MoveDown}, // TODO: replace this?
+                        {sf::Keyboard::A, Action::MoveLeft},
+                        {sf::Keyboard::D, Action::MoveRight}
+                    };
+                    GatorPhysics::GetInstance().createBody(m_player.get(), false);
+                };
+                DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 8, playerButton);
+
                 ImGui::EndTabItem();
             }
         }
@@ -86,25 +158,20 @@ void TabBarWindow::DrawFrames()
         // Testing tab
         if (ImGui::BeginTabItem("Testing"))
         {
-            // Sprite button
-            ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3, imageY));
-            if (ImGui::ImageButton("Start Button", icons_[0], sf::Vector2f(imageSize, imageSize)))
-            {
+            // Start Button
+            static auto startButton = [&]() {
                 Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
-            }
-            ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize / 2 - 13, imageY + imageSize + 10));
-            ImGui::Text("Start");
+            };
+            DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 
+                4, startButton, (Editor::state == Editor::State::Testing));
 
-            // Game Object button
-            ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40, imageY));
-            if (ImGui::ImageButton("Stop Button", icons_[1], sf::Vector2f(imageSize, imageSize)))
-            {
+            // Stop Button
+            static auto stopButton = [&]() {
                 Editor::state = Editor::State::None; // Testing stopped: Reset state to none
                 // TODO: end game: unload content/reset entity pos?
-            }
-            ImGui::SetCursorPos(ImVec2(ImGui::GetMainViewport()->Size.x / 3 + imageSize + 40 + imageSize / 2 - 9, imageY + imageSize + 10));
-            ImGui::Text("Stop");
+            };
+            DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 5, stopButton);
 
             // TODO: add pause button?
             // TODO: add step forward button?
@@ -113,5 +180,54 @@ void TabBarWindow::DrawFrames()
         }
 
         ImGui::EndTabBar();
+    }
+}
+
+void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index, std::function<void()> onClick, bool highlighted)
+{
+    // Math to resize icons_ and maintain their relative position
+    auto mv = ImGui::GetMainViewport();
+    static short imageSize = TAB_BUTTON_SIZE(mv);
+    static short imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
+    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), imageY);
+
+    // Use bold colors for an active button
+    if (highlighted) {
+        static ImVec4 activeColor = ImVec4(0.25f, 0.58f, 0.98f, 1.0f);
+        ImGui::PushStyleColor(ImGuiCol_Button, activeColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, activeColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
+    }
+
+    // Draw the image button
+    ImGui::SetCursorPos(buttonPos);
+    if (ImGui::ImageButton(name, texture, sf::Vector2f(imageSize, imageSize))) {
+        onClick();
+    }
+
+    // Draw text underneath button
+    if (std::string(name) != "Sprite") {
+
+        // Center text underneath based on its size
+        short textWidth = ImGui::CalcTextSize(name).x - 8; // CalcTextSize seems to consistently be ~8 pixels off?
+        float x = buttonPos.x + ((imageSize - textWidth) / 2);
+        ImVec2 buttonTextPos = ImVec2(x, imageY + imageSize + 10);
+
+        ImGui::SetCursorPos(buttonTextPos);
+        ImGui::Text(name);
+    // Special case for Sprite button // TODO: Refactor
+    } else {
+        // Center combo box underneath the button
+        ImVec2 comboPos = ImVec2(buttonPos.x, imageY + imageSize + 10);
+        ImGui::SetCursorPos(comboPos);
+
+        // Set the width of the combo box to match the text width
+        ImGui::PushItemWidth(20);
+        ImGui::Combo("Sprite##", &selectedSpriteIndex_, spriteNameList_.data(), spriteNameList_.size());
+        ImGui::PopItemWidth();
+    }
+
+    if (highlighted) {
+        ImGui::PopStyleColor(3);
     }
 }

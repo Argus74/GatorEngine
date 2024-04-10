@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 
 #include <vector>
+#include <functional>
 
 #include "UIWindow.h"
 
@@ -19,8 +20,15 @@ public:
 	void DrawFrames() override;
 
 private:
-	// List of textures for the buttons in the tab bar. Duplicated from AssetManager.
-	std::vector<sf::Texture> icons_;
+	// To track all available sprites to be selected
+	std::vector<const char*> spriteNameList_;
+
+	// To track currently selected sprite for sprite button
+	int selectedSpriteIndex_ = 3; // Default to "Grass Tile"
+
+	// Helper to draw a button somewhere in a horizontal grid of squares
+	void DrawButton(const char* name, sf::Texture& texture, int index, 
+		std::function<void()> onClick, bool highlighted = false);
 };
 
 #endif // TABBARWINDOW_H
