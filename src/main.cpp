@@ -36,7 +36,6 @@ int main()
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
         ImGui::SFML::Render(window);
-        newGame.update();
         newLuaState.Update();
         window.display();
     }
