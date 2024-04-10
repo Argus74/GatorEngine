@@ -157,43 +157,42 @@ public:
 			auto name = createComponentByName<CName>(it->name.GetString());
 			if (name != nullptr) {
 				addComponent(name);
-				name->deserialize(it->value);
+				getComponent<CName>()->deserialize(it->value);
 				continue;
 			}
 
 			auto transform = createComponentByName<CTransform>(it->name.GetString());
 			if (transform != nullptr) {
 				addComponent(transform);
-				transform->deserialize(it->value);
+				getComponent<CTransform>()->deserialize(it->value);
 				continue;
 			}
 
 			auto shape = createComponentByName<CShape>(it->name.GetString());
 			if (shape != nullptr) {
 				addComponent(shape);
-				shape->deserialize(it->value);
+				getComponent<CShape>()->deserialize(it->value);
 				continue;
 			}
 
 			auto rigidBody = createComponentByName<CRigidBody>(it->name.GetString());
 			if (rigidBody != nullptr) {
 				addComponent(rigidBody);
-				rigidBody->deserialize(it->value);
+				getComponent<CRigidBody>()->deserialize(it->value);
 				continue;
 			}
 
 			auto sprite = createComponentByName<CSprite>(it->name.GetString());
 			if (sprite != nullptr) {
 				addComponent(sprite);
-				sprite->deserialize(it->value);
+				getComponent<CSprite>()->deserialize(it->value);
 				continue;
 			}
 
 			auto animation = createComponentByName<CAnimation>(it->name.GetString());
-			if (sprite != nullptr) {
+			if (animation != nullptr) {
 				addComponent(animation);
-				animation->deserialize(it->value);
-				continue;
+				getComponent<CAnimation>()->deserialize(it->value);
 			}
         }	
 	}

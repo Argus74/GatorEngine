@@ -32,7 +32,7 @@ public:
 	}
 
     void deserialize(const rapidjson::Value& value) override {
-		origin = Vec2(value["originX"].GetDouble(), value["originY"].GetDouble());
+		origin = position = Vec2(value["originX"].GetDouble(), value["originY"].GetDouble());
 		scale = Vec2(value["scaleX"].GetDouble(), value["scaleY"].GetDouble());
 		angle = value["angle"].GetDouble();
 	}

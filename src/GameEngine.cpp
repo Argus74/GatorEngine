@@ -9,7 +9,7 @@ GameEngine &GameEngine::GetInstance()
 
 	if (!instance_.initialized_)
 	{
-		instance_.init("assets/scenes/scene1.json");
+		instance_.init("../scenes/data.scene");
 		instance_.initialized_ = true;
 	}
 	return instance_;
@@ -56,6 +56,8 @@ void GameEngine::init(const std::string &path)
 	AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
 	AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
+	Scene scene;
+	scene.readFromJSONFile(path);
 	
 	//123
 	window_.setFramerateLimit(60);
