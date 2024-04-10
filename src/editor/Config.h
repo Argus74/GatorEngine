@@ -22,7 +22,7 @@
 // =========================
 
 // FileBarWindow
-#define FILE_HEIGHT			20 // 20px tall by default in ImGui
+#define FILE_HEIGHT			19 // ~19px tall by default in ImGui
 
 // TabBarWindow
 #define TAB_WIDTH(MV)		WINDOW_WIDTH(MV)
