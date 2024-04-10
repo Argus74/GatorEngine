@@ -67,7 +67,10 @@ void ExplorerWindow::DrawFrames() {
 			}
 
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
-			ImGui::OpenPopupOnItemClick(kEntityContextMenuID, ImGuiPopupFlags_MouseButtonRight);
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				Editor::active_entity_ = entity;
+				ImGui::OpenPopup(kEntityContextMenuID);
+			}
 
 			// Make this selectable draggable
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) {
