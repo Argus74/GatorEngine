@@ -26,62 +26,47 @@ void SceneLayoutWindow::PreDraw() {
 }
 
 void SceneLayoutWindow::DrawFrames() {
-	// TODO: Add logic here to prevent drawing buttons when not in moving or selecting state;
+	// Prevent drawing buttons when not in moving or selecting state
+	if (Editor::state != Editor::State::Selecting && Editor::state != Editor::State::Moving) return;
+
 	// Draw a draggable selection box for each entity with a transform component
 	auto entityList = EntityManager::GetInstance().getEntitiesRenderingList(); //Drawing the draggable boxes in the order of the rendering list, Didn't really change much. Might be an Imgui thing - Alec
 	for (int i = 0; i < entityList.size(); i++) {
-		if (!entityList[i]->hasComponent<CTransform>()) continue;
-		auto& transform = *(entityList[i]->getComponent<CTransform>());
-		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
-		if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving) {
+		auto entity = entityList[i];
 
-			// Make border non-zero if this is the active entity
-			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
+		if (!entity->hasComponent<CTransform>()) continue;
+
 		// If user decided to make entity unselectable, skip it
 		if (entity->hasComponent<CInformation>() &&
 			!entity->getComponent<CInformation>()->selectable) continue;
 
-			// Calculate selection box dimensions and draw it
-			ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
+		auto& transform = *(entity->getComponent<CTransform>());
+		std::vector<float> dimensions = GetSelectionBoxDimensions(entity);
+		short borderSize = (Editor::active_entity_ == entity) ? kSelectionBoxBorder : 0; // Show only active entity's border
+		std::string label = "##DraggableBox" + std::to_string(i);
 
-			std::string label = "##DraggableBox" + std::to_string(i);
-			if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
-				// On click, set this entity as the active entity
-				Editor::active_entity_ = entityList[i];
-			}
+		// Calculate selection box dimensions and draw it
+		ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+		if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
+			Editor::active_entity_ = entity; // On click, make this entity the active one
+		}
+		ImGui::PopStyleVar();
 
-			// If this selection box is being dragged, move the entity
-			// TODO: Add logic here to prevent moving when not in moving state
-			// TODO: Investigate why button drags behind sprite a bit
-			auto& transform = *(entityList[i]->getComponent<CTransform>());
-			if (ImGui::IsItemActive() &&
-				ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-				transform.position.x += ImGui::GetIO().MouseDelta.x;
-				transform.position.y += ImGui::GetIO().MouseDelta.y;
-				Editor::state = Editor::State::Moving;
-			}
+		// If not moving (just selecting), skip the rest of the loop
+		if (Editor::state != Editor::State::Moving) continue;
 
+		//// Or if user decided to make entity draggable, also skip
+		//if (entity->hasComponent<CEditorOptions>() &&
+		//	!entity->getComponent<CEditorOptions>()->draggable) continue;
 
-			ImGui::PopStyleVar();
+		// If this selection box is being dragged & is draggable, move the entity
+		// TODO: Investigate why button drags behind sprite a bit
+		if (ImGui::IsItemActive() &&
+			ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			transform.position.x += ImGui::GetIO().MouseDelta.x;
+			transform.position.y += ImGui::GetIO().MouseDelta.y;
 		}
-		// If out-of-bounds, snap back to bounds
-		// TODO: This may break once we start camera stuff... if we ever do?
-		// TODO: Do you want to clamp more since we're using a center origin for sprites?
-		short centerToEdgeX = dimensions[2] / 2;
-		short centerToEdgeY = dimensions[3] / 2;
-		if (transform.position.x - centerToEdgeX < 0) {
-			transform.position.x = centerToEdgeX;
-		}
-		if (transform.position.y - centerToEdgeY < 0) {
-			transform.position.y = centerToEdgeY;
-		}
-		if (transform.position.x + centerToEdgeX > (ImGui::GetMainViewport()->Size.x * .80)) {
-			transform.position.x = ImGui::GetMainViewport()->Size.x * .80 - centerToEdgeX;
-		}
-		if (transform.position.y + centerToEdgeY > (ImGui::GetMainViewport()->Size.y * .80 - 20)) {
-			transform.position.y = (ImGui::GetMainViewport()->Size.y * .80 - 20) - centerToEdgeY;
-		}
-
 	}
 }
 
