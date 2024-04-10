@@ -121,6 +121,22 @@ void Scene_Play::sUserInput()
 			GameEngine::GetInstance().window().setView(sf::View(view));
 		}
 
+		// Ctrl+D hotkey to copy active entity
+		if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D)
+		{
+			if (!Editor::active_entity_) break;
+			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+		}
+
+		// Ctrl+X hotkey to delete active entity
+		if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X)
+		{
+			if (!Editor::active_entity_) break;
+			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+		}
+
+		// Ctrl+Z hotkey does not exist. Good luck o7
+
 		// Lambda to process key or mouse events for the player
 		auto processInputEvent = [](const sf::Event &event, const sf::Event::EventType &eventType)
 		{
