@@ -2,6 +2,7 @@
 
 #include "imgui-SFML.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../AssetManager.h";
 #include "Editor.h"
@@ -31,16 +32,9 @@ ExplorerWindow::ExplorerWindow() {
 }
 
 void ExplorerWindow::SetPosition() {
-	// 20% of viewport's width, 40% of its height
-	const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	short windowWidth = mainViewport->Size.x * 0.20;
-	short windowHeight = mainViewport->Size.y * 0.40;
-
-	short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-	short windowYPos = mainViewport->Size.y * .20 + 20; // Hardcoding to be under the tab bar
-
-	ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	const ImGuiViewport* mv = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(EXPLR_XOFFSET(mv), EXPLR_YOFFSET(mv)));
+	ImGui::SetNextWindowSize(ImVec2(EXPLR_WIDTH(mv), EXPLR_HEIGHT(mv)));
 }
 
 void ExplorerWindow::PreDraw() {

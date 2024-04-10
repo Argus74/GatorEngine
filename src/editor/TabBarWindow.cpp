@@ -3,6 +3,7 @@
 
 #include "imgui-SFML.h"
 
+#include "Config.h"
 #include "../AssetManager.h"
 #include "../EntityManager.h"
 
@@ -23,12 +24,9 @@ TabBarWindow::TabBarWindow()
 
 void TabBarWindow::SetPosition()
 {
-    // TODO: Play around with this to see if it's the best spot
-    // Position the window right below the file bar (20px tall)
-    ImGui::SetNextWindowPos(ImVec2(0, 20));
-    // Make it 20% of the full window height
-    ImGui::SetNextWindowSize(ImVec2(ImGui::GetMainViewport()->Size.x,
-                                    ImGui::GetMainViewport()->Size.y * 0.20));
+    const ImGuiViewport* mv = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(TAB_XOFFSET, TAB_YOFFSET));
+    ImGui::SetNextWindowSize(ImVec2(TAB_WIDTH(mv), TAB_HEIGHT(mv)));
 }
 
 void TabBarWindow::DrawFrames()

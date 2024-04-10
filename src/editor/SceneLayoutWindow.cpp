@@ -1,6 +1,7 @@
+#include "Config.h"
 #include "SceneLayoutWindow.h"
 
-static const short kBORDER_SIZE = 5;
+static const short kSelectionBoxBorder = 5; // Border thickness around selected entities
 
 SceneLayoutWindow::SceneLayoutWindow() {
 	name_ = "Scene Layout";
@@ -11,16 +12,9 @@ SceneLayoutWindow::SceneLayoutWindow() {
 }
 
 void SceneLayoutWindow::SetPosition() {
-	// 80% of viewport's width, (almost) 80% of its height
 	const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	short windowWidth = mainViewport->Size.x * 0.80;
-	short windowHeight = mainViewport->Size.y * 0.80 - 20;
-
-	short windowXPos = 0;// Right side of window
-	short windowYPos = mainViewport->Size.y * .20 + 20; // RIght under tab bar
-
-	ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	ImGui::SetNextWindowPos(ImVec2(SCENE_XOFFSET, SCENE_YOFFSET(mainViewport)));
+	ImGui::SetNextWindowSize(ImVec2(SCENE_WIDTH(mainViewport), SCENE_HEIGHT(mainViewport)));
 }
 
 void SceneLayoutWindow::PreDraw() {
@@ -102,13 +96,13 @@ std::vector<float> SceneLayoutWindow::GetSelectionBoxDimensions(const std::share
 	// Set selection box size, depending on the entity's current sprite
 	if (entity->hasComponent<CSprite>()) {
 		auto& sprite = entity->getComponent<CSprite>()->sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2); // to make border line up correctly
-		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
+		dimensions[2] = sprite.getGlobalBounds().width + (kSelectionBoxBorder * 3 / 2); // to make border line up correctly
+		dimensions[3] = sprite.getGlobalBounds().height + (kSelectionBoxBorder * 3 / 2);
 	}
 	else if (entity->hasComponent<CAnimation>()) {
 		auto& sprite = entity->getComponent<CAnimation>()->animation_.sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2);
-		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
+		dimensions[2] = sprite.getGlobalBounds().width + (kSelectionBoxBorder * 3 / 2);
+		dimensions[3] = sprite.getGlobalBounds().height + (kSelectionBoxBorder * 3 / 2);
 	}
 	else {
 		// If no sprite or animation, I guess just use the transform's scale?
