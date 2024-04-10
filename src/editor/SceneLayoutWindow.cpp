@@ -43,7 +43,9 @@ void SceneLayoutWindow::DrawFrames() {
 
 			// Make border non-zero if this is the active entity
 			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
-			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+		// If user decided to make entity unselectable, skip it
+		if (entity->hasComponent<CInformation>() &&
+			!entity->getComponent<CInformation>()->selectable) continue;
 
 			// Calculate selection box dimensions and draw it
 			ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));

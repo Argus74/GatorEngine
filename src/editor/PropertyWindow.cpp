@@ -197,6 +197,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 {
     DrawProperty("Layer", information);
     DrawProperty("Tag", information->tag);
+    DrawProperty("Selectable", information->selectable);
 }
 
 // TODO: Add new overloads for future components here
