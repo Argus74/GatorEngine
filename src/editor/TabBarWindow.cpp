@@ -14,9 +14,6 @@ TabBarWindow::TabBarWindow()
 
     // Load icon refs here for (possibly, hopefully) easier access
     auto &assetManager = AssetManager::GetInstance();
-    assetManager.AddTexturePrivate("SelectIcon", "assets/SelectIcon.png");
-    assetManager.AddTexturePrivate("SpriteIcon", "assets/SpriteIcon.png");
-    assetManager.AddTexturePrivate("GameObjectIcon", "assets/GameObjectIcon.png");
     icons_.push_back(assetManager.GetTexturePrivate("SelectIcon"));
     icons_.push_back(assetManager.GetTexturePrivate("SpriteIcon"));
     icons_.push_back(assetManager.GetTexturePrivate("GameObjectIcon"));
