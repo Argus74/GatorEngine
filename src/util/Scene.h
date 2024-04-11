@@ -11,7 +11,7 @@ public:
         writer.Key("entities");
         writer.StartObject();
         for (auto entity : EntityManager::GetInstance().getEntities()) {
-            entity.get()->serialize(writer);
+            entity->serialize(writer);
         }
         writer.EndObject();
         writer.EndObject();

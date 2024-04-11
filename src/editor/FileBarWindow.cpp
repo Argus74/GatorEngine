@@ -35,14 +35,22 @@ void FileBarWindow::DrawFrames() {
                 }
             }
             if (ImGui::MenuItem("Save")) {
-                GameEngine::GetInstance().saveScene("../scenes/MyScene.scene");
+                nfdchar_t* outPath = NULL;
+                nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
+                nfdresult_t result = NFD_SaveDialog(&outPath, filterItem, 1, NULL, NULL);
+                if (result == NFD_OKAY) { 
+                    std::string pathString(outPath); 
+                    GameEngine::GetInstance().saveScene(outPath);
+                    std::cout << "Selected file: " << outPath << std::endl;
+                    NFD_FreePath(outPath);
+                }
+                else if (result == NFD_CANCEL) { //If no file or path is selecte
+                    std::cout << "Dialog canceled." << std::endl;
+                }
+                else {
+                    std::cerr << "Error: " << NFD_GetError() << std::endl;
+                }
             }
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("..."))
-        {
-            ImGui::MenuItem("Stuff Here");
             ImGui::EndMenu();
         }
 

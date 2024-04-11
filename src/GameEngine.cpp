@@ -9,7 +9,7 @@ GameEngine &GameEngine::GetInstance()
 
 	if (!instance_.initialized_)
 	{
-		instance_.init("../scenes/Default.scene");
+		instance_.init("scenes/Default.scene");
 		instance_.initialized_ = true;
 	}
 	return instance_;
