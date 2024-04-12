@@ -174,6 +174,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 {
     DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animationSpeed_);
+    DrawButton(animation);
+    
     //DrawProperty("Disappear", animation->disappear_); For now removing the ability to make the Animation to disappear after one run
 }
 
@@ -480,4 +482,26 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
         });
         ImGui::CloseCurrentPopup();
     }
+}
+
+void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>& val)
+{
+    ImGui::EndTable(); // Don't want to disrupt the draw component function 
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f)); //Spacing up top
+
+    float contentWidth = ImGui::GetContentRegionAvail().x;
+    float buttonWidth = ImGui::CalcTextSize("Play Test Animation").x + 20.0f; // Extra padding for the button
+    float centerPos = (contentWidth - buttonWidth) * 0.5f;
+    ImGui::SetCursorPosX(centerPos);
+
+    const char* buttonLabel = val->playAnimation ? "Stop Test Animation" : "Play Test Animation";
+
+    if (ImGui::Button(buttonLabel)) {
+        val->playAnimation = !val->playAnimation;
+    }
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
+
+    ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
 }

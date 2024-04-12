@@ -248,7 +248,7 @@ void Scene_Play::sRender()
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-      spriteComponent->sprite_.setScale(scale.x, scale.y);
+			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
       //Rotation
 			float angle = transformComponent->angle * -1;
@@ -278,7 +278,11 @@ void Scene_Play::sRender()
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
-			animationComponent->update();
+			
+			std::cout << Editor::state << std::endl;
+
+			if (animationComponent->playAnimation || Editor::state == 3)
+				animationComponent->update();
 		}
 	}
 }

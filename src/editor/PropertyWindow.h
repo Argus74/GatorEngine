@@ -51,6 +51,9 @@ private:
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
 	void DrawInputField(std::shared_ptr <CInformation>& val);
 
+	//Button to play animation when in scene editor state
+	void DrawButton(std::shared_ptr<CAnimation>& val);
+
 	// Draw a button that opens a popup for some subject
 	template <typename T>
 	void DrawPopupButton(const char* name, T& subject, ImVec2 size); // todo rename
