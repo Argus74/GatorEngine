@@ -28,7 +28,7 @@ int main()
     Editor editor;
     std::shared_ptr<Scene> scene = std::make_shared<Scene_Play>();
     newGame.ChangeScene("TestScene", scene);
-    LuaState newLuaState("script.lua");
+    //LuaState newLuaState("script.lua");
     
     while (window.isOpen())
     {
@@ -36,7 +36,7 @@ int main()
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
         ImGui::SFML::Render(window);
-        newLuaState.Update();
+        //newLuaState.Update();
         window.display();
     }
     ImGui::SFML::Shutdown();

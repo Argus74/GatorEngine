@@ -54,6 +54,50 @@ public:
 		return ptr != nullptr && ptr->has;
 	}
 
+	//Used for compatability with lua
+	bool hasComponent(std::string componentName) {
+		if (componentName == "CName")
+		{
+			return hasComponent<CName>();
+		}
+		else if (componentName == "CInformation")
+		{
+			return hasComponent<CInformation>();
+		}
+		else if (componentName == "CTransform")
+		{
+			return hasComponent<CTransform>();
+		}
+		else if (componentName == "CShape")
+		{
+			return hasComponent<CShape>();
+		}
+		else if (componentName == "CUserInput")
+		{
+			return hasComponent<CUserInput>();
+		}
+		else if (componentName == "CAnimation")
+		{
+			return hasComponent<CAnimation>();
+		}
+		else if (componentName == "CSprite")
+		{
+			return hasComponent<CSprite>();
+		}
+		else if (componentName == "CRigidBody")
+		{
+			return hasComponent<CRigidBody>();
+		}
+		else if (componentName == "CBackgroundColor")
+		{
+			return hasComponent<CBackgroundColor>();
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	// Initialize a new component based on template type, with optional argument list for component constructor
 	template <typename T, typename... TArgs>
 	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
@@ -62,6 +106,9 @@ public:
 		component->has = true; 
 		return component;
 	}
+
+	v
+
 
 	// Retrieve the component of the templated type (read-only version)
 
