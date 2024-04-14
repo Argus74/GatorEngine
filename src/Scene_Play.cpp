@@ -268,6 +268,7 @@ void Scene_Play::sRender()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = sprite.getLocalBounds();
 			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
