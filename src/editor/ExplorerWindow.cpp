@@ -57,12 +57,12 @@ void ExplorerWindow::DrawFrames() {
 			// Handle drag-and-drops above this selectable
 			DrawDropTarget(i);
 
+			// Determine if the entity is disabled
+			bool isDisabled = entity->isDisabled();
+
 			// Draw little icon
 			ImGui::Image(icon_, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
 			ImGui::SameLine();
-
-			// Determine if the entity is disabled
-			bool isDisabled = entity->isDisabled();
 
 			// Change text color if entity is disabled
 			if (isDisabled) {

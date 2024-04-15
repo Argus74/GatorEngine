@@ -145,8 +145,8 @@ void Scene_Play::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				// Skip entities without a cUserInput component
-				if (!entity->getComponent<CUserInput>())
+				// Skip entities without a cUserInput component or that are disabled
+				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
 
 				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
@@ -197,7 +197,7 @@ void Scene_Play::sPhysics()
 	
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
@@ -212,7 +212,7 @@ void Scene_Play::sPhysics()
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CTransform>())
+		if (entity->hasComponent<CTransform>() && !entity->isDisabled())
 		{
 			auto transform = entity->getComponent<CTransform>();
 			// Update the position based on the velocity
@@ -239,7 +239,7 @@ void Scene_Play::sRender()
 
 	for (auto &entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
+		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -262,7 +262,7 @@ void Scene_Play::sRender()
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
 
-		if (entity->hasComponent<CAnimation>())
+		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -300,7 +300,7 @@ void Scene_Play::sUI() {
 	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList();
 
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_) { // Health Bar 
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) { // Health Bar 
 			auto healthComponent = entity->getComponent<CHealth>();
 			
 			sf::Sprite backHealth(healthComponent->backHealthBar_);
@@ -355,7 +355,7 @@ void Scene_Play::sRenderColliders() {
 
 	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			b2Vec2 position = rigidBodyComponent->body->GetPosition();
@@ -384,7 +384,7 @@ void Scene_Play::sRenderColliders() {
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() || entity->isDisabled()) continue;
 		float speed = 5.0;
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
@@ -416,7 +416,7 @@ void Scene_Play::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CBackgroundColor>()) {
+		if (entity->hasComponent<CBackgroundColor>() && !entity->isDisabled()) {
 			auto background = entity->getComponent<CBackgroundColor>();
 			GameEngine::GetInstance().window().clear(background->color);
 			return;
