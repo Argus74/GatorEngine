@@ -3,16 +3,32 @@
 
 CHealth::CHealth() {
 	auto& assetManager = AssetManager::GetInstance();
-	frontHealthBar_ = assetManager.GetTexturePrivate("HealthBarFull"); //For now hard code the assets used for health bar
-	backHealthBar_ = assetManager.GetTexturePrivate("HealthBarEmpty");
+	frontHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
+	backHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
+	originalTextureBounds_ = frontHealthBar_.getTextureRect();
 }
 
 CHealth::CHealth(float healthTotal, float currentHealth) {
 	auto& assetManager = AssetManager::GetInstance();
-	frontHealthBar_ = assetManager.GetTexturePrivate("HealthBarFull"); //For now hard code the assets used for health bar
-	backHealthBar_ = assetManager.GetTexturePrivate("HealthBarEmpty");
+	frontHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
+	backHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
+	originalTextureBounds_ = frontHealthBar_.getTextureRect();
 	healthTotal_ = healthTotal;
 	currentHealth_ = currentHealth;
-};
+}
+
+void CHealth::Update() {
+	float percentage = currentHealth_ / healthTotal_;
+
+	// Calculate the visible width based on the percentage
+	int visibleWidth = static_cast<int>(originalTextureBounds_.width * percentage);
+
+	// Set the texture rectangle of the sprite to only show a portion
+	frontHealthBar_.setTextureRect(sf::IntRect(originalTextureBounds_.left, originalTextureBounds_.top, visibleWidth, originalTextureBounds_.height));
+
+	sf::Color color = AssetManager::LerpColor(sf::Color::Red, sf::Color::Green, percentage);
+	frontHealthBar_.setColor(color);
+	
+}
 
 

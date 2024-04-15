@@ -167,11 +167,11 @@ Animation& AssetManager::GetAnimation(const std::string& name) {
     return *animations_[name];
 }
 
-sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t) {
+sf::Color AssetManager::LerpColor(const sf::Color& start, const sf::Color& end, float t) {
     return sf::Color(
-        static_cast<sf::Uint8>(colorStart.r + t * (colorEnd.r - colorStart.r)),
-        static_cast<sf::Uint8>(colorStart.g + t * (colorEnd.g - colorStart.g)),
-        static_cast<sf::Uint8>(colorStart.b + t * (colorEnd.b - colorStart.b)),
-        static_cast<sf::Uint8>(colorStart.a + t * (colorEnd.a - colorStart.a))
+        static_cast<sf::Uint8>(start.r + t * (end.r - start.r)),
+        static_cast<sf::Uint8>(start.g + t * (end.g - start.g)),
+        static_cast<sf::Uint8>(start.b + t * (end.b - start.b)),
+        255 // Assuming full opacity
     );
 }

@@ -202,8 +202,28 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health)
     DrawProperty("Current Health", health->currentHealth_);
     
     DrawProperty("Draw Health Bar", health->drawHealth_);
-    DrawProperty("Health Bar Scale", health->healthBarScale_);
-    DrawProperty("Health Bar Pos", health->healthBarPosition_);
+
+    if (health->drawHealth_) 
+    {   // To make the property window less clunky
+        DrawProperty("Follow Entity", health->followEntity); 
+
+        if (health->followEntity) 
+        {
+            DrawProperty("Bar Offset", health->healthBarOffset_);
+        }
+        else {
+            DrawProperty("Bar Position", health->healthBarPosition_);
+        }
+
+        DrawProperty("Bar Scale", health->healthBarScale_);
+    }
+
+    DrawProperty("Respawn Entity", health->respawnCharacter_);
+
+    if (health->respawnCharacter_) {
+        DrawProperty("Respawn Position", health->respawnPosition_);
+    }
+   
 }
 
 template <typename T>

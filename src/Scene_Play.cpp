@@ -77,6 +77,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CUserInput>();
 	m_player->addComponent<CName>("Player1");
 	m_player->addComponent<CInformation>();
+	m_player->addComponent<CHealth>();
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
@@ -298,29 +299,50 @@ void Scene_Play::sUI() {
 	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList();
 
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CHealth>()) { // Health Bar Dealing
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_) { // Health Bar 
 			auto healthComponent = entity->getComponent<CHealth>();
-			Vec2 scale = healthComponent->healthBarScale_;
-			Vec2 position = healthComponent->healthBarPosition_;
 			
-			//Making the sprite fro the back health bar
-			sf::Sprite backHealth;
-			backHealth.setTexture(healthComponent->backHealthBar_);
+			sf::Sprite backHealth(healthComponent->backHealthBar_);
+			sf::Sprite frontHealth(healthComponent->frontHealthBar_);
+
+			//Making the sprite for the front Health bar
+			healthComponent->Update();
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = backHealth.getLocalBounds();
 			backHealth.setOrigin(bounds.width / 2, bounds.height / 2);
+			sf::FloatRect bounds2 = frontHealth.getLocalBounds();
+			//Hard coded for now, the best way to allow the user to customize health bars would be a different approach
+			frontHealth.setOrigin(bounds.width / 2 - 7, bounds2.height / 2);
 
 			// Set the position of the sprite to the center position
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			backHealth.setPosition(position.x, position.y + yOffset);
-			backHealth.setScale(scale.x, scale.y);
 
-			//Making the sprite for the front Health bar
+			Vec2 scale = healthComponent->healthBarScale_;
 
-			sf::Sprite frontHealth;
-			frontHealth.setTexture(healthComponent->frontHealthBar_);
+			if (healthComponent->followEntity) {
+				// The position is above
+				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->healthBarOffset_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
 
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			else {
+				Vec2 position = healthComponent->healthBarPosition_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
 
+				// Set the position of the sprite to the center position
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			
+
+			GameEngine::GetInstance().window().draw(backHealth);
+			GameEngine::GetInstance().window().draw(frontHealth);
+			
 		}
 	}
 }
