@@ -18,7 +18,8 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CRigidBody>,
-	std::shared_ptr<CBackgroundColor>
+	std::shared_ptr<CBackgroundColor>,
+	std::shared_ptr<CHealth>
 > ComponentTuple;
 
 class Entity {
@@ -39,7 +40,6 @@ public:
 	void clone(const Entity&);
 	void destroy();
 	size_t id() const;
-
 	bool isAlive();
 
 	std::string tag_;

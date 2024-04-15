@@ -41,7 +41,7 @@ add_library(
     ${LUA_DIR}/lutf8lib.c
     ${LUA_DIR}/lvm.c
     ${LUA_DIR}/lzio.c
- "src/components/CHealth.h")
+)
 
 include(FetchContent)
 
@@ -112,7 +112,7 @@ add_executable(
     "src/components/includes.h" 
     "src/components/CRigidBody.h" 
     "src/lua_interpreter/LuaState.cpp"
-    "src/components/CInformation.h" "src/components/CHealth.h")
+    "src/components/CInformation.h" "src/components/CHealth.h" "src/components/CHealth.cpp")
 
 target_link_libraries(GatorEngine
     sfml-graphics

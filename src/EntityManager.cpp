@@ -46,6 +46,7 @@ void EntityManager::update()
 		m_entities.end()
 	);
 
+
 }
 
 // Get all entities
@@ -81,6 +82,14 @@ void EntityManager::reset()
 //Return Entity Manager's RenderingList
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
 	return entitiesRenderingList_;
+}
+
+std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
+	return entitiesUIList_;
+}
+
+void EntityManager::addEntityToUIList(std::shared_ptr<Entity> ent) {
+	entitiesUIList_.push_back(ent);
 }
 
 //Sorts entities based off layer and order in the explorer window

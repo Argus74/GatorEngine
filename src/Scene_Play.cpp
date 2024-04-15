@@ -91,6 +91,7 @@ void Scene_Play::update()
 	sCollision();
 	sBackground();
 	sRender();
+	sUI();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
 }
@@ -280,10 +281,46 @@ void Scene_Play::sRender()
 			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
 			
-			std::cout << Editor::state << std::endl;
 
 			if (animationComponent->playAnimation || Editor::state == 3)
 				animationComponent->update();
+		}
+
+		if (entity->hasComponent<CHealth>()) { // If there is health component we will render that in sUI
+			entityManager.addEntityToUIList(entity); // To make time complexity slightly quicker we sort what is sUI in render
+		}
+	}
+}
+
+void Scene_Play::sUI() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList();
+
+	for (auto& entity : entityList) {
+		if (entity->hasComponent<CHealth>()) { // Health Bar Dealing
+			auto healthComponent = entity->getComponent<CHealth>();
+			Vec2 scale = healthComponent->healthBarScale_;
+			Vec2 position = healthComponent->healthBarPosition_;
+			
+			//Making the sprite fro the back health bar
+			sf::Sprite backHealth;
+			backHealth.setTexture(healthComponent->backHealthBar_);
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = backHealth.getLocalBounds();
+			backHealth.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			// Set the position of the sprite to the center position
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			backHealth.setPosition(position.x, position.y + yOffset);
+			backHealth.setScale(scale.x, scale.y);
+
+			//Making the sprite for the front Health bar
+
+			sf::Sprite frontHealth;
+			frontHealth.setTexture(healthComponent->frontHealthBar_);
+
+
 		}
 	}
 }

@@ -31,6 +31,7 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
 	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
 	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
+	void DrawComponentProperties(std::shared_ptr <CHealth>& health);
 
     // Draw one property row of a component
     template <typename T>

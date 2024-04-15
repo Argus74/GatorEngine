@@ -99,6 +99,9 @@ public:
 		return filenameWithoutExtension;
 	};
 
+	//Misc function for managing Lerp Colors (Interpolating)
+	sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t);
+
 private:
 	AssetManager();
 

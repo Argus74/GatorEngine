@@ -196,7 +196,15 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
     DrawProperty("Selectable", information->selectable);
 }
 
-// TODO: Add new overloads for future components here
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
+{
+    DrawProperty("Health Total", health->healthTotal_);
+    DrawProperty("Current Health", health->currentHealth_);
+    
+    DrawProperty("Draw Health Bar", health->drawHealth_);
+    DrawProperty("Health Bar Scale", health->healthBarScale_);
+    DrawProperty("Health Bar Pos", health->healthBarPosition_);
+}
 
 template <typename T>
 void PropertyWindow::DrawProperty(const char *name, T &val)

@@ -13,7 +13,7 @@ AssetManager& AssetManager::GetInstance() {
 
 AssetManager::AssetManager() {
     //Intializing all png files as textures in Start & Internal Assets folder
-    IntializeTextureAssets("assets/StartAssets");
+    IntializeTextureAssets("assets/StartAssets", false);
     IntializeTextureAssets("assets/InternalAssets", true);
 
     Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
@@ -100,12 +100,13 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
 
 void AssetManager::IntializeTextureAssets(std::string path, bool makePrivate) {
     // Adding all assets that are in Start Assets
+    std::cout << "Checking path: " << std::filesystem::absolute(path) << std::endl;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         // Check if the entry is a file with a ".png" extension
         if (entry.is_regular_file() && entry.path().extension() == ".png") {
             // Extract the file name without extension to use as a texture name
             std::string textureName = entry.path().stem().string();
-
+            std::cout << textureName << std::endl;
             // Add the texture to the asset manager
             if (makePrivate) {
                 AddTexturePrivate(textureName, entry.path().string());
@@ -166,3 +167,11 @@ Animation& AssetManager::GetAnimation(const std::string& name) {
     return *animations_[name];
 }
 
+sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t) {
+    return sf::Color(
+        static_cast<sf::Uint8>(colorStart.r + t * (colorEnd.r - colorStart.r)),
+        static_cast<sf::Uint8>(colorStart.g + t * (colorEnd.g - colorStart.g)),
+        static_cast<sf::Uint8>(colorStart.b + t * (colorEnd.b - colorStart.b)),
+        static_cast<sf::Uint8>(colorStart.a + t * (colorEnd.a - colorStart.a))
+    );
+}
