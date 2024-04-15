@@ -37,6 +37,7 @@ Scene_Play::Scene_Play()
 	ground3->addComponent<CSprite>("Grass Tile");
 	ground3->addComponent<CName>("Ground3");
 	ground3->addComponent<CInformation>();
+	ground3->setDisabled(true);
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
