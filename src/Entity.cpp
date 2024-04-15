@@ -61,3 +61,25 @@ size_t Entity::id() const
 bool Entity::isAlive() {
 	return is_alive_;
 }
+
+bool Entity::isDisabled() {
+	return disabled_;
+}
+
+void Entity::setDisabled(bool disable) {
+	disabled_ = disable;
+}
+
+bool Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
+	if (this->hasComponent<CHealth>()) {
+		auto healthComponent = this->getComponent<CHealth>();
+		
+		if (healthComponent->UpdateHealth(dmg))
+			disabled_ = true;
+		
+		return true;
+	}
+	else {
+		return false;
+	}
+}

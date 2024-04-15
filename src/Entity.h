@@ -27,6 +27,7 @@ class Entity {
 	
 	bool is_alive_;
 	friend class EntityManager;
+	bool disabled_ = false;
 public:
 	ComponentTuple m_components;
 
@@ -41,9 +42,13 @@ public:
 	void destroy();
 	size_t id() const;
 	bool isAlive();
+	bool isDisabled();
+	void setDisabled(bool disable);
+	bool updateHealth(float dmg);
 
 	std::string tag_;
 	int layer_ = 1; //Don't need this here to be honest
+	
 
 	// Component Accessors and Modifiers 
 

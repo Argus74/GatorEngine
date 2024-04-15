@@ -15,6 +15,7 @@ static constexpr char* kExplorerLabel = "##Explorer";
 static constexpr char* kDropTargetLabel = "##Target";
 static constexpr char* kCloneLabel = "Clone";
 static constexpr char* kDeleteLabel = "Delete";
+
 static constexpr short kDropTargetHeight = 10;
 
 
