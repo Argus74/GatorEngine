@@ -253,10 +253,9 @@ void Scene_Play::sRender()
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
-      //Rotation
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
-			
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -290,6 +289,9 @@ void Scene_Play::sRender()
 
 		if (entity->hasComponent<CHealth>()) { // If there is health component we will render that in sUI
 			entityManager.addEntityToUIList(entity); // To make time complexity slightly quicker we sort what is sUI in render
+		} 
+		if (entity->hasComponent<CText>()) {
+			entityManager.addEntityToUIList(entity);
 		}
 	}
 }
@@ -297,10 +299,12 @@ void Scene_Play::sRender()
 void Scene_Play::sUI() {
 	auto& entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList();
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList(); // We only iterate through the UI rendering list 
 
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) { // Health Bar 
+
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) 
+		{ // Health Bar 
 			auto healthComponent = entity->getComponent<CHealth>();
 			
 			sf::Sprite backHealth(healthComponent->backHealthBar_);
@@ -340,12 +344,33 @@ void Scene_Play::sUI() {
 				frontHealth.setScale(scale.x, scale.y);
 			}
 			
-
 			GameEngine::GetInstance().window().draw(backHealth);
 			GameEngine::GetInstance().window().draw(frontHealth);
 			
 		}
-	}
+
+		if (entity->hasComponent<CText>() && !entity->isDisabled()) 
+		{
+			auto transformComponent = entity->getComponent<CTransform>(); // Transform related 
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position;
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
+
+			textComponent->text_.setFont(textComponent->font_);
+			textComponent->text_.setString(textComponent->message_);
+			textComponent->text_.setCharacterSize(textComponent->characterSize_);
+			textComponent->text_.setFillColor(textComponent->textColor_);
+			textComponent->text_.setStyle(textComponent->style_);
+			textComponent->text_.setScale(scale.x, scale.y);
+			textComponent->text_.setPosition(position.x, position.y + yOffset);
+
+			GameEngine::GetInstance().window().draw(textComponent->text_);
+		}
+	} 
+
+	
 }
 
 void Scene_Play::sRenderColliders() {

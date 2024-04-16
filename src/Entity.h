@@ -19,7 +19,8 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CRigidBody>,
 	std::shared_ptr<CBackgroundColor>,
-	std::shared_ptr<CHealth>
+	std::shared_ptr<CHealth>,
+	std::shared_ptr<CText>
 > ComponentTuple;
 
 class Entity {
@@ -48,7 +49,6 @@ public:
 
 	std::string tag_;
 	int layer_ = 1; //Don't need this here to be honest
-	
 
 	// Component Accessors and Modifiers 
 

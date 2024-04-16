@@ -226,6 +226,16 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health)
    
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text) 
+{
+    DrawProperty("Text Font", text);
+    DrawProperty("Text Style", text->style_);
+    DrawProperty("Message", text->message_);
+    DrawProperty("Character Size", text->characterSize_);
+    DrawProperty("Text Color", text->textColor_);
+
+}
+
 template <typename T>
 void PropertyWindow::DrawProperty(const char *name, T &val)
 {
@@ -285,6 +295,59 @@ void PropertyWindow::DrawInputField(int &val)
 void PropertyWindow::DrawInputField(bool &val)
 {
     ImGui::Checkbox("##Bool", &val);
+}
+
+void PropertyWindow::DrawInputField(unsigned int& val)
+{
+    int selection = val; // Currently selected item index
+    const char* items[] = { "Regular", "Bold", "Italic"}; // List of items (integers as strings)
+
+    // Convert the selected item index into a string for display
+    int previewIndex = val;
+    const char* previewValue = items[previewIndex];
+
+    if (ImGui::BeginCombo("##Styles", previewValue)) {
+        for (int i = 0; i < IM_ARRAYSIZE(items); ++i) {
+            bool isSelected = (selection == i);
+            if (ImGui::Selectable(items[i], isSelected)) {
+                selection = i; // Update the current selection
+                val = i;
+                EntityManager::GetInstance().sortEntitiesForRendering();
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+}
+
+void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val) 
+{
+    auto& assetManager = AssetManager::GetInstance();
+    auto fontNameList = assetManager.GenerateAssetNameList("fonts");
+    int selection = 0;
+
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    const char* preview_value = val->name_.c_str();
+
+    // Use BeginCombo and EndCombo for a custom preview value
+    if (ImGui::BeginCombo("##Fonts", preview_value)) {
+        for (int i = 0; i < fontNameList.size(); i++) {
+            bool is_selected = (selection == i);
+            if (ImGui::Selectable(fontNameList[i], is_selected)) {
+                selection = i;
+                val->font_ = assetManager.GetFont(fontNameList[selection]);
+                val->name_ = fontNameList[selection];
+            }
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 }
 
 void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)

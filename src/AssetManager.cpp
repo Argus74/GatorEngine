@@ -13,8 +13,8 @@ AssetManager& AssetManager::GetInstance() {
 
 AssetManager::AssetManager() {
     //Intializing all png files as textures in Start & Internal Assets folder
-    IntializeTextureAssets("assets/StartAssets", false);
-    IntializeTextureAssets("assets/InternalAssets", true);
+    IntializeAssets("assets/StartAssets", false);
+    IntializeAssets("assets/InternalAssets", true);
 
     Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
     AddAnimation("DefaultAnimation", ani);
@@ -98,7 +98,7 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
     animations_[name] = ani;
 }
 
-void AssetManager::IntializeTextureAssets(std::string path, bool makePrivate) {
+void AssetManager::IntializeAssets(std::string path, bool makePrivate) {
     // Adding all assets that are in Start Assets
     std::cout << "Checking path: " << std::filesystem::absolute(path) << std::endl;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
@@ -113,6 +113,14 @@ void AssetManager::IntializeTextureAssets(std::string path, bool makePrivate) {
             } else {
 				AddTexture(textureName, entry.path().string());
 			}
+        }
+        else if (entry.is_regular_file() && entry.path().extension() == ".ttf") {
+            // Extract the file name without extension to use as a font name
+            std::string fontName = entry.path().stem().string();
+            std::cout << fontName << std::endl;
+            
+            // Add the font to the asset manager
+            AddFont(fontName, entry.path().string());
         }
     }
 }

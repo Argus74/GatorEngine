@@ -10,7 +10,7 @@
 #include "CBackgroundColor.h"
 #include "CInformation.h"
 #include "CHealth.h"
-
+#include "CText.h"
 
 
 

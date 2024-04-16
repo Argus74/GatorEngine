@@ -34,6 +34,7 @@ void Entity::clone(const Entity& other) {
 	id_ = other.id_ + 1; // Increment the ID of the new entity
 	tag_ = other.tag_;
 	is_alive_ = other.is_alive_;
+	disabled_ = other.disabled_;
 
 	// Iterate through each component of other and deep copy its non-null components
 	forEachComponent([&](auto& component, size_t index) {
