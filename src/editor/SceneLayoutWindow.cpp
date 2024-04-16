@@ -4,41 +4,10 @@
 
 static const short kSelectionBoxBorder = 5; // Border thickness around selected entities
 
-// Helper to determine an entity's selection box position and size
-// TODO: Consider abstracting this more into a proper bounding box calculation for use in, say, the OnTouch system
-std::vector<float> GetSelectionBoxDimensions(const std::shared_ptr<Entity>& entity) {
-	auto& transform = *(entity->getComponent<CTransform>());
-	std::vector<float> dimensions = { 0, 0, 0, 0 };
-
-	// Set selection box size, depending on the entity's current sprite
-	if (entity->hasComponent<CSprite>()) {
-		auto& sprite = entity->getComponent<CSprite>()->sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kSelectionBoxBorder * 3 / 2); // to make border line up correctly
-		dimensions[3] = sprite.getGlobalBounds().height + (kSelectionBoxBorder * 3 / 2);
-	}
-	// TODO: Bug where dimensions are not correct after resizing animated sprites
-	else if (entity->hasComponent<CAnimation>()) {
-		auto& sprite = entity->getComponent<CAnimation>()->animation_.sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kSelectionBoxBorder * 3 / 2);
-		dimensions[3] = sprite.getGlobalBounds().height + (kSelectionBoxBorder * 3 / 2);
-	}
-	else {
-		// If no sprite or animation, I guess just use the transform's scale?
-		dimensions[2] = transform.scale.x;
-		dimensions[3] = transform.scale.y;
-	}
-
-	// Set selection box position (shift left and up by 1/2 its size because sprites are using center origin)
-	dimensions[0] = transform.position.x - (dimensions[2] / 2);
-	dimensions[1] = transform.position.y - (dimensions[3] / 2);
-
-	return dimensions;
-}
-
-void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const std::vector<float>& dimensions, bool isActive) {
-	ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
+void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const sf::FloatRect& dimensions, bool isActive) {
+	ImGui::SetCursorPos(ImVec2(dimensions.top, dimensions.left));
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, isActive ? kSelectionBoxBorder : 0); // Show border only if active
-	ImGui::Button(("##DraggableBox" + std::to_string(entity->id())).c_str(), ImVec2(dimensions[2], dimensions[3]));
+	ImGui::Button(("##DraggableBox" + std::to_string(entity->id())).c_str(), ImVec2(dimensions.width, dimensions.height));
 	ImGui::PopStyleVar();
 }
 
@@ -127,7 +96,7 @@ void SceneLayoutWindow::DrawFrames() {
 	// If resizing, draw resize handles over active entity
 	if (Editor::active_entity_ && Editor::state == Editor::State::Resizing) {
 		auto transform = Editor::active_entity_->getComponent<CTransform>();
-		std::vector<float> dimensions = GetSelectionBoxDimensions(Editor::active_entity_);
+		auto rect = Editor::active_entity_->GetRect();
 
 		// Draw a resize handle for each X and Y axis on sides of entity, depending on its orientation
 		// TODO: This math may be simplified, but I'm too tired to think about it right now
@@ -135,8 +104,8 @@ void SceneLayoutWindow::DrawFrames() {
 		short handleRadius = WINDOW_WIDTH(mv) * 0.006f;
 		float xCenter = transform->position.x;
 		float yCenter = transform->position.y;
-		float halfEdgeX = dimensions[2] / 2;
-		float halfEdgeY = dimensions[3] / 2;
+		float halfEdgeX = rect.width / 2;
+		float halfEdgeY = rect.height / 2;
 		float offset = (handleRadius * 2);
 		bool xAxis = true;
 
@@ -165,7 +134,6 @@ void SceneLayoutWindow::DrawFrames() {
 
 	// If selecting, moving, or resizing, draw a selection box over each entity
 	auto entityList = EntityManager::GetInstance().getEntitiesRenderingList();
-	std::vector<float> dimensions;
 	for (const auto& entity : entityList) {
 		// Skip unselectable entities
 		if (entity->hasComponent<CInformation>() && !entity->getComponent<CInformation>()->selectable) continue;
@@ -173,9 +141,8 @@ void SceneLayoutWindow::DrawFrames() {
 		// Skip entities without a transform component
 		if (!entity->hasComponent<CTransform>()) continue;
 
-		dimensions = GetSelectionBoxDimensions(entity);
-
-		DrawSelectionBox(entity, dimensions, entity == Editor::active_entity_);
+		static constexpr float margin = kSelectionBoxBorder * 3 / 2;
+		DrawSelectionBox(entity, entity->GetRect(margin), entity == Editor::active_entity_);
 		HandleSelectInteraction(entity);
 		if (Editor::state == Editor::State::Moving) { // If moving, also handle moving interaction
 			HandleMoveInteraction(entity);

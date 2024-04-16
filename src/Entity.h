@@ -39,8 +39,10 @@ public:
 	void clone(const Entity&);
 	void destroy();
 	size_t id() const;
-
 	bool isAlive();
+
+	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
+	sf::FloatRect& GetRect(float margin = 0.0f);
 
 	std::string tag_;
 	int layer_ = 1; //Don't need this here to be honest
