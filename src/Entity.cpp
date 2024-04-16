@@ -69,19 +69,22 @@ sf::FloatRect& Entity::GetRect(float margin) {
 	// Set selection box size, depending on the entity's current sprite
 	if (hasComponent<CSprite>()) {
 		auto& sprite = getComponent<CSprite>()->sprite_;
-		rect.width = sprite.getLocalBounds().width * transform.scale.x + margin;
-		rect.height = sprite.getLocalBounds().height * transform.scale.y + margin;
+		rect.width = sprite.getGlobalBounds().width + margin;
+		rect.height = sprite.getGlobalBounds().height + margin;
 	}
 	else if (hasComponent<CAnimation>()) {
 		auto& sprite = getComponent<CAnimation>()->animation_.sprite_;
-		rect.width = sprite.getLocalBounds().width * transform.scale.x + margin;
-		rect.height = sprite.getLocalBounds().height * transform.scale.y + margin;
+		sprite.setScale(transform.scale.x, transform.scale.y); // Hacky fix to get sprite with correct scale
+		rect.width = sprite.getGlobalBounds().width + margin;
+		rect.height = sprite.getGlobalBounds().height + margin;
 	}
 	else {
 		// If no sprite or animation, I guess just use the transform's scale?
 		rect.width = transform.scale.x;
 		rect.height = transform.scale.y;
 	}
+	// TODO: Use collision boxes
+	// TODO: Take largest of all components
 
 	// Get top-left corner of the entity
 	rect.left = transform.position.y - (rect.height / 2);
