@@ -37,6 +37,8 @@ Scene_Play::Scene_Play()
 	ground3->addComponent<CSprite>("Grass Tile");
 	ground3->addComponent<CName>("Ground3");
 	ground3->addComponent<CInformation>();
+	ground3->setDisabled(true);
+
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
@@ -77,6 +79,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CUserInput>();
 	m_player->addComponent<CName>("Player1");
 	m_player->addComponent<CInformation>();
+	m_player->addComponent<CHealth>();
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
@@ -92,6 +95,7 @@ void Scene_Play::update()
 	sCollision();
 	sBackground();
 	sRender();
+	sUI();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
 }
@@ -143,8 +147,8 @@ void Scene_Play::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				// Skip entities without a cUserInput component
-				if (!entity->getComponent<CUserInput>())
+				// Skip entities without a cUserInput component or that are disabled
+				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
 
 				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
@@ -195,7 +199,7 @@ void Scene_Play::sPhysics()
 	
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
@@ -210,7 +214,7 @@ void Scene_Play::sPhysics()
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CTransform>())
+		if (entity->hasComponent<CTransform>() && !entity->isDisabled())
 		{
 			auto transform = entity->getComponent<CTransform>();
 			// Update the position based on the velocity
@@ -262,7 +266,7 @@ void Scene_Play::sRender()
 
 	for (auto &entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
+		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -276,16 +280,15 @@ void Scene_Play::sRender()
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
-      //Rotation
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
-			
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
 
-		if (entity->hasComponent<CAnimation>())
+		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -294,6 +297,7 @@ void Scene_Play::sRender()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = sprite.getLocalBounds();
 			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
@@ -304,9 +308,90 @@ void Scene_Play::sRender()
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
-			animationComponent->update();
+			
+
+			if (animationComponent->playAnimation || Editor::state == 3)
+				animationComponent->update();
 		}
 	}
+}
+
+void Scene_Play::sUI() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList(); // We only iterate through the UI rendering list 
+
+	for (auto& entity : entityList) {
+
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) 
+		{ // Health Bar 
+			auto healthComponent = entity->getComponent<CHealth>();
+			
+			sf::Sprite backHealth(healthComponent->backHealthBar_);
+			sf::Sprite frontHealth(healthComponent->frontHealthBar_);
+
+			//Making the sprite for the front Health bar
+			healthComponent->Update();
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = backHealth.getLocalBounds();
+			backHealth.setOrigin(bounds.width / 2, bounds.height / 2);
+			sf::FloatRect bounds2 = frontHealth.getLocalBounds();
+			//Hard coded for now, the best way to allow the user to customize health bars would be a different approach
+			frontHealth.setOrigin(bounds.width / 2 - 7, bounds2.height / 2);
+
+			// Set the position of the sprite to the center position
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			Vec2 scale = healthComponent->healthBarScale_;
+
+			if (healthComponent->followEntity) {
+				// The position is above
+				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->healthBarOffset_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			else {
+				Vec2 position = healthComponent->healthBarPosition_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				// Set the position of the sprite to the center position
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			
+			GameEngine::GetInstance().window().draw(backHealth);
+			GameEngine::GetInstance().window().draw(frontHealth);
+			
+		}
+
+		if (entity->hasComponent<CText>() && !entity->isDisabled()) 
+		{
+			auto transformComponent = entity->getComponent<CTransform>(); // Transform related 
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position;
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
+
+			textComponent->text_.setFont(textComponent->font_);
+			textComponent->text_.setString(textComponent->message_);
+			textComponent->text_.setCharacterSize(textComponent->characterSize_);
+			textComponent->text_.setFillColor(textComponent->textColor_);
+			textComponent->text_.setStyle(textComponent->style_);
+			
+			sf::FloatRect bounds = textComponent->text_.getLocalBounds();
+			textComponent->text_.setScale(scale.x, scale.y);
+			textComponent->text_.setPosition(position.x, position.y + yOffset);
+			textComponent->text_.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			GameEngine::GetInstance().window().draw(textComponent->text_);
+		}
+	} 
 }
 
 void Scene_Play::sRenderColliders() {
@@ -316,7 +401,7 @@ void Scene_Play::sRenderColliders() {
 
 	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			b2Vec2 position = rigidBodyComponent->body->GetPosition();
@@ -344,8 +429,8 @@ void Scene_Play::sRenderColliders() {
 
 void Scene_Play::sMovement()
 {
-	for (auto& entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
+	for (auto entity : EntityManager::GetInstance().getEntities()) {
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() || entity->isDisabled()) continue;
 		float speed = 5.0;
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
@@ -377,7 +462,7 @@ void Scene_Play::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CBackgroundColor>()) {
+		if (entity->hasComponent<CBackgroundColor>() && !entity->isDisabled()) {
 			auto background = entity->getComponent<CBackgroundColor>();
 			GameEngine::GetInstance().window().clear(background->color);
 			return;

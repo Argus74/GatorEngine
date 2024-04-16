@@ -28,10 +28,10 @@ public:
 	void sUserInput();
 	void sPhysics();
 	void sCollision();
-	void sAnimation();
 	void sRender();
 	void sRenderColliders();
 	void sMovement();
 	void sBackground();
 	void spawnPlayer();
+	void sUI();
 };

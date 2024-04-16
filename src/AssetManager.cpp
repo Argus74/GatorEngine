@@ -13,8 +13,8 @@ AssetManager& AssetManager::GetInstance() {
 
 AssetManager::AssetManager() {
     //Intializing all png files as textures in Start & Internal Assets folder
-    IntializeTextureAssets("assets/StartAssets");
-    IntializeTextureAssets("assets/InternalAssets", true);
+    IntializeAssets("assets/StartAssets", false);
+    IntializeAssets("assets/InternalAssets", true);
 
     Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
     AddAnimation("DefaultAnimation", ani);
@@ -98,20 +98,29 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
     animations_[name] = ani;
 }
 
-void AssetManager::IntializeTextureAssets(std::string path, bool makePrivate) {
+void AssetManager::IntializeAssets(std::string path, bool makePrivate) {
     // Adding all assets that are in Start Assets
+    std::cout << "Checking path: " << std::filesystem::absolute(path) << std::endl;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         // Check if the entry is a file with a ".png" extension
         if (entry.is_regular_file() && entry.path().extension() == ".png") {
             // Extract the file name without extension to use as a texture name
             std::string textureName = entry.path().stem().string();
-
+            std::cout << textureName << std::endl;
             // Add the texture to the asset manager
             if (makePrivate) {
                 AddTexturePrivate(textureName, entry.path().string());
             } else {
 				AddTexture(textureName, entry.path().string());
 			}
+        }
+        else if (entry.is_regular_file() && entry.path().extension() == ".ttf") {
+            // Extract the file name without extension to use as a font name
+            std::string fontName = entry.path().stem().string();
+            std::cout << fontName << std::endl;
+            
+            // Add the font to the asset manager
+            AddFont(fontName, entry.path().string());
         }
     }
 }
@@ -166,3 +175,11 @@ Animation& AssetManager::GetAnimation(const std::string& name) {
     return *animations_[name];
 }
 
+sf::Color AssetManager::LerpColor(const sf::Color& start, const sf::Color& end, float t) {
+    return sf::Color(
+        static_cast<sf::Uint8>(start.r + t * (end.r - start.r)),
+        static_cast<sf::Uint8>(start.g + t * (end.g - start.g)),
+        static_cast<sf::Uint8>(start.b + t * (end.b - start.b)),
+        255 // Assuming full opacity
+    );
+}

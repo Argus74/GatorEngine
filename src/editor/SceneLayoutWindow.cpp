@@ -59,7 +59,8 @@ void HandleResizeInteraction(const std::shared_ptr<Entity>& entity, bool onX) {
 		ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
 		if (onX) {
 			transform->scale.x -= mouseDelta.x * kResizeDampen;
-		} else {
+		}
+		else {
 			transform->scale.y -= mouseDelta.y * kResizeDampen;
 		}
 	}
@@ -89,7 +90,7 @@ void SceneLayoutWindow::PreDraw() {
 
 void SceneLayoutWindow::DrawFrames() {
 	// Prevent drawing buttons when not in moving or selecting state
-	if (Editor::state != Editor::State::Selecting && 
+	if (Editor::state != Editor::State::Selecting &&
 		Editor::state != Editor::State::Moving &&
 		Editor::state != Editor::State::Resizing) return;
 
@@ -113,8 +114,9 @@ void SceneLayoutWindow::DrawFrames() {
 		if (transform->scale.x > 0) {
 			DrawResizeHandle(ImVec2(xCenter - halfEdgeX - offset, yCenter),
 				handleRadius, xAxis);
-		// Right handle
-		} else {
+			// Right handle
+		}
+		else {
 			DrawResizeHandle(ImVec2(xCenter + halfEdgeX + offset, yCenter),
 				handleRadius, xAxis);
 		}
@@ -124,8 +126,9 @@ void SceneLayoutWindow::DrawFrames() {
 		if (transform->scale.y > 0) {
 			DrawResizeHandle(ImVec2(xCenter, yCenter - halfEdgeY - offset),
 				handleRadius, !xAxis);
-		// Bottom handle
-		} else {
+			// Bottom handle
+		}
+		else {
 			DrawResizeHandle(ImVec2(xCenter, yCenter + halfEdgeY + offset),
 				handleRadius, !xAxis);
 		}

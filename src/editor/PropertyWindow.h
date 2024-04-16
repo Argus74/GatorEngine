@@ -31,6 +31,8 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
 	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
 	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
+	void DrawComponentProperties(std::shared_ptr <CHealth>& health);
+	void DrawComponentProperties(std::shared_ptr <CText>& text);
 	void DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger);
 
     // Draw one property row of a component
@@ -51,6 +53,12 @@ private:
 	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
 	void DrawInputField(std::shared_ptr <CInformation>& val);
+	void DrawInputField(std::shared_ptr <CText>& val);
+	void DrawInputField(unsigned int& val); // Used to processs textStyle
+
+
+	//Button to play animation when in scene editor state
+	void DrawButton(std::shared_ptr<CAnimation>& val);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>

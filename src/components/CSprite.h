@@ -12,9 +12,4 @@ public:
 
 	bool loadFromAssetManager();
 	bool loadFromAssetManager(const std::string& textureName);
-	void setPosition(float x, float y);
-	void setPosition(Vec2 pos);
-	void setScale(float xScale, float yScale);
-	void setScale(Vec2 pos);
-	void setTexturePortion(sf::Rect<int> portion);
 };

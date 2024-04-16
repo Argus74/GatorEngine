@@ -9,6 +9,8 @@
 #include "CUserInput.h"
 #include "CBackgroundColor.h"
 #include "CInformation.h"
+#include "CHealth.h"
+#include "CText.h"
 #include "CTouchTrigger.h"
 
 

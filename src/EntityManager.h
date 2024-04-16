@@ -34,6 +34,12 @@ public:
 
 	//Get Entities rendering order
 	std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
+	
+	// Get list of rendering for UI rendering
+	std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList();
+
+	// Updating are our UI rendering list
+	void UpdateUIRenderingList();
 
 private:
 	// Constructor
@@ -54,6 +60,9 @@ private:
 
 	// Vector that stores the true rendering order of Entities  
 	EntityVec entitiesRenderingList_;
+
+	// Vector that stores entities with UI or Health Components
+	EntityVec entitiesUIList_;
 };
 
 #endif // ENTITYMANAGER_H
