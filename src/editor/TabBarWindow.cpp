@@ -89,6 +89,7 @@ void TabBarWindow::DrawFrames()
                     entity->addComponent<CInformation>();
                     GatorPhysics::GetInstance().createBody(entity.get(), true);
                     EntityManager::GetInstance().sortEntitiesForRendering();
+                    EntityManager::GetInstance().UpdateUIRenderingList();
                 };
                 DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
                     5, spriteButton);
@@ -100,6 +101,7 @@ void TabBarWindow::DrawFrames()
                     entity->addComponent<CName>("Game Object");
                     entity->addComponent<CInformation>();
                     EntityManager::GetInstance().sortEntitiesForRendering();
+                    EntityManager::GetInstance().UpdateUIRenderingList();
 				};
                 DrawButton("Game Object", AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6, gameObjectButton);
 

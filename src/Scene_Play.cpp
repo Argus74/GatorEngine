@@ -286,13 +286,6 @@ void Scene_Play::sRender()
 			if (animationComponent->playAnimation || Editor::state == 3)
 				animationComponent->update();
 		}
-
-		if (entity->hasComponent<CHealth>()) { // If there is health component we will render that in sUI
-			entityManager.addEntityToUIList(entity); // To make time complexity slightly quicker we sort what is sUI in render
-		} 
-		if (entity->hasComponent<CText>()) {
-			entityManager.addEntityToUIList(entity);
-		}
 	}
 }
 
@@ -363,14 +356,15 @@ void Scene_Play::sUI() {
 			textComponent->text_.setCharacterSize(textComponent->characterSize_);
 			textComponent->text_.setFillColor(textComponent->textColor_);
 			textComponent->text_.setStyle(textComponent->style_);
+			
+			sf::FloatRect bounds = textComponent->text_.getLocalBounds();
 			textComponent->text_.setScale(scale.x, scale.y);
 			textComponent->text_.setPosition(position.x, position.y + yOffset);
+			textComponent->text_.setOrigin(bounds.width / 2, bounds.height / 2);
 
 			GameEngine::GetInstance().window().draw(textComponent->text_);
 		}
 	} 
-
-	
 }
 
 void Scene_Play::sRenderColliders() {

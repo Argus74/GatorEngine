@@ -312,7 +312,6 @@ void PropertyWindow::DrawInputField(unsigned int& val)
             if (ImGui::Selectable(items[i], isSelected)) {
                 selection = i; // Update the current selection
                 val = i;
-                EntityManager::GetInstance().sortEntitiesForRendering();
             }
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (isSelected) {
@@ -569,6 +568,8 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
             if (!component && selection == index)
             {
                 Editor::active_entity_->addComponent(component);
+                EntityManager::GetInstance().UpdateUIRenderingList();
+
             }
         });
         ImGui::CloseCurrentPopup();

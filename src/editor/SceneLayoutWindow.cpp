@@ -89,11 +89,18 @@ std::vector<float> SceneLayoutWindow::GetSelectionBoxDimensions(const std::share
 		dimensions[2] = sprite.getGlobalBounds().width + (kSelectionBoxBorder * 3 / 2);
 		dimensions[3] = sprite.getGlobalBounds().height + (kSelectionBoxBorder * 3 / 2);
 	}
-	else {
-		// If no sprite or animation, I guess just use the transform's scale?
-		dimensions[2] = transform.scale.x;
-		dimensions[3] = transform.scale.y;
-	}
+	/*else if (entity->hasComponent<CText>()) {
+		auto& text = entity->getComponent<CText>()->text_;
+		sf::FloatRect bounds = text.getGlobalBounds();
+		dimensions[2] = bounds.width + (kSelectionBoxBorder * 3 / 2);
+		dimensions[3] = bounds.height + (kSelectionBoxBorder * 3 / 2);
+	} */
+	else { // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
+		dimensions[2] = 50;
+		dimensions[3] = 50;
+	} 
+
+	// Note * We should also add an else if statement for CRigidbody later on
 
 	// Set selection box position (shift left and up by 1/2 its size because sprites are using center origin)
 	dimensions[0] = transform.position.x - (dimensions[2] / 2);

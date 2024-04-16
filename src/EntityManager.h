@@ -38,7 +38,8 @@ public:
 	// Get list of rendering for UI rendering
 	std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList();
 
-	void addEntityToUIList(std::shared_ptr<Entity> ent);
+	// Updating are our UI rendering list
+	void UpdateUIRenderingList();
 
 private:
 	// Constructor
