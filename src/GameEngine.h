@@ -3,11 +3,12 @@
 #include "EntityManager.h"
 #include "AssetManager.h"
 #include "./editor/Editor.h"
+#include "util/Serializable.h"
 #include <memory>
 
 // typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
 
-class GameEngine
+class GameEngine : public Serializable
 {
 
 // protected:
@@ -21,9 +22,10 @@ private:
 	size_t simulation_speed_ = 1;
 	bool running_ = true;
 	bool initialized_ = false;
-	size_t current_frame_ = 0;	
+	size_t current_frame_ = 0;
+	std::string currentScenePath;	
 
-	void init(const std::string& path);
+	void init();
 
 	void sUserInput();
 	void sMovement();
@@ -34,6 +36,17 @@ private:
 
 	// std::shared_ptr<Scene> current_scene_;
 	std::map<sf::Keyboard::Key, bool> key_map_;
+
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("lastScene");
+		writer.String(currentScenePath.c_str());	
+		writer.EndObject();
+	}
+
+	void deserialize(const rapidjson::Value& value) override {
+		currentScenePath = value["lastScene"].GetString();
+	}
 
 public:
 	// sf::Clock* delta_clock;

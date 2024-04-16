@@ -9,7 +9,7 @@ GameEngine &GameEngine::GetInstance()
 
 	if (!instance_.initialized_)
 	{
-		instance_.init("scenes/Default.scene");
+		instance_.init();
 		instance_.initialized_ = true;
 	}
 	return instance_;
@@ -46,7 +46,7 @@ AssetManager &GameEngine::assets()
 	return AssetManager::GetInstance();
 }
 
-void GameEngine::init(const std::string &path)
+void GameEngine::init()
 {
 	//Intializing all png files as textures in Start Assets folder
 	AssetManager::GetInstance().IntializeTextureAssets("assets/StartAssets");
@@ -56,8 +56,9 @@ void GameEngine::init(const std::string &path)
 	AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
 	AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
+	readFromJSONFile("last-scene.json");
 	Scene scene;
-	scene.readFromJSONFile(path);
+	scene.readFromJSONFile(currentScenePath);
 	
 	//123
 	window_.setFramerateLimit(60);
@@ -70,12 +71,16 @@ void GameEngine::changeScene(const std::string& path)
 	Editor::kActiveEntity = nullptr;
 	Scene scene;
 	scene.readFromJSONFile(path);	
+	currentScenePath = path;
+	writeToJSONFile("last-scene.json");
 }
 
 void GameEngine::saveScene(const std::string& path) 
 {
 	Scene scene;
 	scene.writeToJSONFile(path);
+	currentScenePath = path;
+	writeToJSONFile("last-scene.json");
 }
 
 void GameEngine::addEntitiesForTest() 
