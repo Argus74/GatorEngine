@@ -86,6 +86,7 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	sUserInput();
+	sTouchTrigger();
 	sMovement();
 	sPhysics();
 	sCollision();
@@ -221,6 +222,31 @@ void Scene_Play::sPhysics()
 	// should be done below here
 }
 
+void Scene_Play::sTouchTrigger()
+{
+	auto& entities = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entities) {
+		// Skip entities without a touch trigger component
+		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		auto touchTrigger = entity->getComponent<CTouchTrigger>();
+		auto triggerRect = entity->GetRect();
+
+		// If has touch trigger, check if it is touching any other entity
+		for (auto& actionTags : touchTrigger->tagMap) {
+			for (auto& entityTouched : entities) {
+				// Skip entities without the tag we're caring about
+				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+
+				// Check if the entity is touching the entity with the touch trigger
+				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+				if (triggerRect.intersects(entityTouchedRect)) {
+					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+				}
+			}
+		}
+	}
+}
+
 void Scene_Play::onEnd()
 {
 	// TODO: When the scene ends, change back to the MENU scene
@@ -248,7 +274,7 @@ void Scene_Play::sRender()
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-      spriteComponent->sprite_.setScale(scale.x, scale.y);
+			spriteComponent->sprite_.setScale(scale.x, scale.y);
       
       //Rotation
 			float angle = transformComponent->angle * -1;
@@ -318,7 +344,7 @@ void Scene_Play::sRenderColliders() {
 
 void Scene_Play::sMovement()
 {
-	for (auto entity : EntityManager::GetInstance().getEntities()) {
+	for (auto& entity : EntityManager::GetInstance().getEntities()) {
 		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
 		float speed = 5.0;
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
