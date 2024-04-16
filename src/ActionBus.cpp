@@ -5,11 +5,11 @@ ActionBus& ActionBus::GetInstance() {
 	return instance;
 }
 
-void ActionBus::Dispatch(std::shared_ptr<Entity> entity, Action action) {
+void ActionBus::Dispatch(const std::shared_ptr<Entity>& entity, Action action) {
 	entityActionsMap[entity][action] = true;
 }
 
-bool ActionBus::Received(std::shared_ptr<Entity> entity, Action action) {
+bool ActionBus::Received(const std::shared_ptr<Entity>& entity, Action action) {
 	return entityActionsMap[entity][action];
 }
 

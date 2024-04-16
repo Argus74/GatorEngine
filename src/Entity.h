@@ -18,7 +18,8 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CRigidBody>,
-	std::shared_ptr<CBackgroundColor>
+	std::shared_ptr<CBackgroundColor>,
+	std::shared_ptr<CTouchTrigger>
 > ComponentTuple;
 
 class Entity {
@@ -39,8 +40,10 @@ public:
 	void clone(const Entity&);
 	void destroy();
 	size_t id() const;
-
 	bool isAlive();
+
+	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
+	sf::FloatRect& GetRect(float margin = 0.0f);
 
 	std::string tag_;
 	int layer_ = 1; //Don't need this here to be honest

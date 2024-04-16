@@ -14,6 +14,9 @@ EntityManager::EntityManager() {}
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
+	newEntity->addComponent<CName>();
+	newEntity->addComponent<CInformation>();
+	newEntity->addComponent<CTransform>();
 	m_toAdd.push_back(newEntity);
 	EntityManager::GetInstance().sortEntitiesForRendering();
 	return newEntity;
@@ -51,14 +54,18 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 	return m_entities;
 }
 
-//Remove entity from our entity manager's list
+//Remove entity from our entity list, rendering list, and physics world
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
 	for (int i  = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] == entity) {
-			m_entities.erase(m_entities.begin() + i);
-			break;
+		if (m_entities[i] != entity) continue;
+
+		if (entity->hasComponent<CRigidBody>()) {
+			GatorPhysics::GetInstance().destroyBody(entity.get());
 		}
+
+			m_entities.erase(m_entities.begin() + i);
+		EntityManager::GetInstance().sortEntitiesForRendering(); //Resorting our Render List
 	}
 }
 

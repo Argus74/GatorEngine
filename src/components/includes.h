@@ -9,7 +9,7 @@
 #include "CUserInput.h"
 #include "CBackgroundColor.h"
 #include "CInformation.h"
-
+#include "CTouchTrigger.h"
 
 
 

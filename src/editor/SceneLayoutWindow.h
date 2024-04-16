@@ -14,10 +14,6 @@ class SceneLayoutWindow : public UIWindow {
 	void PreDraw() override;
 	void DrawFrames() override;
 	void PostDraw() override;
-
- private:
-	// Helper to determine an entity's selection box position and size
-	std::vector<float> GetSelectionBoxDimensions(const std::shared_ptr<Entity> entity);
 };
 
 #endif // SCENELAYOUTWINDOW_H

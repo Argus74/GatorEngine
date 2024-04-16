@@ -2,6 +2,7 @@
 
 #include "imgui-SFML.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../AssetManager.h";
 #include "Editor.h"
@@ -23,24 +24,14 @@ ExplorerWindow::ExplorerWindow() {
 	// Disable window-wide scrollbar to allow ListBox to scroll
 	window_flags_ |= ImGuiWindowFlags_NoScrollbar;
 
-	// TODO: Maybe don't store ref to icon here
 	// Load icon texture and store reference for easy access.
-	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexturePrivate("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
-	icon_ = assetManager.GetTexturePrivate("GameObjectIconSmall");
+	icon_ = AssetManager::GetInstance().GetTexturePrivate("GameObjectIconSmall");
 }
 
 void ExplorerWindow::SetPosition() {
-	// 20% of viewport's width, 40% of its height
-	const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	short windowWidth = mainViewport->Size.x * 0.20;
-	short windowHeight = mainViewport->Size.y * 0.40;
-
-	short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-	short windowYPos = mainViewport->Size.y * .20 + 20; // Hardcoding to be under the tab bar
-
-	ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	const ImGuiViewport* mv = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(EXPLR_XOFFSET(mv), EXPLR_YOFFSET(mv)));
+	ImGui::SetNextWindowSize(ImVec2(EXPLR_WIDTH(mv), EXPLR_HEIGHT(mv)));
 }
 
 void ExplorerWindow::PreDraw() {
@@ -76,7 +67,10 @@ void ExplorerWindow::DrawFrames() {
 			}
 
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
-			ImGui::OpenPopupOnItemClick(kEntityContextMenuID, ImGuiPopupFlags_MouseButtonRight);
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				Editor::active_entity_ = entity;
+				ImGui::OpenPopup(kEntityContextMenuID);
+			}
 
 			// Make this selectable draggable
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) {

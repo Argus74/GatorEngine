@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../Entity.h"
 #include "Editor.h"
@@ -26,16 +27,9 @@ PropertyWindow::PropertyWindow()
 
 void PropertyWindow::SetPosition() 
 {
-    // 20% of viewport's width, (almost) 40% of its height
-    const ImGuiViewport *mainViewport = ImGui::GetMainViewport();
-    short windowWidth = mainViewport->Size.x * 0.20;
-    short windowHeight = mainViewport->Size.y * 0.40 - 20; // Hardcoding to fit to bottom
-
-    short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-    short windowYPos = mainViewport->Size.y * .60 + 20;    // Hardcoding under the explorer
-
-    ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-    ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+    const ImGuiViewport *mv = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(PROP_XOFFSET(mv), PROP_YOFFSET(mv)));
+    ImGui::SetNextWindowSize(ImVec2(PROP_WIDTH(mv), PROP_HEIGHT(mv)));
 }
 
 void PropertyWindow::PreDraw() 
@@ -122,6 +116,15 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
+                // Position the button to the right of the header
+                static const char* name = "Add Trigger";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
 
             if (ImGui::BeginTable(component->componentName, 2, table_flags))
             {
@@ -197,6 +200,14 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 {
     DrawProperty("Layer", information);
     DrawProperty("Tag", information->tag);
+    DrawProperty("Selectable", information->selectable);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
+{
+	for (auto& entry : touchtrigger->tagMap) {
+		DrawProperty(entry.first.c_str(), entry.second);
+	}
 }
 
 // TODO: Add new overloads for future components here
@@ -483,6 +494,21 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
                 Editor::active_entity_->addComponent(component);
             }
         });
+        ImGui::CloseCurrentPopup();
+    }
+}
+
+void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
+{
+    // Decide which input type to use so we can display the correct map below
+    ImGui::Text("Specify tag of entities who can trigger");
+    static std::string tag = "";
+    DrawInputField(tag);
+    ImGui::NewLine();
+
+    // When pressed, add the input to its map
+    if (ImGui::Button("Create")) {
+        touchtrigger->tagMap.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }

@@ -23,6 +23,7 @@ public:
 	Scene_Play(const std::string& filename);
 	void LoadScene(const std::string& filename);
 	void update();
+	void sTouchTrigger();
 	void onEnd();
 	void sUserInput();
 	void sPhysics();
