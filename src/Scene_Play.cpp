@@ -38,6 +38,7 @@ Scene_Play::Scene_Play()
 	ground3->addComponent<CName>("Ground3");
 	ground3->addComponent<CInformation>();
 	ground3->setDisabled(true);
+
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
@@ -88,6 +89,7 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	sUserInput();
+	sTouchTrigger();
 	sMovement();
 	sPhysics();
 	sCollision();
@@ -222,6 +224,31 @@ void Scene_Play::sPhysics()
 
 	// Any other movement that should be done based on other physics components
 	// should be done below here
+}
+
+void Scene_Play::sTouchTrigger()
+{
+	auto& entities = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entities) {
+		// Skip entities without a touch trigger component
+		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		auto touchTrigger = entity->getComponent<CTouchTrigger>();
+		auto triggerRect = entity->GetRect();
+
+		// If has touch trigger, check if it is touching any other entity
+		for (auto& actionTags : touchTrigger->tagMap) {
+			for (auto& entityTouched : entities) {
+				// Skip entities without the tag we're caring about
+				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+
+				// Check if the entity is touching the entity with the touch trigger
+				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+				if (triggerRect.intersects(entityTouchedRect)) {
+					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+				}
+			}
+		}
+	}
 }
 
 void Scene_Play::onEnd()

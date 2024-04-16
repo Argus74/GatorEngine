@@ -116,6 +116,15 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
+                // Position the button to the right of the header
+                static const char* name = "Add Trigger";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
 
             if (ImGui::BeginTable(component->componentName, 2, table_flags))
             {
@@ -194,6 +203,13 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
     DrawProperty("Layer", information);
     DrawProperty("Tag", information->tag);
     DrawProperty("Selectable", information->selectable);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
+{
+	for (auto& entry : touchtrigger->tagMap) {
+		DrawProperty(entry.first.c_str(), entry.second);
+	}
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
@@ -576,7 +592,7 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
     }
 }
 
-void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>& val)
+void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
 {
     ImGui::EndTable(); // Don't want to disrupt the draw component function 
 
@@ -596,4 +612,19 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>& val)
     ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
 
     ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
+}
+
+void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
+{
+    // Decide which input type to use so we can display the correct map below
+    ImGui::Text("Specify tag of entities who can trigger");
+    static std::string tag = "";
+    DrawInputField(tag);
+    ImGui::NewLine();
+
+    // When pressed, add the input to its map
+    if (ImGui::Button("Create")) {
+        touchtrigger->tagMap.emplace(tag, Action::NoAction);
+        ImGui::CloseCurrentPopup();
+    }
 }

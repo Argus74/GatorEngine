@@ -33,6 +33,7 @@ private:
 	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
 	void DrawComponentProperties(std::shared_ptr <CHealth>& health);
 	void DrawComponentProperties(std::shared_ptr <CText>& text);
+	void DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger);
 
     // Draw one property row of a component
     template <typename T>
@@ -67,6 +68,7 @@ private:
 	void DrawPopup(std::shared_ptr<CUserInput> userinput);
 	void DrawPopup(std::shared_ptr<CAnimation> animation);
 	void DrawPopup(std::shared_ptr<Entity> entity);
+	void DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger);
 	
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags;

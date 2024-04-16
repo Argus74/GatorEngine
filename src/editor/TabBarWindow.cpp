@@ -90,6 +90,7 @@ void TabBarWindow::DrawFrames()
                     GatorPhysics::GetInstance().createBody(entity.get(), true);
                     EntityManager::GetInstance().sortEntitiesForRendering();
                     EntityManager::GetInstance().UpdateUIRenderingList();
+
                 };
                 DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
                     5, spriteButton);
