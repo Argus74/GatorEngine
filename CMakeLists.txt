@@ -41,6 +41,7 @@ add_library(
     ${LUA_DIR}/lutf8lib.c
     ${LUA_DIR}/lvm.c
     ${LUA_DIR}/lzio.c
+
 )
 
 include(FetchContent)
@@ -132,6 +133,7 @@ ${IMGUI_DIR}
 ${IMGUI_SFML_DIR}
 PRIVATE ${EXTERNALS_DIR}
 PRIVATE ${LUA_DIR} # as of sol2 3.2.2, lua.hpp must be accesible through root include '#include <lua.hpp>'
+${PROJECT_SOURCE_DIR}/src/lua_interpreter
 )
 
 set_property(
@@ -196,15 +198,15 @@ endif()
         #$<TARGET_FILE_DIR:GatorEngine>)
 
 # Watch for Lua script changes
-file(GLOB_RECURSE LUA_SCRIPTS "${CMAKE_SOURCE_DIR}/src/lua_scripts/*.lua")
+#file(GLOB_RECURSE LUA_SCRIPTS "${CMAKE_SOURCE_DIR}/src/lua_scripts/*.lua")
 
 # Copy Lua scripts on build
-foreach(LuaFile ${LUA_SCRIPTS})
+#[[foreach(LuaFile ${LUA_SCRIPTS})
     add_custom_command(
         TARGET GatorEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LuaFile} $<TARGET_FILE_DIR:GatorEngine>
     )
-endforeach()
+endforeach()]]
 
 # Copy asset folder
 add_custom_command(TARGET GatorEngine POST_BUILD

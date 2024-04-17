@@ -15,6 +15,7 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	std::cout << "Adding entity with tag: " << tag << std::endl;
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
+	newEntity->addComponent<CTransform>();
 	newEntity->addComponent<CInformation>();
 	m_toAdd.push_back(newEntity);
 	EntityManager::GetInstance().sortEntitiesForRendering();
@@ -56,7 +57,7 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 //Remove entity from our entity manager's list
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
-	for (int i  = 0; i < m_entities.size(); i++) {
+	for (int i = 0; i < m_entities.size(); i++) {
 		if (m_entities[i] == entity) {
 			m_entities.erase(m_entities.begin() + i);
 			break;
@@ -84,7 +85,7 @@ void EntityManager::sortEntitiesForRendering() {
 	//std::cout << "Sorted" << std::endl;
 	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
 		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
-	});
+		});
 
 	/*  Renderlist Debug output
 	for (const std::shared_ptr<Entity>& a : entitiesRenderingList_) {

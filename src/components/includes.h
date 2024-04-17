@@ -9,8 +9,8 @@
 #include "CUserInput.h"
 #include "CBackgroundColor.h"
 #include "CInformation.h"
-
-
+#include "CCharacter.h"
+#include "CScript.h"
 
 
 

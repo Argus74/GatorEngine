@@ -3,9 +3,8 @@
 #include "AssetManager.h"
 #include "GameEngine.h"
 #include "components/Component.h"
-
 #include <fstream>
-#include <iostream>
+
 
 Scene_Play::Scene_Play()
 {
@@ -55,12 +54,12 @@ Scene_Play::Scene_Play()
 
 }
 
-Scene_Play::Scene_Play(const std::string &levelPath) : m_levelPath(levelPath)
+Scene_Play::Scene_Play(const std::string& levelPath) : m_levelPath(levelPath)
 {
 	LoadScene(levelPath);
 }
 
-void Scene_Play::LoadScene(const std::string &filename)
+void Scene_Play::LoadScene(const std::string& filename)
 {
 	// reset the entity manager every time we load a level
 	EntityManager::GetInstance().reset();
@@ -88,6 +87,9 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CInformation>();
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
+	//Attach a script to the player instance
+	//std::shared_ptr<LuaState> new_lua_state = std::make_shared<LuaState>("script.lua", m_player);
+	//GameEngine::GetInstance().lua_states[m_player] = new_lua_state;
 	// TODO: be sure to add the remaining components to the player
 }
 
@@ -95,6 +97,7 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	sUserInput();
+	sScripts();
 	sMovement();
 	sPhysics();
 	sCollision();
@@ -107,6 +110,7 @@ void Scene_Play::update()
 void Scene_Play::sCollision()
 {
 	GatorPhysics::GetInstance().update();
+	//Determine if the player touched the ground
 }
 
 void Scene_Play::sUserInput()
@@ -131,19 +135,19 @@ void Scene_Play::sUserInput()
 		}
 
 		// Lambda to process key or mouse events for the player
-		auto processInputEvent = [](const sf::Event &event, const sf::Event::EventType &eventType)
+		auto processInputEvent = [](const sf::Event& event, const sf::Event::EventType& eventType)
 		{
-			auto &entities = EntityManager::GetInstance().getEntities();
-			for (auto &entity : entities)
+			auto& entities = EntityManager::GetInstance().getEntities();
+			for (auto& entity : entities)
 			{
 				// Skip entities without a cUserInput component
 				if (!entity->getComponent<CUserInput>())
 					continue;
 
-				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
+				auto findAndDispatch = [entity](auto& inputMap, const auto& eventButton)
 				{
 					// For each key in the inputmap
-					for (auto &actionKeys : inputMap)
+					for (auto& actionKeys : inputMap)
 					{
 						if (actionKeys.first == eventButton)
 						{
@@ -155,12 +159,14 @@ void Scene_Play::sUserInput()
 				// Find potential actions and dispatch them based on the event type
 				if (eventType == sf::Event::KeyPressed)
 				{
-					auto &inputMap = entity->getComponent<CUserInput>()->keyMap;
+					auto& inputMap = entity->getComponent<CUserInput>()->keyMap;
 					findAndDispatch(inputMap, event.key.code);
+					//GameEngine::GetInstance().lua_states[0]->KeyPressed(event.key.code);
+					GameEngine::GetInstance().last_key_pressed = event.key.code;
 				}
 				else
 				{
-					auto &inputMap = entity->getComponent<CUserInput>()->mouseMap;
+					auto& inputMap = entity->getComponent<CUserInput>()->mouseMap;
 					findAndDispatch(inputMap, event.mouseButton.button);
 				}
 			}
@@ -185,7 +191,7 @@ void Scene_Play::sPhysics()
 
 	//First check if any new entities have a new rigid body component and
 	// have not been added to the physics world
-	
+
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
 		if (entity->hasComponent<CRigidBody>())
@@ -215,6 +221,43 @@ void Scene_Play::sPhysics()
 	// should be done below here
 }
 
+void Scene_Play::sScripts()
+{
+	auto lua_states = GameEngine::GetInstance().lua_states;
+	//First, check if there are any entities that have been given a script component. If so,
+	//add them to map of entities to lua states
+	for (auto entity : EntityManager::GetInstance().getEntities())
+	{
+		if (entity->hasComponent<CScript>() && !GameEngine::GetInstance().lua_states[entity])
+		{
+			//Verify that the script name that the user typed in the editor is valid
+			std::string script_name = entity->getComponent<CScript>()->script_name;
+			std::ifstream file(script_name);
+			if (!file.good())
+			{
+				std::cout << "Invalid script name: " << script_name << std::endl;
+				continue;
+			}
+			//Attach a script to the player instance
+			
+			std::shared_ptr<LuaState> new_lua_state = std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
+			GameEngine::GetInstance().lua_states[entity] = new_lua_state;
+			entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+		}
+	}
+	lua_states = GameEngine::GetInstance().lua_states;
+	//For each lua state, update the script
+	for (auto node : GameEngine::GetInstance().lua_states)
+	{
+		//For each lua state, update the script
+		if (node.second)
+		{
+			node.second->Update();
+		}
+		
+	}
+}
+
 void Scene_Play::onEnd()
 {
 	// TODO: When the scene ends, change back to the MENU scene
@@ -224,11 +267,11 @@ void Scene_Play::onEnd()
 
 void Scene_Play::sRender()
 {
-	auto &entityManager = EntityManager::GetInstance();
+	auto& entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntitiesRenderingList();
 
-	for (auto &entity : entityList)
+	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
 		if (entity->hasComponent<CSprite>())
 		{
@@ -242,12 +285,12 @@ void Scene_Play::sRender()
 			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-      spriteComponent->sprite_.setScale(scale.x, scale.y);
-      
-      //Rotation
+			spriteComponent->sprite_.setScale(scale.x, scale.y);
+
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
-			
+
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
@@ -302,7 +345,7 @@ void Scene_Play::sRenderColliders() {
 			float entityY = ((position.y / GatorPhysics::GetInstance().getScale()) - worldY) * -1;
 			float entityX = position.x / GatorPhysics::GetInstance().getScale();
 			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
-			
+
 			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
 			GameEngine::GetInstance().window().draw(spriteComponent);
 		}
@@ -314,11 +357,21 @@ void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
 		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
+
 		float speed = 5.0;
+		Vec2 jump_force = Vec2(0, 30);
+		if (entity->hasComponent<CCharacter>())
+		{
+			speed = entity->getComponent<CCharacter>()->speed;
+			jump_force = entity->getComponent<CCharacter>()->jump_force;
+		}
+
+
+
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
 		b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
-		
+
 		b2Vec2 resultMovement = b2Vec2(0, 0);
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
 			resultMovement += b2Vec2(speed, 0);
@@ -329,14 +382,18 @@ void Scene_Play::sMovement()
 		//finalVelocity = finalVelocity + Vec2(-speed, 0);
 
 		if (ActionBus::GetInstance().Received(entity, Jump))
-			body->ApplyForceToCenter(b2Vec2(0, 30), true);
+		{
+			if (entity->getComponent<CCharacter>()->is_grounded)
+			{
+				entity->getComponent<CCharacter>()->is_grounded = false;
+				body->ApplyForceToCenter(b2Vec2(jump_force.x, jump_force.y), true);
+			}
+		}
 
 		b2Vec2 velocity = body->GetLinearVelocity();
 		resultMovement = b2Vec2(resultMovement.x, velocity.y);
 
 		body->SetLinearVelocity(resultMovement);
-
-
 	}
 }
 

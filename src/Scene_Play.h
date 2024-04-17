@@ -17,7 +17,6 @@ protected:
 	std::shared_ptr<Entity>	m_player;
 	std::string	m_levelPath;
 	Vec2 m_mousePos;
-
 public:
 	Scene_Play();
 	Scene_Play(const std::string& filename);
@@ -26,6 +25,7 @@ public:
 	void onEnd();
 	void sUserInput();
 	void sPhysics();
+	void sScripts();
 	void sCollision();
 	void sAnimation();
 	void sRender();

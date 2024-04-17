@@ -9,6 +9,7 @@
 #include "Vec2.h"
 #include "GatorPhysics.h"
 
+
 typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CName>,
 	std::shared_ptr<CInformation>,
@@ -18,12 +19,15 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CRigidBody>,
-	std::shared_ptr<CBackgroundColor>
+	std::shared_ptr<CBackgroundColor>,
+	std::shared_ptr<CCharacter>,
+	std::shared_ptr<CScript>
+
 > ComponentTuple;
 
 class Entity {
 	size_t id_;
-	
+
 	bool is_alive_;
 	friend class EntityManager;
 public:
@@ -92,6 +96,10 @@ public:
 		{
 			return hasComponent<CBackgroundColor>();
 		}
+		else if (componentName == "CCharacter")
+		{
+			return hasComponent<CCharacter>();
+		}
 		else
 		{
 			return false;
@@ -103,11 +111,56 @@ public:
 	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
 		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
 		std::get<std::shared_ptr<T>>(m_components) = component;
-		component->has = true; 
+		component->has = true;
 		return component;
 	}
-
-	v
+	//Used for compatability with lua
+	void addComponent(std::string componentName) {
+		if (componentName == "CName")
+		{
+			addComponent<CName>();
+		}
+		else if (componentName == "CInformation")
+		{
+			addComponent<CInformation>();
+		}
+		else if (componentName == "CTransform")
+		{
+			addComponent<CTransform>();
+		}
+		else if (componentName == "CShape")
+		{
+			addComponent<CShape>();
+		}
+		else if (componentName == "CUserInput")
+		{
+			addComponent<CUserInput>();
+		}
+		else if (componentName == "CAnimation")
+		{
+			addComponent<CAnimation>();
+		}
+		else if (componentName == "CSprite")
+		{
+			addComponent<CSprite>();
+		}
+		else if (componentName == "CRigidBody")
+		{
+			addComponent<CRigidBody>();
+		}
+		else if (componentName == "CBackgroundColor")
+		{
+			addComponent<CBackgroundColor>();
+		}
+		else if (componentName == "CCharacter")
+		{
+			addComponent<CCharacter>();
+		}
+		else
+		{
+			return;
+		}
+	}
 
 
 	// Retrieve the component of the templated type (read-only version)
@@ -137,7 +190,6 @@ public:
 		return std::get<std::shared_ptr<T>>(m_components);
 	}
 
-
 	// Retrieve the component of the argument type (read-only version)
 	template <typename T>
 	const std::shared_ptr<T> getComponent(const std::shared_ptr<T>& otherComponent) const {
@@ -151,7 +203,7 @@ public:
 	}
 
 	// Remove the component of the templated type
-	template <typename T> 
+	template <typename T>
 	void removeComponent() {
 		getComponent<T>().reset(); // Resetting the shared pointer to nullptr
 		// The old component will automatically be destroyed if no other shared_ptr instances are pointing to it
@@ -166,14 +218,14 @@ public:
 	// Helper function(s) to iterate through the m_components tuple and apply some lambda. 
 	// See PropertyWindow for example usage.
 	template<std::size_t Index = 0, typename Func>
-	typename std::enable_if <Index<std::tuple_size<ComponentTuple>::value>::type
-	forEachComponent(Func func) {
+	typename std::enable_if < Index<std::tuple_size<ComponentTuple>::value>::type
+		forEachComponent(Func func) {
 		func(std::get<Index>(m_components), Index);
 		forEachComponent<Index + 1>(func);
 	}
 	template<std::size_t Index = 0, typename Func>
 	typename std::enable_if<Index == std::tuple_size<ComponentTuple>::value>::type
-	forEachComponent(Func) {
+		forEachComponent(Func) {
 		// End of recursion: do nothing
 	}
 };
