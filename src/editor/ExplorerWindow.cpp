@@ -68,7 +68,7 @@ void ExplorerWindow::DrawFrames() {
 
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-				Editor::active_entity_ = entity;
+				Editor::kActiveEntity = entity;
 				ImGui::OpenPopup(kEntityContextMenuID);
 			}
 
@@ -90,10 +90,10 @@ void ExplorerWindow::DrawFrames() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
 	if (ImGui::BeginPopupContextItem(kEntityContextMenuID)) {
 		if (ImGui::Selectable(kCloneLabel)) {
-			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+			EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
 		}
 		if (ImGui::Selectable(kDeleteLabel)) {
-			EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+			EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
 		}
 		ImGui::EndPopup();
 	}
@@ -146,7 +146,7 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 			}
 
 			// Once complete, make this the active entity
-			Editor::active_entity_ = entity;
+			Editor::kActiveEntity = entity;
 		}
 		ImGui::EndDragDropTarget();
 	}

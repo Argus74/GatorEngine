@@ -13,7 +13,7 @@ void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const sf::FloatRect
 
 void HandleSelectInteraction(const std::shared_ptr<Entity>& entity) {
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-		Editor::active_entity_ = entity; // Set as active entity on click
+		Editor::kActiveEntity = entity; // Set as active entity on click
 	}
 }
 
@@ -21,8 +21,9 @@ void HandleMoveInteraction(const std::shared_ptr<Entity>& entity) {
 	auto& transform = *(entity->getComponent<CTransform>());
 
 	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-		transform.position.x += ImGui::GetIO().MouseDelta.x;
-		transform.position.y += ImGui::GetIO().MouseDelta.y;
+		transform.origin.x += ImGui::GetIO().MouseDelta.x;
+		transform.origin.y += ImGui::GetIO().MouseDelta.y;
+		transform.resetPosition();
 	}
 }
 
@@ -88,22 +89,22 @@ void SceneLayoutWindow::PreDraw() {
 }
 
 void SceneLayoutWindow::DrawFrames() {
-	// Prevent drawing buttons when not in moving or selecting state
-	if (Editor::state != Editor::State::Selecting && 
-		Editor::state != Editor::State::Moving &&
-		Editor::state != Editor::State::Resizing) return;
+	// Prevent drawing buttons when not in moving or selecting kState
+	if (Editor::kState != Editor::State::Selecting && 
+		Editor::kState != Editor::State::Moving &&
+		Editor::kState != Editor::State::Resizing) return;
 
 	// If resizing, draw resize handles over active entity
-	if (Editor::active_entity_ && Editor::state == Editor::State::Resizing) {
-		auto transform = Editor::active_entity_->getComponent<CTransform>();
-		auto rect = Editor::active_entity_->GetRect();
+	if (Editor::kActiveEntity && Editor::kState == Editor::State::Resizing) {
+		auto transform = Editor::kActiveEntity->getComponent<CTransform>();
+		auto rect = Editor::kActiveEntity->GetRect();
 
 		// Draw a resize handle for each X and Y axis on sides of entity, depending on its orientation
 		// TODO: This math may be simplified, but I'm too tired to think about it right now
 		auto mv = ImGui::GetMainViewport();
 		short handleRadius = WINDOW_WIDTH(mv) * 0.006f;
-		float xCenter = transform->position.x;
-		float yCenter = transform->position.y;
+		float xCenter = transform->origin.x;
+		float yCenter = transform->origin.y;
 		float halfEdgeX = rect.width / 2;
 		float halfEdgeY = rect.height / 2;
 		float offset = (handleRadius * 2);
@@ -118,7 +119,7 @@ void SceneLayoutWindow::DrawFrames() {
 			DrawResizeHandle(ImVec2(xCenter + halfEdgeX + offset, yCenter),
 				handleRadius, xAxis);
 		}
-		HandleResizeInteraction(Editor::active_entity_, xAxis);
+		HandleResizeInteraction(Editor::kActiveEntity, xAxis);
 
 		// Top handle
 		if (transform->scale.y > 0) {
@@ -129,7 +130,7 @@ void SceneLayoutWindow::DrawFrames() {
 			DrawResizeHandle(ImVec2(xCenter, yCenter + halfEdgeY + offset),
 				handleRadius, !xAxis);
 		}
-		HandleResizeInteraction(Editor::active_entity_, !xAxis);
+		HandleResizeInteraction(Editor::kActiveEntity, !xAxis);
 	}
 
 	// If selecting, moving, or resizing, draw a selection box over each entity
@@ -142,9 +143,11 @@ void SceneLayoutWindow::DrawFrames() {
 		if (!entity->hasComponent<CTransform>()) continue;
 
 		static constexpr float margin = kSelectionBoxBorder * 3 / 2;
-		DrawSelectionBox(entity, entity->GetRect(margin), entity == Editor::active_entity_);
+		auto dimensions = entity->GetRect(margin);
+		
+		DrawSelectionBox(entity, dimensions, entity == Editor::kActiveEntity);
 		HandleSelectInteraction(entity);
-		if (Editor::state == Editor::State::Moving) { // If moving, also handle moving interaction
+		if (Editor::kState == Editor::State::Moving) { // If moving, also handle moving interaction
 			HandleMoveInteraction(entity);
 		}
 	}

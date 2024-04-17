@@ -18,7 +18,7 @@ public:
 	Vec2 size = { 1, 1 };	// size of the animation frame
 	std::string	name = "none";
 	bool reached_end = false;
-	float frameRemainder_ = 0.0f;
+	float frame_remainder = 0.0f;
 
 	void Update();
 	bool HasEnded() const;

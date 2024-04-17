@@ -83,9 +83,9 @@ void PropertyWindow::DrawComponent(T& component)
     // For the Information Component, Name Component, and Transform component we don't allow the user to remove the component 
     if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>) 
     {
-        if (ImGui::CollapsingHeader(component->componentName, tree_node_flags))
+        if (ImGui::CollapsingHeader(component->kComponentName, tree_node_flags_))
         {
-            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
                 DrawComponentProperties(component);
                 ImGui::EndTable();
@@ -94,7 +94,7 @@ void PropertyWindow::DrawComponent(T& component)
         }
     }
     else {
-        if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags))
+        if (ImGui::CollapsingHeader(component->kComponentName, &isOpen, tree_node_flags_))
         {
             // Hacky solution to draw a button within header that allows user to add a new binding
             if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>)
@@ -126,7 +126,7 @@ void PropertyWindow::DrawComponent(T& component)
                 ImGui::PopStyleColor();
             }
 
-            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
                 DrawComponentProperties(component);
                 ImGui::EndTable();
@@ -188,7 +188,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
 {
-	DrawProperty("Is Static", rigidbody->staticBody);
+	DrawProperty("Is Static", rigidbody->static_body);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
@@ -205,7 +205,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
 {
-	for (auto& entry : touchtrigger->tagMap) {
+	for (auto& entry : touchtrigger->tag_map) {
 		DrawProperty(entry.first.c_str(), entry.second);
 	}
 }
@@ -512,7 +512,7 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
 
     // When pressed, add the input to its map
     if (ImGui::Button("Create")) {
-        touchtrigger->tagMap.emplace(tag, Action::NoAction);
+        touchtrigger->tag_map.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }

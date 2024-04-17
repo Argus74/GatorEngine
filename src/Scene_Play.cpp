@@ -11,11 +11,11 @@ Scene_Play::Scene_Play()
 {
 	spawnPlayer();
 	// Create a platform and a tree:
-	std::shared_ptr<Entity> ground = m_entityManager.addEntity("Ground");
+	std::shared_ptr<Entity> ground = entity_manager_.addEntity("Ground");
 	// Create a platform and a tree:
-	std::shared_ptr<Entity> ground2 = m_entityManager.addEntity("Ground");
+	std::shared_ptr<Entity> ground2 = entity_manager_.addEntity("Ground");
 	// Create a platform and a tree:
-	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
+	std::shared_ptr<Entity> ground3 = entity_manager_.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
 	ground->addComponent<CSprite>("Grass Tile");
@@ -70,14 +70,14 @@ void Scene_Play::LoadScene(const std::string &filename)
 void Scene_Play::spawnPlayer()
 {
 	// here is a sample player entity which you can use to construct other entities
-	m_player = m_entityManager.addEntity("player");
-	m_player->addComponent<CAnimation>();
-	m_player->getComponent<CAnimation>()->animation_ = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
-	m_player->addComponent<CTransform>(Vec2(224, 200));
-	m_player->addComponent<CUserInput>();
-	m_player->addComponent<CName>("Player1");
-	m_player->addComponent<CInformation>();
-	GatorPhysics::GetInstance().createBody(m_player.get(), false);
+	player_ = entity_manager_.addEntity("player");
+	player_->addComponent<CAnimation>();
+	player_->getComponent<CAnimation>()->animation = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
+	player_->addComponent<CTransform>(Vec2(224, 200));
+	player_->addComponent<CUserInput>();
+	player_->addComponent<CName>("Player1");
+	player_->addComponent<CInformation>();
+	GatorPhysics::GetInstance().createBody(player_.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
 }
@@ -123,15 +123,15 @@ void Scene_Play::sUserInput()
 		}
 
 		// Editor-specific hotkeys
-		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
+		if (Editor::kActiveEntity && Editor::kState != Editor::State::Testing) {
 			// Ctrl+D to copy active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
-				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+				EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
 			}
 
 			// Ctrl+X to delete active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
-				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+				EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
 			}
 
 			// Ctrl+Z hotkey does not exist. Good luck o7
@@ -217,7 +217,7 @@ void Scene_Play::sPhysics()
 			//If the entity is not in the physics world, add it
 			if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end())
 			{
-				GatorPhysics::GetInstance().createBody(entity.get(), rigidBodyComponent->staticBody);
+				GatorPhysics::GetInstance().createBody(entity.get(), rigidBodyComponent->static_body);
 			}
 		}
 	}
@@ -286,18 +286,18 @@ void Scene_Play::sRender()
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
 			// Set the origin of the sprite to its center
-			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
-			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
-			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
-			spriteComponent->sprite_.setScale(scale.x, scale.y);
+			sf::FloatRect bounds = spriteComponent->sprite.getLocalBounds();
+			spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
+			spriteComponent->sprite.setScale(scale.x, scale.y);
       
       //Rotation
 			float angle = transformComponent->angle * -1;
-			spriteComponent->sprite_.setRotation(angle);
+			spriteComponent->sprite.setRotation(angle);
 			
 
-			if (spriteComponent->drawSprite_)
-				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
+			if (spriteComponent->draw_sprite)
+				GameEngine::GetInstance().window().draw(spriteComponent->sprite);
 		}
 
 		if (entity->hasComponent<CAnimation>())

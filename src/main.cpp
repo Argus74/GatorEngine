@@ -17,6 +17,7 @@
 #include "util/Serializable.h"
 #include "util/Scene.h"
 #include "lua_interpreter/LuaManager.h"
+#include "lua_interpreter/LuaState.h"
 // ---- SERIALIZATION WITH CLASSES EXAMPLE
 // class MyClass2 : public Serializable {
 // public:
@@ -58,31 +59,18 @@
 //     }
 // };
 
-#include "lua_interpreter/LuaState.h"
-
 int main()
 {
-<<<<<<<<< Temporary merge branch 1
-    NFD_Init();
-=========
-
-    NFD_Init();
-    LuaManager luaManager;
-    luaManager.TestExample();
-
->>>>>>>>> Temporary merge branch 2
     GameEngine& newGame = GameEngine::GetInstance();
     // newGame.addEntitiesForTest();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
     ImGui::SFML::Init(window);
     Editor editor;
-    std::shared_ptr<Scene> scene = std::make_shared<Scene_Play>();
-    newGame.ChangeScene("TestScene", scene);
     LuaState newLuaState("script.lua");
     
     //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
-    //newGame.ChangeScene("TestScene", scene);
+    newGame.changeScene(newGame.currentScenePath());
 
     while (window.isOpen())
     {

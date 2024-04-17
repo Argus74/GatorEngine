@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include "editor/Editor.h"
 #include <algorithm>
 
 // Factory function to get the singleton instance
@@ -33,8 +34,8 @@ void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
 void EntityManager::update()
 {
 	// Add new entities to the main vector and map
-	for (auto& entity : m_toAdd) {
-		m_entities.push_back(entity);
+	for (auto& entity : to_add_) {
+		entities_.push_back(entity);
 		EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting render list
 	}
 	to_add_.clear();
@@ -46,6 +47,9 @@ void EntityManager::update()
 		entities_.end()
 	);
 
+	if (Editor::kState != Editor::State::Testing) {
+		resetPositions();
+	}
 }
 
 // Get all entities
@@ -57,14 +61,14 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 //Remove entity from our entity list, rendering list, and physics world
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
-	for (int i  = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] != entity) continue;
+	for (int i  = 0; i < entities_.size(); i++) {
+		if (entities_[i] != entity) continue;
 
 		if (entity->hasComponent<CRigidBody>()) {
 			GatorPhysics::GetInstance().destroyBody(entity.get());
 		}
 
-			m_entities.erase(m_entities.begin() + i);
+			entities_.erase(entities_.begin() + i);
 		EntityManager::GetInstance().sortEntitiesForRendering(); //Resorting our Render List
 	}
 }
@@ -82,25 +86,20 @@ void EntityManager::resetPositions() {
 void EntityManager::reset()
 {
 	entities_.clear();
-	entity_map_.clear();
 	to_add_.clear();
 	total_entities_ = 0;
-	m_entities.clear();
-	m_toAdd.clear();
-
-	m_totalEntities = 0;
 }
 
 //Return Entity Manager's RenderingList
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
-	return entitiesRenderingList_;
+	return entities_rendering_list_;
 }
 
 //Sorts entities based off layer and order in the explorer window
 void EntityManager::sortEntitiesForRendering() {
-	entitiesRenderingList_ = m_entities;
+	entities_rendering_list_ = entities_;
 	std::cout << "Sorted" << std::endl;
-	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+	std::stable_sort(entities_rendering_list_.begin(), entities_rendering_list_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
 		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
 	});
 

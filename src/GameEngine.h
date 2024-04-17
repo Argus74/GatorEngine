@@ -23,15 +23,17 @@ private:
 	bool running_ = true;
 	bool initialized_ = false;
 	size_t current_frame_ = 0;
-	std::string currentScenePath;	
+	std::string current_scene_path_;	
 
 	void init();
 
 	void sUserInput();
+	void sTouchTrigger();
 	void sMovement();
 	void sPhysics();
 	void sCollision();
-	void sAnimation();
+	void sBackground();
+	// void sAnimation();
 	void sRender();
 
 	// std::shared_ptr<Scene> current_scene_;
@@ -40,12 +42,12 @@ private:
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
 		writer.StartObject();
 		writer.Key("lastScene");
-		writer.String(currentScenePath.c_str());	
+		writer.String(current_scene_path_.c_str());	
 		writer.EndObject();
 	}
 
 	void deserialize(const rapidjson::Value& value) override {
-		currentScenePath = value["lastScene"].GetString();
+		current_scene_path_ = value["lastScene"].GetString();
 	}
 
 public:
@@ -62,6 +64,7 @@ public:
 	AssetManager& assets();
 	bool isRunning();
 	bool isKeyPressed(sf::Keyboard::Key key);
+	const std::string& currentScenePath() const { return current_scene_path_; };
 
 	//Delete copy and move constructors
 	GameEngine(const GameEngine&) = delete;

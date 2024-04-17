@@ -38,7 +38,9 @@ void GatorPhysics::update()
 	{
 		//Update the physics bodies to match the static/dynamic status of the entities
 		Entity* entity = node.first;
+
 		b2Body* body = entity->getComponent<CRigidBody>()->body;
+
 		//If it is not static, then we need to update the physics body
 		if (!entity->getComponent<CRigidBody>()->static_body)
 		{

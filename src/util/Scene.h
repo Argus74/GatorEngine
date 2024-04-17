@@ -21,7 +21,12 @@ public:
         for (auto it = value["entities"].MemberBegin(); it != value["entities"].MemberEnd(); it++) {
             auto entity = EntityManager::GetInstance().addEntity(it->name.GetString());
             entity->deserialize(it->value);
+
+            if (entity->hasComponent<CRigidBody>()) {
+                GatorPhysics::GetInstance().createBody(entity.get(), entity->getComponent<CRigidBody>()->static_body);
+            }
         }
+
         EntityManager::GetInstance().update(); // maybe remove 
     }
 

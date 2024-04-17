@@ -25,12 +25,12 @@ speed(animationSpeed)
 
 void Animation::Update() {
     
-    frameRemainder_ += speed_;  
-    currentFrame_ += frameRemainder_ / 1; //Any whole frames are added to currentFrame while the rest go back to frameRemainder
+    frame_remainder += speed;  
+    current_frame += frame_remainder / 1; //Any whole frames are added to currentFrame while the rest go back to frameRemainder
     
 
-    while (frameRemainder_ >= 1.0f) { //Mod % 1 essentially, keep tracking of frame left overs
-        frameRemainder_ -= 1.0f;
+    while (frame_remainder >= 1.0f) { //Mod % 1 essentially, keep tracking of frame left overs
+        frame_remainder -= 1.0f;
     }
 
     // Check if the animation has reached the end
@@ -66,5 +66,5 @@ sf::Sprite& Animation::GetSprite()
 bool Animation::HasEnded() const
 {
     // TODO: detect when animation has ended (last frame was played) and return true
-    return reachedEnd_;
+    return reached_end;
 }

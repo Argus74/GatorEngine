@@ -62,7 +62,7 @@ void FileBarWindow::DrawFrames() {
                 nfdchar_t* outPath = NULL;
                 nfdfilteritem_t filterItem[] = {
                     { "PNG files", "png" },
-                    { "JPEG files", "jpg;jpeg" }
+                    { "JPEG files", "jpg,jpeg" }
                 };
                 nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL); 
 

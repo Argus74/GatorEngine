@@ -57,9 +57,7 @@ void GameEngine::init()
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
 	AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
 	readFromJSONFile("last-scene.json");
-	Scene scene;
-	scene.readFromJSONFile(currentScenePath);
-	
+
 	//123
 	window_.setFramerateLimit(60);
 }
@@ -71,7 +69,7 @@ void GameEngine::changeScene(const std::string& path)
 	Editor::kActiveEntity = nullptr;
 	Scene scene;
 	scene.readFromJSONFile(path);	
-	currentScenePath = path;
+	current_scene_path_ = path;
 	writeToJSONFile("last-scene.json");
 }
 
@@ -79,7 +77,7 @@ void GameEngine::saveScene(const std::string& path)
 {
 	Scene scene;
 	scene.writeToJSONFile(path);
-	currentScenePath = path;
+	current_scene_path_ = path;
 	writeToJSONFile("last-scene.json");
 }
 
@@ -113,14 +111,30 @@ void GameEngine::update()
 	sUserInput();
 
 	if (Editor::kState == Editor::State::Testing) {
+		sTouchTrigger();
 		sMovement();
 		sPhysics();
 		sCollision();
 	}
 
-	sAnimation();
+	sBackground();
 	sRender();
-	GatorPhysics &physics = GatorPhysics::GetInstance();
+	//sRenderColliders();
+	//GatorPhysics &physics = GatorPhysics::GetInstance();
+
+
+	// EntityManager::GetInstance().update();
+	// sUserInput();
+
+	// if (Editor::kState == Editor::State::Testing) {
+	// 	sMovement();
+	// 	sPhysics();
+	// 	sCollision();
+	// }
+
+	// sAnimation();
+	// sRender();
+	// GatorPhysics &physics = GatorPhysics::GetInstance();
 	// current_scene_->update();
 }
 
@@ -143,6 +157,21 @@ void GameEngine::sUserInput()
 		{
 			sf::FloatRect view(0, 0, event.size.width, event.size.height);
 			window_.setView(sf::View(view));
+		}
+
+		// Editor-specific hotkeys
+		if (Editor::kActiveEntity && Editor::kState != Editor::State::Testing) {
+			// Ctrl+D to copy active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
+				EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
+			}
+
+			// Ctrl+X to delete active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
+				EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
+			}
+
+			// Ctrl+Z hotkey does not exist. Good luck o7
 		}
 
 		// Lambda to process key or mouse events for the player
@@ -212,22 +241,79 @@ void GameEngine::sUserInput()
 	// sRender outside of testing check here?
 }
 
+void GameEngine::sTouchTrigger()
+{
+	auto& entities = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entities) {
+		// Skip entities without a touch trigger component
+		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		auto touchTrigger = entity->getComponent<CTouchTrigger>();
+		auto triggerRect = entity->GetRect();
+
+		// If has touch trigger, check if it is touching any other entity
+		for (auto& actionTags : touchTrigger->tag_map) {
+			for (auto& entityTouched : entities) {
+				// Skip entities without the tag we're caring about
+				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+
+				// Check if the entity is touching the entity with the touch trigger
+				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+				if (triggerRect.intersects(entityTouchedRect)) {
+					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+				}
+			}
+		}
+	}
+}
+
 void GameEngine::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>()) continue;
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
 		float speed = 5.0;
+		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
+		//Vec2 finalAcceleration = Vec2(0, 0);
+		b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+		
+		b2Vec2 resultMovement = b2Vec2(0, 0);
 		if (ActionBus::GetInstance().Received(entity, MoveRight))
-			entity->getComponent<CTransform>()->velocity = Vec2(speed, 0);
-		else if (ActionBus::GetInstance().Received(entity, MoveLeft))
-			entity->getComponent<CTransform>()->velocity = Vec2(-speed, 0);		
-		else
-			entity->getComponent<CTransform>()->velocity = Vec2(0, 0);
+			resultMovement += b2Vec2(speed, 0);
+		//finalVelocity = finalVelocity + Vec2(speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, MoveLeft))
+			resultMovement += b2Vec2(-speed, 0);
+		//finalVelocity = finalVelocity + Vec2(-speed, 0);
+
+		if (ActionBus::GetInstance().Received(entity, Jump))
+			body->ApplyForceToCenter(b2Vec2(0, 30), true);
+
+		b2Vec2 velocity = body->GetLinearVelocity();
+		resultMovement = b2Vec2(resultMovement.x, velocity.y);
+
+		body->SetLinearVelocity(resultMovement);
 	}
 }
 
 void GameEngine::sPhysics()
 {
+
+	//First check if any new entities have a new rigid body component and
+	// have not been added to the physics world
+	
+	for (auto entity : EntityManager::GetInstance().getEntities())
+	{
+		if (entity->hasComponent<CRigidBody>())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
+			//If the entity is not in the physics world, add it
+			if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end())
+			{
+				GatorPhysics::GetInstance().createBody(entity.get(), rigidBodyComponent->static_body);
+			}
+		}
+	}
+
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
@@ -248,14 +334,80 @@ void GameEngine::sCollision()
 	GatorPhysics::GetInstance().update();
 }
 
-void GameEngine::sAnimation()
+// void GameEngine::sAnimation()
+// {
+// 	// Need to add GetComponent, AddComponent templates to entity.
+// 	auto &entityManager = EntityManager::GetInstance();
+// 	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
+
+// 	for (auto &entity : entityList)
+// 	{
+// 		if (entity->hasComponent<CAnimation>())
+// 		{
+// 			auto transformComponent = entity->getComponent<CTransform>();
+// 			Vec2 scale = transformComponent->scale;
+// 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+// 			auto animationComponent = entity->getComponent<CAnimation>();
+// 			animationComponent->changeSpeed();
+// 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+// 			sf::Sprite sprite(animationComponent->animation.sprite);
+// 			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
+// 			sprite.setScale(scale.x, scale.y);
+// 			window_.draw(sprite);
+
+// 			if (Editor::kState == Editor::State::Testing) {
+// 				animationComponent->update();
+// 			}
+// 		}
+// 	}
+// }
+
+void GameEngine::sBackground() {
+	// Find first component of type CBackground and draw it
+	auto entityList = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entityList) {
+		if (entity->hasComponent<CBackgroundColor>()) {
+			auto background = entity->getComponent<CBackgroundColor>();
+			window_.clear(background->color);
+			return;
+		}
+	}
+
+	// Otherwise, default to a black background
+	window_.clear(sf::Color(0, 0, 0));
+}
+
+void GameEngine::sRender()
 {
-	// Need to add GetComponent, AddComponent templates to entity.
 	auto &entityManager = EntityManager::GetInstance();
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
+
+	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
 
 	for (auto &entity : entityList)
-	{
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CSprite>())
+		{
+			auto transformComponent = entity->getComponent<CTransform>();
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = Editor::kState == Editor::State::Testing ? transformComponent->position : transformComponent->origin; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			auto spriteComponent = entity->getComponent<CSprite>();
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = spriteComponent->sprite.getLocalBounds();
+			spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
+			spriteComponent->sprite.setScale(scale.x, scale.y);
+      
+      //Rotation
+			float angle = transformComponent->angle * -1;
+			spriteComponent->sprite.setRotation(angle);
+			
+
+			if (spriteComponent->draw_sprite)
+				window_.draw(spriteComponent->sprite);
+		}
+
 		if (entity->hasComponent<CAnimation>())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
@@ -265,38 +417,19 @@ void GameEngine::sAnimation()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation.sprite);
-			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
-			sprite.setScale(scale.x, scale.y);
-			window_.draw(sprite);
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = sprite.getLocalBounds();
+			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 
+			// Set the position of the sprite to the center position
+			sprite.setPosition(position.x, position.y + yOffset);
+			sprite.setScale(scale.x, scale.y);
+			float angle = transformComponent->angle * -1;
+			sprite.setRotation(angle);
+			window_.draw(sprite);
 			if (Editor::kState == Editor::State::Testing) {
 				animationComponent->update();
 			}
-		}
-	}
-}
-
-void GameEngine::sRender()
-{
-	auto &entityManager = EntityManager::GetInstance();
-
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
-
-	for (auto &entity : entityList)
-	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
-		{
-			auto transformComponent = entity->getComponent<CTransform>();
-			Vec2 scale = transformComponent->scale;
-			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-			auto spriteComponent = entity->getComponent<CSprite>();
-			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-			//auto texture = GameEngine::GetInstance().assets().GetTexture(spriteComponent->name_);
-			//spriteComponent->sprite_.setTexture(texture);
-			spriteComponent->sprite.setPosition(position.x, position.y + yOffset); // Removed the +150 from the y position
-			spriteComponent->sprite.setScale(scale.x, scale.y);
-			if (spriteComponent->draw_sprite)
-				window_.draw(spriteComponent->sprite);
 		}
 	}
 }

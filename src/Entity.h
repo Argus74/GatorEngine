@@ -46,8 +46,8 @@ public:
 	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
 	sf::FloatRect& GetRect(float margin = 0.0f);
 
-	std::string tag_;
-	int layer_ = 1; //Don't need this here to be honest
+	std::string tag;
+	int layer = 1; //Don't need this here to be honest
 
 	// Component Accessors and Modifiers 
 
@@ -136,7 +136,7 @@ public:
 	
 	// JSON serialize functions
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
-		writer.Key(tag_.c_str());
+		writer.Key(tag.c_str());
 		writer.StartObject();
 		writer.Key("components");
 		writer.StartObject();
@@ -200,14 +200,29 @@ public:
 			if (animation != nullptr) {
 				addComponent(animation);
 				getComponent<CAnimation>()->deserialize(it->value);
+				continue;
+			}
+
+			auto background = createComponentByName<CBackgroundColor>(it->name.GetString());
+			if (background != nullptr) {
+				addComponent(background);
+				getComponent<CBackgroundColor>()->deserialize(it->value);
+				continue;
+			}
+
+			auto touchTrigger = createComponentByName<CTouchTrigger>(it->name.GetString());
+			if (touchTrigger != nullptr) {
+				addComponent(touchTrigger);
+				getComponent<CTouchTrigger>()->deserialize(it->value);
+				continue;
+			}
+
+			auto info = createComponentByName<CInformation>(it->name.GetString());
+			if (info != nullptr) {
+				addComponent(info);
+				getComponent<CInformation>()->deserialize(it->value);
 			}
         }	
-	}
-
-	// Remove the component of the argument type
-	template <typename T>
-	void removeComponent(const std::shared_ptr<T>& newComponent) {
-		removeComponent<T>();
 	}
 };
 

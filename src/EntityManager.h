@@ -50,13 +50,13 @@ private:
 	EntityVec entities_;
 
 	// Vector to store entities to be added in the next frame
-	EntityVec m_toAdd;
+	EntityVec to_add_;
 
 	// Total number of entities ever created, for unique IDs
-	size_t m_totalEntities = 0;
+	size_t total_entities_ = 0;
 
 	// Vector that stores the true rendering order of Entities  
-	EntityVec entitiesRenderingList_;
+	EntityVec entities_rendering_list_;
 };
 
 #endif // ENTITYMANAGER_H
