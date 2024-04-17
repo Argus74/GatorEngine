@@ -109,6 +109,14 @@ public:
 		{
 			return hasComponent<CCharacter>();
 		}
+		else if (componentName == "CHealth")
+		{
+			return hasComponent<CHealth>();
+		}
+		else if (componentName == "CText")
+		{
+			return hasComponent<CText>();
+		}
 		else
 		{
 			return false;
@@ -164,6 +172,14 @@ public:
 		else if (componentName == "CCharacter")
 		{
 			addComponent<CCharacter>();
+		}
+		else if (componentName == "CHealth")
+		{
+			addComponent<CHealth>();
+		}
+		else if (componentName == "CText")
+		{
+			addComponent<CText>();
 		}
 		else
 		{

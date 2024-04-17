@@ -39,10 +39,6 @@ private:
     // Draw one property row of a component
     template <typename T>
     void DrawProperty(const char *name, T &value);
-	
-	// Draw one property row of a component
-	template <typename T>
-	void DrawProperty(const char* name, T& value);
 
 	// Draw an input field (text box, color picker, etc.) for a property row
 	// TODO: May need to update parameters, like switching to our new Vec2 object
