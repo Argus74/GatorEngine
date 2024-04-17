@@ -2,7 +2,7 @@
 
 
 GameEngine::GameEngine() {}
-GameEngine &GameEngine::GetInstance()
+GameEngine& GameEngine::GetInstance()
 {
 	// TODO: insert return statement here
 	static GameEngine instance_;
@@ -16,7 +16,7 @@ GameEngine &GameEngine::GetInstance()
 	return instance_;
 }
 
-void GameEngine::ChangeScene(const std::string &sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene)
+void GameEngine::ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene)
 {
 	if (endCurrentScene)
 	{
@@ -37,17 +37,17 @@ void GameEngine::run()
 	m_running = true;
 }
 
-sf::RenderWindow &GameEngine::window()
+sf::RenderWindow& GameEngine::window()
 {
 	return m_window;
 }
 
-AssetManager &GameEngine::assets()
+AssetManager& GameEngine::assets()
 {
 	return m_assets;
 }
 
-void GameEngine::init(const std::string &path)
+void GameEngine::init(const std::string& path)
 {
 	//123
 	m_window.setFramerateLimit(60);

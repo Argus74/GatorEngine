@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "AssetManager.h"
 #include "./Editor/Editor.h"
+#include "lua_interpreter/LuaState.h"
 #include <memory>
 
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
@@ -25,6 +26,8 @@ protected:
 private:
 	GameEngine();
 public:
+	sf::Keyboard::Key last_key_pressed;
+	std::map <std::shared_ptr<Entity>, std::shared_ptr<LuaState>> lua_states;
 	sf::Clock* deltaClock;
 	void update();
 	static GameEngine& GetInstance();
@@ -35,7 +38,6 @@ public:
 	AssetManager& assets();
 	bool isRunning();
 	bool isKeyPressed(sf::Keyboard::Key key);
-
 	//Delete copy and move constructors
 	GameEngine(const GameEngine&) = delete;
 	GameEngine& operator=(const GameEngine&) = delete;

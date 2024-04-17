@@ -13,6 +13,8 @@
 #include "CText.h"
 #include "CTouchTrigger.h"
 
+#include "CCharacter.h"
+#include "CScript.h"
 
 
 
