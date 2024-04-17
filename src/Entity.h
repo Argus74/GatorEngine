@@ -12,17 +12,20 @@
 
 typedef std::tuple< //as we add more components, we add them here
 	std::shared_ptr<CName>,
+	std::shared_ptr<CInformation>,
 	std::shared_ptr<CTransform>,
 	std::shared_ptr<CShape>,
 	std::shared_ptr<CUserInput>,
 	std::shared_ptr<CAnimation>,
 	std::shared_ptr<CSprite>,
-	std::shared_ptr<CRigidBody>
+	std::shared_ptr<CRigidBody>,
+	std::shared_ptr<CBackgroundColor>,
+	std::shared_ptr<CTouchTrigger>
 > ComponentTuple;
 
 class Entity : public Serializable {
 	size_t id_;
-	std::string tag_;
+	
 	bool is_alive_;
 	friend class EntityManager;
 public:
@@ -38,9 +41,13 @@ public:
 	void clone(const Entity&);
 	void destroy();
 	size_t id() const;
-
-	const std::string& tag() const;
 	bool isAlive();
+
+	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
+	sf::FloatRect& GetRect(float margin = 0.0f);
+
+	std::string tag_;
+	int layer_ = 1; //Don't need this here to be honest
 
 	// Component Accessors and Modifiers 
 
@@ -109,7 +116,7 @@ public:
 
 	// Remove the component of the argument type
 	template <typename T>
-	void removeComponent(std::shared_ptr<T>& newComponent) {
+	void removeComponent(const std::shared_ptr<T>& newComponent) {
 		removeComponent<T>();
 	}
 

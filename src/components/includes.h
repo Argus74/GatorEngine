@@ -7,8 +7,9 @@
 #include "CTransform.h"
 #include "CRigidBody.h"
 #include "CUserInput.h"
-
-
+#include "CBackgroundColor.h"
+#include "CInformation.h"
+#include "CTouchTrigger.h"
 
 
 

@@ -36,8 +36,9 @@ public:
 	void AddFont(const std::string& name, const std::string& path);
 	void AddAnimation(const std::string& name, const Animation& animation);
 
-	// Intialize Start Assets
-	void IntializeTextureAssets(std::string path);
+	// Intialize Start and Internal Assets
+	void IntializeTextureAssets(std::string path, bool makePrivate = false);
+
 	//Creating a list of Texture Name pointers, this is necessary to populate the drop down selection list when selecting a sprite
 	std::vector<const char*> GenerateAssetNameList(std::string assetType) {
 

@@ -23,9 +23,6 @@ public:
 	// Get all entities
 	std::vector<std::shared_ptr<Entity>>& getEntities();
 
-	// Get entities with a specific tag
-	std::vector<std::shared_ptr<Entity>>& getEntities(const std::string& tag);
-
 	void removeEntity(std::shared_ptr<Entity> entity);
 
 	void cloneEntity(const std::shared_ptr<Entity>& entity);
@@ -34,6 +31,12 @@ public:
 	void resetPositions();
 
 	void reset();
+
+	//Sort Entities in rendering order
+	void sortEntitiesForRendering();
+
+	//Get Entities rendering order
+	std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
 
 private:
 	// Constructor
@@ -47,13 +50,13 @@ private:
 	EntityVec entities_;
 
 	// Vector to store entities to be added in the next frame
-	EntityVec to_add_;
-
-	// Map to store entities based on their tag
-	EntityMap entity_map_;
+	EntityVec m_toAdd;
 
 	// Total number of entities ever created, for unique IDs
-	size_t total_entities_ = 0;
+	size_t m_totalEntities = 0;
+
+	// Vector that stores the true rendering order of Entities  
+	EntityVec entitiesRenderingList_;
 };
 
 #endif // ENTITYMANAGER_H

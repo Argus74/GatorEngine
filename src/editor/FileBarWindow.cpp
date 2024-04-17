@@ -60,8 +60,12 @@ void FileBarWindow::DrawFrames() {
             if (ImGui::MenuItem("Upload Sprite")) { 
                 auto& assetManager = AssetManager::GetInstance();
                 nfdchar_t* outPath = NULL;
-                nfdfilteritem_t filterItem[1] = { { "Image files", "png,jpg,jpeg" } };
-                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+                nfdfilteritem_t filterItem[] = {
+                    { "PNG files", "png" },
+                    { "JPEG files", "jpg;jpeg" }
+                };
+                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL); 
+
 
                 
                 if (result == NFD_OKAY) { //If a file/path is selected in the dialog

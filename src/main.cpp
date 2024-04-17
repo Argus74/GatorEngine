@@ -58,27 +58,39 @@
 //     }
 // };
 
+#include "lua_interpreter/LuaState.h"
+
 int main()
 {
+<<<<<<<<< Temporary merge branch 1
+    NFD_Init();
+=========
+
+    NFD_Init();
     LuaManager luaManager;
     luaManager.TestExample();
 
+>>>>>>>>> Temporary merge branch 2
     GameEngine& newGame = GameEngine::GetInstance();
     // newGame.addEntitiesForTest();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
     ImGui::SFML::Init(window);
     Editor editor;
+    std::shared_ptr<Scene> scene = std::make_shared<Scene_Play>();
+    newGame.ChangeScene("TestScene", scene);
+    LuaState newLuaState("script.lua");
+    
     //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
     //newGame.ChangeScene("TestScene", scene);
 
     while (window.isOpen())
     {
+        newGame.update();
         ImGui::SFML::Update(window, deltaClock.restart());
         editor.Draw();
-        window.clear(sf::Color(0, 0, 0));
         ImGui::SFML::Render(window);
-        newGame.update();
+        newLuaState.Update();
         window.display();
     }
     ImGui::SFML::Shutdown();

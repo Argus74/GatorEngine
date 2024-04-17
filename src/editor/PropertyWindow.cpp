@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../Entity.h"
 #include "Editor.h"
@@ -26,16 +27,9 @@ PropertyWindow::PropertyWindow()
 
 void PropertyWindow::SetPosition() 
 {
-    // 20% of viewport's width, (almost) 40% of its height
-    const ImGuiViewport *mainViewport = ImGui::GetMainViewport();
-    short windowWidth = mainViewport->Size.x * 0.20;
-    short windowHeight = mainViewport->Size.y * 0.40 - 20; // Hardcoding to fit to bottom
-
-    short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-    short windowYPos = mainViewport->Size.y * .60 + 20;    // Hardcoding under the explorer
-
-    ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-    ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+    const ImGuiViewport *mv = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(PROP_XOFFSET(mv), PROP_YOFFSET(mv)));
+    ImGui::SetNextWindowSize(ImVec2(PROP_WIDTH(mv), PROP_HEIGHT(mv)));
 }
 
 void PropertyWindow::PreDraw() 
@@ -86,31 +80,66 @@ void PropertyWindow::DrawComponent(T& component)
 {
     bool isOpen = true;
 
-    if (ImGui::CollapsingHeader(component->kComponentName, &isOpen, tree_node_flags_)) 
+    // For the Information Component, Name Component, and Transform component we don't allow the user to remove the component 
+    if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>) 
     {
-        // Hacky solution to draw a button within header that allows user to add a new binding
-        if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>) 
+        if (ImGui::CollapsingHeader(component->componentName, tree_node_flags))
         {
-            // Position the button to the right of the header
-            static const char* name = "Add Input";
-            ImGui::SameLine(); // same line as header
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-            DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-            ImGui::PopStyleColor();
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
+
+        }
+    }
+    else {
+        if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags))
+        {
+            // Hacky solution to draw a button within header that allows user to add a new binding
+            if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>)
+            {
+                // Position the button to the right of the header
+                static const char* name = "Add Input";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CAnimation>>) {
+                // Position the button to the right of the header
+                static const char* name = "Create Animation";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
+                // Position the button to the right of the header
+                static const char* name = "Add Trigger";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
+
+            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            {
+                DrawComponentProperties(component);
+                ImGui::EndTable();
+            }
         }
 
-        if (ImGui::BeginTable(component->kComponentName, 2, table_flags_)) 
+        if (!isOpen)
         {
-            DrawComponentProperties(component);
-            ImGui::EndTable();
+            Editor::kActiveEntity->removeComponent(component);
         }
     }
 
-    if (!isOpen) 
-    {
-        Editor::kActiveEntity->removeComponent(component);
-    }
+    
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) 
@@ -154,14 +183,32 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 {
     DrawProperty("Animation Name", animation->name);
     DrawProperty("Animation Speed", animation->animation_speed);
-    DrawProperty("Disappear", animation->disappear);
+    //DrawProperty("Disappear", animation->disappear); For now removing the ability to make the Animation to disappear after one run
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody) 
 {
-	DrawProperty("Is Static", rigidbody->static_body);
+	DrawProperty("Is Static", rigidbody->staticBody);
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
+{
+	DrawProperty("Color", background->color);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& information)
+{
+    DrawProperty("Layer", information);
+    DrawProperty("Tag", information->tag);
+    DrawProperty("Selectable", information->selectable);
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
+{
+	for (auto& entry : touchtrigger->tagMap) {
+		DrawProperty(entry.first.c_str(), entry.second);
+	}
+}
 
 // TODO: Add new overloads for future components here
 
@@ -226,6 +273,31 @@ void PropertyWindow::DrawInputField(bool &val)
     ImGui::Checkbox("##Bool", &val);
 }
 
+void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)
+{
+    int selection = val->layer; // Currently selected item index
+    const char* items[] = { "0", "1", "2", "3", "4", "5" }; // List of items (integers as strings)
+
+    // Convert the selected item index into a string for display
+    int previewIndex = val->layer; 
+    const char* previewValue = items[previewIndex];
+
+    if (ImGui::BeginCombo("##Integers", previewValue)) {
+        for (int i = 0; i < IM_ARRAYSIZE(items); ++i) {
+            bool isSelected = (selection == i);
+            if (ImGui::Selectable(items[i], isSelected)) {
+                selection = i; // Update the current selection
+                val->layer = i;
+                EntityManager::GetInstance().sortEntitiesForRendering();
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+}
 
 void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
 {
@@ -426,7 +498,21 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
                 }
             }
         });
+        ImGui::CloseCurrentPopup();
+    }
+}
 
+void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
+{
+    // Decide which input type to use so we can display the correct map below
+    ImGui::Text("Specify tag of entities who can trigger");
+    static std::string tag = "";
+    DrawInputField(tag);
+    ImGui::NewLine();
+
+    // When pressed, add the input to its map
+    if (ImGui::Button("Create")) {
+        touchtrigger->tagMap.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }

@@ -14,11 +14,11 @@ public:
 	sf::Sprite sprite;		// the sprite to display the animation
 	size_t frame_count = 1;	// total number of frames of animation
 	size_t current_frame = 0;	// the current frame of animation being played
-	size_t speed = 0;		// the speed to play this animation
+	float speed = 0.0;		// the speed to play this animation
 	Vec2 size = { 1, 1 };	// size of the animation frame
 	std::string	name = "none";
 	bool reached_end = false;
-
+	float frameRemainder_ = 0.0f;
 
 	void Update();
 	bool HasEnded() const;

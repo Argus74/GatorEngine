@@ -11,7 +11,16 @@ AssetManager& AssetManager::GetInstance() {
     return instance;
 }
 
-AssetManager::AssetManager() {} //Depending on how we want our Users to develop 
+AssetManager::AssetManager() {
+    //Intializing all png files as textures in Start & Internal Assets folder
+    IntializeTextureAssets("assets/StartAssets");
+    IntializeTextureAssets("assets/InternalAssets", true);
+
+    Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
+    AddAnimation("DefaultAnimation", ani);
+    Animation ani2 = Animation("RunningAnimation", GetTexture("RunningAnimation"), 12, 1);
+    AddAnimation("RunningAnimation", ani2);
+}
 
 AssetManager::~AssetManager() {
     // Deleting textures
@@ -91,16 +100,20 @@ void AssetManager::AddAnimation(const std::string& name, const Animation& animat
     animations_[name] = ani;
 }
 
-void AssetManager::IntializeTextureAssets(std::string path) {
+void AssetManager::IntializeTextureAssets(std::string path, bool makePrivate) {
     // Adding all assets that are in Start Assets
-    for (const auto& entry : std::filesystem::recursive_directory_iterator("assets/StartAssets")) {
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         // Check if the entry is a file with a ".png" extension
         if (entry.is_regular_file() && entry.path().extension() == ".png") {
             // Extract the file name without extension to use as a texture name
             std::string textureName = entry.path().stem().string();
 
             // Add the texture to the asset manager
-            AddTexture(textureName, entry.path().string());
+            if (makePrivate) {
+                AddTexturePrivate(textureName, entry.path().string());
+            } else {
+				AddTexture(textureName, entry.path().string());
+			}
         }
     }
 }

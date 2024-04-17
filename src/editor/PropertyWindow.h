@@ -33,6 +33,9 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CSprite> sprite);
 	void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
+	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
+	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
+	void DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger);
 
     // Draw one property row of a component
     template <typename T>
@@ -41,8 +44,17 @@ private:
     // Draw an input field (text box, color picker, etc.) for a property row
     // TODO: May need to update parameters, like switching to our new Vec2 object
     void DrawInputField(std::string &val);
-	void DrawInputField(std::shared_ptr<CSprite>& sprite);
+    void DrawInputField(sf::Color &val);
+    void DrawInputField(Vec2 &val);
+    void DrawInputField(float &val);
+    void DrawInputField(int &val);
+    void DrawInputField(bool &val);
+    void DrawInputField(Action &val);
+    void DrawInputField(sf::Keyboard::Key &val);
+    void DrawInputField(sf::Mouse::Button& val);
+	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
+	void DrawInputField(std::shared_ptr <CInformation>& val);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>
@@ -52,16 +64,8 @@ private:
 	void DrawPopup(std::shared_ptr<CUserInput> userinput);
 	void DrawPopup(std::shared_ptr<CAnimation> animation);
 	void DrawPopup(std::shared_ptr<Entity> entity);
+	void DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger);
 	
-    void DrawInputField(Vec2 &val);
-	void DrawInputField(sf::Color& val);
-    void DrawInputField(float &val);
-    void DrawInputField(int &val);
-    void DrawInputField(bool &val);
-    void DrawInputField(Action &val);
-    void DrawInputField(sf::Keyboard::Key &val);
-    void DrawInputField(sf::Mouse::Button& val);
-
     // ImGui customization options for tables (the rows under each component header)
     ImGuiTableFlags table_flags_;
 

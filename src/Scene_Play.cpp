@@ -18,31 +18,25 @@ Scene_Play::Scene_Play()
 	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
-	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CSprite>("Grass Tile");
 	ground->addComponent<CName>("Ground");
-	//ground->getComponent<CSprite>()->texture = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	ground->addComponent<CInformation>();
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
-	ground2->addComponent<CSprite>("Ground");
+	ground2->addComponent<CSprite>("Grass Tile");
 	ground2->addComponent<CName>("Ground2");
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	ground2->addComponent<CInformation>();
 	GatorPhysics::GetInstance().createBody(ground2.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
-	ground3->addComponent<CSprite>("Ground");
+	ground3->addComponent<CSprite>("Grass Tile");
 	ground3->addComponent<CName>("Ground3");
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	ground3->addComponent<CInformation>();
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
@@ -76,13 +70,14 @@ void Scene_Play::LoadScene(const std::string &filename)
 void Scene_Play::spawnPlayer()
 {
 	// here is a sample player entity which you can use to construct other entities
-	player_ = entity_manager_.addEntity("player");
-	player_->addComponent<CAnimation>();
-	player_->getComponent<CAnimation>()->animation = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
-	player_->addComponent<CTransform>(Vec2(224, 200));
-	player_->addComponent<CUserInput>();
-	player_->addComponent<CName>("Player1");
-	GatorPhysics::GetInstance().createBody(player_.get(), false);
+	m_player = m_entityManager.addEntity("player");
+	m_player->addComponent<CAnimation>();
+	m_player->getComponent<CAnimation>()->animation_ = GameEngine::GetInstance().assets().GetAnimation("DefaultAnimation");
+	m_player->addComponent<CTransform>(Vec2(224, 200));
+	m_player->addComponent<CUserInput>();
+	m_player->addComponent<CName>("Player1");
+	m_player->addComponent<CInformation>();
+	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	// TODO: be sure to add the remaining components to the player
 }
@@ -91,10 +86,11 @@ void Scene_Play::update()
 {
 	entity_manager_.update();
 	sUserInput();
+	sTouchTrigger();
 	sMovement();
 	sPhysics();
 	sCollision();
-	sAnimation();
+	sBackground();
 	sRender();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
@@ -124,6 +120,21 @@ void Scene_Play::sUserInput()
 		{
 			sf::FloatRect view(0, 0, event.size.width, event.size.height);
 			GameEngine::GetInstance().window().setView(sf::View(view));
+		}
+
+		// Editor-specific hotkeys
+		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
+			// Ctrl+D to copy active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
+				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+			}
+
+			// Ctrl+X to delete active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
+				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+			}
+
+			// Ctrl+Z hotkey does not exist. Good luck o7
 		}
 
 		// Lambda to process key or mouse events for the player
@@ -226,20 +237,69 @@ void Scene_Play::sPhysics()
 	// should be done below here
 }
 
+void Scene_Play::sTouchTrigger()
+{
+	auto& entities = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entities) {
+		// Skip entities without a touch trigger component
+		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		auto touchTrigger = entity->getComponent<CTouchTrigger>();
+		auto triggerRect = entity->GetRect();
+
+		// If has touch trigger, check if it is touching any other entity
+		for (auto& actionTags : touchTrigger->tagMap) {
+			for (auto& entityTouched : entities) {
+				// Skip entities without the tag we're caring about
+				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+
+				// Check if the entity is touching the entity with the touch trigger
+				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+				if (triggerRect.intersects(entityTouchedRect)) {
+					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+				}
+			}
+		}
+	}
+}
+
 void Scene_Play::onEnd()
 {
 	// TODO: When the scene ends, change back to the MENU scene
 	//		 use m_game->changeScene(correct params);
 }
 
-void Scene_Play::sAnimation()
+
+void Scene_Play::sRender()
 {
-	// Need to add GetComponent, AddComponent templates to entity.
 	auto &entityManager = EntityManager::GetInstance();
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
+
+	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
 
 	for (auto &entity : entityList)
-	{
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CSprite>())
+		{
+			auto transformComponent = entity->getComponent<CTransform>();
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			auto spriteComponent = entity->getComponent<CSprite>();
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = spriteComponent->sprite_.getLocalBounds();
+			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
+			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
+			spriteComponent->sprite_.setScale(scale.x, scale.y);
+      
+      //Rotation
+			float angle = transformComponent->angle * -1;
+			spriteComponent->sprite_.setRotation(angle);
+			
+
+			if (spriteComponent->drawSprite_)
+				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
+		}
+
 		if (entity->hasComponent<CAnimation>())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
@@ -260,39 +320,6 @@ void Scene_Play::sAnimation()
 			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
 			animationComponent->update();
-		}
-	}
-}
-
-void Scene_Play::sRender()
-{
-	auto &entityManager = EntityManager::GetInstance();
-
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
-
-	for (auto &entity : entityList)
-	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
-		{
-			auto transformComponent = entity->getComponent<CTransform>();
-			Vec2 scale = transformComponent->scale;
-			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-			auto spriteComponent = entity->getComponent<CSprite>();
-			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-
-			// Set the origin of the sprite to its center
-			sf::FloatRect bounds = spriteComponent->sprite.getLocalBounds();
-			spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);
-			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
-      spriteComponent->sprite.setScale(scale.x, scale.y);
-      
-      //Rotation
-			float angle = transformComponent->angle * -1;
-			spriteComponent->sprite.setRotation(angle);
-			
-
-			if (spriteComponent->draw_sprite)
-				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
 	}
 }
@@ -360,38 +387,19 @@ void Scene_Play::sMovement()
 	}
 }
 
-// void Scene_Play::sAnimation()
-//{
-//	if (!m_paused) { GameEngine::GetInstance().window().clear(sf::Color(100, 100, 255)); }
-//	else { GameEngine::GetInstance().window().clear(sf::Color(50, 50, 150)); }
-//
-//	// set the viewport of the window to be centered on the player if it's far
-//	auto& pPos = player_->getComponent<CTransform>()->position;
-//	float windowCenterX = fmax(GameEngine::GetInstance().window().getSize().x / 2.0f, pPos.x);
-//	sf::View view = GameEngine::GetInstance().window().getView();
-//	// getCenter is incomplete
-//	view.setCenter(windowCenterX, GameEngine::GetInstance().window().getSize().y - view.getCenter().y);
-//	GameEngine::GetInstance().window().setView(view);
-//
-//	sf::CircleShape dot;
-//	dot.setFillColor(sf::Color::Red);
-//	dot.setRadius(8);
-//	dot.setOrigin(8, 8);
-//	dot.setPosition(m_mousePos.x, m_mousePos.y);
-//	GameEngine::GetInstance().window().draw(dot);
-//
-//	// draw all Entity textures / animation
-//
-//	for (auto e : m_entityManager.getEntities())
-//	{
-//		auto& transform = e->getComponent<CTransform>();
-//
-//		if (e->hasComponent<CAnimation>())
-//		{
-//			auto& animation = e->getComponent<CAnimation>()->animation;
-//			animation.getSprite().setRotation(transform->angle);
-//			animation.getSprite().setPosition(transform->position.x, transform->position.y);
-//		}
-//	}
-//
-// }
+// Handles clearing of window and drawing scene background
+void Scene_Play::sBackground() {
+	// Find first component of type CBackground and draw it
+	auto entityList = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entityList) {
+		if (entity->hasComponent<CBackgroundColor>()) {
+			auto background = entity->getComponent<CBackgroundColor>();
+			GameEngine::GetInstance().window().clear(background->color);
+			return;
+		}
+	}
+
+	// Otherwise, default to a black background
+	GameEngine::GetInstance().window().clear(sf::Color(0, 0, 0));
+}
+
