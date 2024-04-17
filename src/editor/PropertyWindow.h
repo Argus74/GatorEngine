@@ -31,8 +31,15 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
 	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
 	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
+	void DrawComponentProperties(std::shared_ptr <CHealth>& health);
+	void DrawComponentProperties(std::shared_ptr <CText>& text);
+	void DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger);
 	void DrawComponentProperties(std::shared_ptr<CCharacter> character);
 	void DrawComponentProperties(std::shared_ptr<CScript> script);
+    // Draw one property row of a component
+    template <typename T>
+    void DrawProperty(const char *name, T &value);
+	
 	// Draw one property row of a component
 	template <typename T>
 	void DrawProperty(const char* name, T& value);
@@ -51,6 +58,12 @@ private:
 	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
 	void DrawInputField(std::shared_ptr <CInformation>& val);
+	void DrawInputField(std::shared_ptr <CText>& val);
+	void DrawInputField(unsigned int& val); // Used to processs textStyle
+
+
+	//Button to play animation when in scene editor state
+	void DrawButton(std::shared_ptr<CAnimation>& val);
 
 	// Draw a button that opens a popup for some subject
 	template <typename T>
@@ -60,9 +73,10 @@ private:
 	void DrawPopup(std::shared_ptr<CUserInput> userinput);
 	void DrawPopup(std::shared_ptr<CAnimation> animation);
 	void DrawPopup(std::shared_ptr<Entity> entity);
-
-	// ImGui customization options for tables (the rows under each component header)
-	ImGuiTableFlags table_flags;
+	void DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger);
+	
+    // ImGui customization options for tables (the rows under each component header)
+    ImGuiTableFlags table_flags;
 
 	// ImGui customization options for tree nodes (the component header bars)
 	ImGuiTreeNodeFlags tree_node_flags;

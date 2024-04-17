@@ -17,5 +17,4 @@ void CAnimation::changeSpeed() {
 
 void CAnimation::update() {
 	animation_.Update();
-
 }

@@ -17,34 +17,27 @@ Scene_Play::Scene_Play()
 	std::shared_ptr<Entity> ground3 = m_entityManager.addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
-	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CSprite>("Grass Tile");
 	ground->addComponent<CName>("Ground");
 	ground->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground2->addComponent<CTransform>(Vec2(272, 300), Vec2(1, 1), 0);
-	ground2->addComponent<CSprite>("Ground");
+	ground2->addComponent<CSprite>("Grass Tile");
 	ground2->addComponent<CName>("Ground2");
 	ground2->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground2->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground2.get(), true);
 
 
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground3->addComponent<CTransform>(Vec2(320, 300), Vec2(1, 1), 0);
-	ground3->addComponent<CSprite>("Ground");
+	ground3->addComponent<CSprite>("Grass Tile");
 	ground3->addComponent<CName>("Ground3");
 	ground3->addComponent<CInformation>();
-	//ground->getComponent<CSprite>()->texture_ = GameEngine::GetInstance().assets().GetTexture("Ground");
-	//Need to select ground portion of the texture
-	ground3->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
+	ground3->setDisabled(true);
+
 	GatorPhysics::GetInstance().createBody(ground3.get(), true);
 	/*std::shared_ptr<Entity> tree = EntityManager::addEntity("Tree");
 	tree->addComponent<CTransform>(Vec2(200, 400), Vec2(20, 50));
@@ -85,6 +78,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CUserInput>();
 	m_player->addComponent<CName>("Player1");
 	m_player->addComponent<CInformation>();
+	m_player->addComponent<CHealth>();
 	GatorPhysics::GetInstance().createBody(m_player.get(), false);
 
 	//Attach a script to the player instance
@@ -97,12 +91,14 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	sUserInput();
+	sTouchTrigger();
 	sScripts();
 	sMovement();
 	sPhysics();
 	sCollision();
 	sBackground();
 	sRender();
+	sUI();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
 }
@@ -134,14 +130,29 @@ void Scene_Play::sUserInput()
 			GameEngine::GetInstance().window().setView(sf::View(view));
 		}
 
+		// Editor-specific hotkeys
+		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
+			// Ctrl+D to copy active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
+				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+			}
+
+			// Ctrl+X to delete active entity
+			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
+				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
+			}
+
+			// Ctrl+Z hotkey does not exist. Good luck o7
+		}
+
 		// Lambda to process key or mouse events for the player
 		auto processInputEvent = [](const sf::Event& event, const sf::Event::EventType& eventType)
 		{
 			auto& entities = EntityManager::GetInstance().getEntities();
 			for (auto& entity : entities)
 			{
-				// Skip entities without a cUserInput component
-				if (!entity->getComponent<CUserInput>())
+				// Skip entities without a cUserInput component or that are disabled
+				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
 
 				auto findAndDispatch = [entity](auto& inputMap, const auto& eventButton)
@@ -194,7 +205,7 @@ void Scene_Play::sPhysics()
 
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
@@ -209,7 +220,7 @@ void Scene_Play::sPhysics()
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CTransform>())
+		if (entity->hasComponent<CTransform>() && !entity->isDisabled())
 		{
 			auto transform = entity->getComponent<CTransform>();
 			// Update the position based on the velocity
@@ -219,6 +230,31 @@ void Scene_Play::sPhysics()
 
 	// Any other movement that should be done based on other physics components
 	// should be done below here
+}
+
+void Scene_Play::sTouchTrigger()
+{
+	auto& entities = EntityManager::GetInstance().getEntities();
+	for (auto& entity : entities) {
+		// Skip entities without a touch trigger component
+		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		auto touchTrigger = entity->getComponent<CTouchTrigger>();
+		auto triggerRect = entity->GetRect();
+
+		// If has touch trigger, check if it is touching any other entity
+		for (auto& actionTags : touchTrigger->tagMap) {
+			for (auto& entityTouched : entities) {
+				// Skip entities without the tag we're caring about
+				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+
+				// Check if the entity is touching the entity with the touch trigger
+				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+				if (triggerRect.intersects(entityTouchedRect)) {
+					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+				}
+			}
+		}
+	}
 }
 
 void Scene_Play::sScripts()
@@ -273,7 +309,7 @@ void Scene_Play::sRender()
 
 	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
+		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -286,17 +322,16 @@ void Scene_Play::sRender()
 			spriteComponent->sprite_.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite_.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite_.setScale(scale.x, scale.y);
-
+      
 			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite_.setRotation(angle);
-
 
 			if (spriteComponent->drawSprite_)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite_);
 		}
 
-		if (entity->hasComponent<CAnimation>())
+		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -305,6 +340,7 @@ void Scene_Play::sRender()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation_.sprite_);
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = sprite.getLocalBounds();
 			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
@@ -315,9 +351,90 @@ void Scene_Play::sRender()
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
 			GameEngine::GetInstance().window().draw(sprite);
-			animationComponent->update();
+			
+
+			if (animationComponent->playAnimation || Editor::state == 3)
+				animationComponent->update();
 		}
 	}
+}
+
+void Scene_Play::sUI() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList(); // We only iterate through the UI rendering list 
+
+	for (auto& entity : entityList) {
+
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) 
+		{ // Health Bar 
+			auto healthComponent = entity->getComponent<CHealth>();
+			
+			sf::Sprite backHealth(healthComponent->backHealthBar_);
+			sf::Sprite frontHealth(healthComponent->frontHealthBar_);
+
+			//Making the sprite for the front Health bar
+			healthComponent->Update();
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = backHealth.getLocalBounds();
+			backHealth.setOrigin(bounds.width / 2, bounds.height / 2);
+			sf::FloatRect bounds2 = frontHealth.getLocalBounds();
+			//Hard coded for now, the best way to allow the user to customize health bars would be a different approach
+			frontHealth.setOrigin(bounds.width / 2 - 7, bounds2.height / 2);
+
+			// Set the position of the sprite to the center position
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			Vec2 scale = healthComponent->healthBarScale_;
+
+			if (healthComponent->followEntity) {
+				// The position is above
+				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->healthBarOffset_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			else {
+				Vec2 position = healthComponent->healthBarPosition_;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				// Set the position of the sprite to the center position
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			
+			GameEngine::GetInstance().window().draw(backHealth);
+			GameEngine::GetInstance().window().draw(frontHealth);
+			
+		}
+
+		if (entity->hasComponent<CText>() && !entity->isDisabled()) 
+		{
+			auto transformComponent = entity->getComponent<CTransform>(); // Transform related 
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position;
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
+
+			textComponent->text_.setFont(textComponent->font_);
+			textComponent->text_.setString(textComponent->message_);
+			textComponent->text_.setCharacterSize(textComponent->characterSize_);
+			textComponent->text_.setFillColor(textComponent->textColor_);
+			textComponent->text_.setStyle(textComponent->style_);
+			
+			sf::FloatRect bounds = textComponent->text_.getLocalBounds();
+			textComponent->text_.setScale(scale.x, scale.y);
+			textComponent->text_.setPosition(position.x, position.y + yOffset);
+			textComponent->text_.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			GameEngine::GetInstance().window().draw(textComponent->text_);
+		}
+	} 
 }
 
 void Scene_Play::sRenderColliders() {
@@ -327,7 +444,7 @@ void Scene_Play::sRenderColliders() {
 
 	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			b2Vec2 position = rigidBodyComponent->body->GetPosition();
@@ -356,8 +473,7 @@ void Scene_Play::sRenderColliders() {
 void Scene_Play::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
-
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() || entity->isDisabled()) continue;
 		float speed = 5.0;
 		Vec2 jump_force = Vec2(0, 30);
 		if (entity->hasComponent<CCharacter>())
@@ -402,7 +518,7 @@ void Scene_Play::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CBackgroundColor>()) {
+		if (entity->hasComponent<CBackgroundColor>() && !entity->isDisabled()) {
 			auto background = entity->getComponent<CBackgroundColor>();
 			GameEngine::GetInstance().window().clear(background->color);
 			return;

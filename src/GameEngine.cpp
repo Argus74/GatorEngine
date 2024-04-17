@@ -49,18 +49,6 @@ AssetManager& GameEngine::assets()
 
 void GameEngine::init(const std::string& path)
 {
-	// Just temporary sprites for testing once, we get a file system going we will do this somewhere else
-	auto& assetManager = AssetManager::GetInstance();
-
-	//Intializing all png files as textures in Start Assets folder
-	assetManager.IntializeTextureAssets("assets/StartAssets");
-	assetManager.AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
-	assetManager.AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
-	Animation ani = Animation("DefaultAnimation", assetManager.GetTexture("DefaultAnimation"), 11, 1);
-	assetManager.AddAnimation("DefaultAnimation", ani);
-	Animation ani2 = Animation("RunningAnimation", assetManager.GetTexture("RunningAnimation"), 12, 1);
-	assetManager.AddAnimation("RunningAnimation", ani2);
-
 	//123
 	m_window.setFramerateLimit(60);
 }

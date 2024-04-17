@@ -2,6 +2,7 @@
 
 #include "imgui-SFML.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../AssetManager.h";
 #include "Editor.h"
@@ -14,6 +15,8 @@ static constexpr char* kExplorerLabel = "##Explorer";
 static constexpr char* kDropTargetLabel = "##Target";
 static constexpr char* kCloneLabel = "Clone";
 static constexpr char* kDeleteLabel = "Delete";
+static constexpr char* kDisableLabel = "Disable";
+static constexpr char* kEnableLabel = "Enable";
 static constexpr short kDropTargetHeight = 10;
 
 
@@ -23,24 +26,14 @@ ExplorerWindow::ExplorerWindow() {
 	// Disable window-wide scrollbar to allow ListBox to scroll
 	window_flags_ |= ImGuiWindowFlags_NoScrollbar;
 
-	// TODO: Maybe don't store ref to icon here
 	// Load icon texture and store reference for easy access.
-	auto& assetManager = AssetManager::GetInstance();
-	assetManager.AddTexturePrivate("GameObjectIconSmall", "assets/GameObjectIconSmall.png");
-	icon_ = assetManager.GetTexturePrivate("GameObjectIconSmall");
+	icon_ = AssetManager::GetInstance().GetTexturePrivate("GameObjectIconSmall");
 }
 
 void ExplorerWindow::SetPosition() {
-	// 20% of viewport's width, 40% of its height
-	const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	short windowWidth = mainViewport->Size.x * 0.20;
-	short windowHeight = mainViewport->Size.y * 0.40;
-
-	short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-	short windowYPos = mainViewport->Size.y * .20 + 20; // Hardcoding to be under the tab bar
-
-	ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	const ImGuiViewport* mv = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(EXPLR_XOFFSET(mv), EXPLR_YOFFSET(mv)));
+	ImGui::SetNextWindowSize(ImVec2(EXPLR_WIDTH(mv), EXPLR_HEIGHT(mv)));
 }
 
 void ExplorerWindow::PreDraw() {
@@ -51,6 +44,7 @@ void ExplorerWindow::PreDraw() {
 }
 
 void ExplorerWindow::DrawFrames() {
+
 	// Draw the list box
 	if (ImGui::BeginListBox(kExplorerLabel, ImVec2(ImGui::GetContentRegionAvail().x, -1))) {
 
@@ -63,9 +57,17 @@ void ExplorerWindow::DrawFrames() {
 			// Handle drag-and-drops above this selectable
 			DrawDropTarget(i);
 
+			// Determine if the entity is disabled
+			bool isDisabled = entity->isDisabled();
+
 			// Draw little icon
 			ImGui::Image(icon_, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
 			ImGui::SameLine();
+
+			// Change text color if entity is disabled
+			if (isDisabled) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray color
+			}
 
 			// Draw the entity's tag as a selectable
 			const bool isSelected = Editor::active_entity_ == entity && Editor::state != Editor::State::Testing;
@@ -75,8 +77,15 @@ void ExplorerWindow::DrawFrames() {
 				Editor::state = Editor::State::Selecting;
 			}
 
+			if (isDisabled) {
+				ImGui::PopStyleColor();
+			}
+
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
-			ImGui::OpenPopupOnItemClick(kEntityContextMenuID, ImGuiPopupFlags_MouseButtonRight);
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				Editor::active_entity_ = entity;
+				ImGui::OpenPopup(kEntityContextMenuID);
+			}
 
 			// Make this selectable draggable
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) {
@@ -95,12 +104,25 @@ void ExplorerWindow::DrawFrames() {
 	// Draw context menu
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
 	if (ImGui::BeginPopupContextItem(kEntityContextMenuID)) {
+		// Determine if the entity is disabled
+		bool disabled = Editor::active_entity_->isDisabled();
+		if (disabled) {
+			if (ImGui::Selectable(kEnableLabel)) {
+				Editor::active_entity_->setDisabled(false);
+			}
+		}
+		else {
+			if (ImGui::Selectable(kDisableLabel)) {
+				Editor::active_entity_->setDisabled(true);
+			}
+		}
 		if (ImGui::Selectable(kCloneLabel)) {
 			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
 		}
 		if (ImGui::Selectable(kDeleteLabel)) {
 			EntityManager::GetInstance().removeEntity(Editor::active_entity_);
 		}
+		
 		ImGui::EndPopup();
 	}
 	ImGui::PopStyleVar();
@@ -143,12 +165,13 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 				entityList.erase(entityList.begin() + sourceIndex);
 				// Otherwise, must be end of the list (targetIndex == -1), so just move there
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
+				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 			else {
-				;
 				entityList.erase(entityList.begin() + sourceIndex);
 				entityList.push_back(entity);
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
+				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 
 			// Once complete, make this the active entity

@@ -62,10 +62,10 @@ class ActionBus {
 	void Clear();
 
 	// Inform the bus that the entity triggered an action
-	void Dispatch(std::shared_ptr<Entity> entity, Action action);
+	void Dispatch(const std::shared_ptr<Entity>& entity, Action action);
 
 	// Check to see if a certain entity has triggered a certain action
-	bool Received(std::shared_ptr<Entity> entity, Action action);
+	bool Received(const std::shared_ptr<Entity>& entity, Action action);
 
  private:
 	 ActionBus() = default;

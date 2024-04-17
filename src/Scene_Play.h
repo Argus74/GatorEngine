@@ -22,15 +22,16 @@ public:
 	Scene_Play(const std::string& filename);
 	void LoadScene(const std::string& filename);
 	void update();
+	void sTouchTrigger();
 	void onEnd();
 	void sUserInput();
 	void sPhysics();
 	void sScripts();
 	void sCollision();
-	void sAnimation();
 	void sRender();
 	void sRenderColliders();
 	void sMovement();
 	void sBackground();
 	void spawnPlayer();
+	void sUI();
 };

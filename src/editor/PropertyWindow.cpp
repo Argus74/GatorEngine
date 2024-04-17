@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
+#include "Config.h"
 #include "../EntityManager.h"
 #include "../Entity.h"
 #include "Editor.h"
@@ -26,16 +27,9 @@ PropertyWindow::PropertyWindow()
 
 void PropertyWindow::SetPosition()
 {
-    // 20% of viewport's width, (almost) 40% of its height
-    const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-    short windowWidth = mainViewport->Size.x * 0.20;
-    short windowHeight = mainViewport->Size.y * 0.40 - 20; // Hardcoding to fit to bottom
-
-    short windowXPos = mainViewport->Size.x - windowWidth; // Right side of window
-    short windowYPos = mainViewport->Size.y * .60 + 20;    // Hardcoding under the explorer
-
-    ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-    ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+    const ImGuiViewport *mv = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(PROP_XOFFSET(mv), PROP_YOFFSET(mv)));
+    ImGui::SetNextWindowSize(ImVec2(PROP_WIDTH(mv), PROP_HEIGHT(mv)));
 }
 
 void PropertyWindow::PreDraw()
@@ -122,6 +116,15 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
+            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
+                // Position the button to the right of the header
+                static const char* name = "Add Trigger";
+                ImGui::SameLine(); // same line as header
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
+                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
+                ImGui::PopStyleColor();
+            }
 
             if (ImGui::BeginTable(component->componentName, 2, table_flags))
             {
@@ -180,6 +183,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 {
     DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animationSpeed_);
+    DrawButton(animation);
+    
     //DrawProperty("Disappear", animation->disappear_); For now removing the ability to make the Animation to disappear after one run
 }
 
@@ -199,8 +204,55 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 {
     DrawProperty("Layer", information);
     DrawProperty("Tag", information->tag);
+    DrawProperty("Selectable", information->selectable);
 }
 
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
+{
+	for (auto& entry : touchtrigger->tagMap) {
+		DrawProperty(entry.first.c_str(), entry.second);
+	}
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
+{
+    DrawProperty("Health Total", health->healthTotal_);
+    DrawProperty("Current Health", health->currentHealth_);
+    
+    DrawProperty("Draw Health Bar", health->drawHealth_);
+
+    if (health->drawHealth_) 
+    {   // To make the property window less clunky
+        DrawProperty("Follow Entity", health->followEntity); 
+
+        if (health->followEntity) 
+        {
+            DrawProperty("Bar Offset", health->healthBarOffset_);
+        }
+        else {
+            DrawProperty("Bar Position", health->healthBarPosition_);
+        }
+
+        DrawProperty("Bar Scale", health->healthBarScale_);
+    }
+
+    DrawProperty("Respawn Entity", health->respawnCharacter_);
+
+    if (health->respawnCharacter_) {
+        DrawProperty("Respawn Position", health->respawnPosition_);
+    }
+   
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text) 
+{
+    DrawProperty("Text Font", text);
+    DrawProperty("Text Style", text->style_);
+    DrawProperty("Message", text->message_);
+    DrawProperty("Character Size", text->characterSize_);
+    DrawProperty("Text Color", text->textColor_);
+
+}
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CCharacter> character)
 {
     DrawProperty("Speed", character->speed);
@@ -274,6 +326,58 @@ void PropertyWindow::DrawInputField(int& val)
 void PropertyWindow::DrawInputField(bool& val)
 {
     ImGui::Checkbox("##Bool", &val);
+}
+
+void PropertyWindow::DrawInputField(unsigned int& val)
+{
+    int selection = val; // Currently selected item index
+    const char* items[] = { "Regular", "Bold", "Italic"}; // List of items (integers as strings)
+
+    // Convert the selected item index into a string for display
+    int previewIndex = val;
+    const char* previewValue = items[previewIndex];
+
+    if (ImGui::BeginCombo("##Styles", previewValue)) {
+        for (int i = 0; i < IM_ARRAYSIZE(items); ++i) {
+            bool isSelected = (selection == i);
+            if (ImGui::Selectable(items[i], isSelected)) {
+                selection = i; // Update the current selection
+                val = i;
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+}
+
+void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val) 
+{
+    auto& assetManager = AssetManager::GetInstance();
+    auto fontNameList = assetManager.GenerateAssetNameList("fonts");
+    int selection = 0;
+
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    const char* preview_value = val->name_.c_str();
+
+    // Use BeginCombo and EndCombo for a custom preview value
+    if (ImGui::BeginCombo("##Fonts", preview_value)) {
+        for (int i = 0; i < fontNameList.size(); i++) {
+            bool is_selected = (selection == i);
+            if (ImGui::Selectable(fontNameList[i], is_selected)) {
+                selection = i;
+                val->font_ = assetManager.GetFont(fontNameList[selection]);
+                val->name_ = fontNameList[selection];
+            }
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 }
 
 void PropertyWindow::DrawInputField(std::shared_ptr <CInformation>& val)
@@ -491,12 +595,51 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
     if (ImGui::Button("Create"))
     {
         Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        {
+            if (!component && selection == index)
             {
-                if (!component && selection == index)
-                {
-                    Editor::active_entity_->addComponent(component);
-                }
-            });
+                Editor::active_entity_->addComponent(component);
+                EntityManager::GetInstance().UpdateUIRenderingList();
+
+            }
+        });
+        ImGui::CloseCurrentPopup();
+    }
+}
+
+void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
+{
+    ImGui::EndTable(); // Don't want to disrupt the draw component function 
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f)); //Spacing up top
+
+    float contentWidth = ImGui::GetContentRegionAvail().x;
+    float buttonWidth = ImGui::CalcTextSize("Play Test Animation").x + 20.0f; // Extra padding for the button
+    float centerPos = (contentWidth - buttonWidth) * 0.5f;
+    ImGui::SetCursorPosX(centerPos);
+
+    const char* buttonLabel = val->playAnimation ? "Stop Test Animation" : "Play Test Animation";
+
+    if (ImGui::Button(buttonLabel)) {
+        val->playAnimation = !val->playAnimation;
+    }
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
+
+    ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
+}
+
+void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
+{
+    // Decide which input type to use so we can display the correct map below
+    ImGui::Text("Specify tag of entities who can trigger");
+    static std::string tag = "";
+    DrawInputField(tag);
+    ImGui::NewLine();
+
+    // When pressed, add the input to its map
+    if (ImGui::Button("Create")) {
+        touchtrigger->tagMap.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }

@@ -36,8 +36,9 @@ public:
 	void AddFont(const std::string& name, const std::string& path);
 	void AddAnimation(const std::string& name, const Animation& animation);
 
-	// Intialize Start Assets
-	void IntializeTextureAssets(std::string path);
+	// Intialize Start and Internal Assets
+	void IntializeAssets(std::string path, bool makePrivate = false);
+
 	//Creating a list of Texture Name pointers, this is necessary to populate the drop down selection list when selecting a sprite
 	std::vector<const char*> GenerateAssetNameList(std::string assetType) {
 
@@ -61,6 +62,17 @@ public:
 			for (const auto& animationPair : animations_) {
 				// Add the address of the string key in the map.
 				nameList.push_back(animationPair.first.c_str());
+			}
+
+			return nameList;
+		}
+		else if (assetType == "fonts") {
+			// Reserve space in the vector for efficiency.
+			nameList.reserve(fonts_.size());
+
+			for (const auto& fontPair : fonts_) {
+				// Add the address of the string key in the map.
+				nameList.push_back(fontPair.first.c_str());
 			}
 
 			return nameList;
@@ -97,6 +109,9 @@ public:
 
 		return filenameWithoutExtension;
 	};
+
+	//Misc function for managing Lerp Colors (Interpolating)
+	static sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t);
 
 private:
 	AssetManager();

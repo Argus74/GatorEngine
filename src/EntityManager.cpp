@@ -15,10 +15,12 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
 	std::cout << "Adding entity with tag: " << tag << std::endl;
 	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
-	newEntity->addComponent<CTransform>();
+	newEntity->addComponent<CName>();
 	newEntity->addComponent<CInformation>();
+	newEntity->addComponent<CTransform>();
 	m_toAdd.push_back(newEntity);
-	EntityManager::GetInstance().sortEntitiesForRendering();
+	sortEntitiesForRendering();
+	UpdateUIRenderingList();
 	return newEntity;
 }
 
@@ -35,7 +37,8 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : m_toAdd) {
 		m_entities.push_back(entity);
-		EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting render list
+		sortEntitiesForRendering(); //Sorting render list
+		UpdateUIRenderingList();
 	}
 	m_toAdd.clear();
 
@@ -46,6 +49,7 @@ void EntityManager::update()
 		m_entities.end()
 	);
 
+
 }
 
 // Get all entities
@@ -54,14 +58,19 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 	return m_entities;
 }
 
-//Remove entity from our entity manager's list
+//Remove entity from our entity list, rendering list, and physics world
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
-	for (int i = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] == entity) {
-			m_entities.erase(m_entities.begin() + i);
-			break;
+	for (int i  = 0; i < m_entities.size(); i++) {
+		if (m_entities[i] != entity) continue;
+
+		if (entity->hasComponent<CRigidBody>()) {
+			GatorPhysics::GetInstance().destroyBody(entity.get());
 		}
+
+		m_entities.erase(m_entities.begin() + i);
+		sortEntitiesForRendering(); //Resorting our Render List
+		UpdateUIRenderingList();
 	}
 }
 
@@ -79,6 +88,10 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() 
 	return entitiesRenderingList_;
 }
 
+std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
+	return entitiesUIList_;
+}
+
 //Sorts entities based off layer and order in the explorer window
 void EntityManager::sortEntitiesForRendering() {
 	entitiesRenderingList_ = m_entities;
@@ -92,4 +105,16 @@ void EntityManager::sortEntitiesForRendering() {
 		std::cout << "Entity Name: " << a->getComponent<CName>()->name << ", Layer: " << a->getComponent<CInformation>()->layer << "  ";
 	}
 	std::cout << std::endl; */
+}
+
+
+void EntityManager::UpdateUIRenderingList() {
+	EntityVec newList;
+	for (auto& entity : m_entities) {
+		if (entity->hasComponent<CHealth>() || entity->hasComponent<CText>()) {
+			newList.push_back(entity);
+		}
+	}
+
+	entitiesUIList_ = newList;
 }

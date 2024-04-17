@@ -12,5 +12,6 @@ public:
 	DECLARE_COMPONENT_NAME("Information");
 	int layer = 1;
 	std::string tag = "Default";
+	bool selectable = true;
 	CInformation() {}
 };

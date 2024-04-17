@@ -40,8 +40,7 @@ add_library(
     ${LUA_DIR}/lundump.c
     ${LUA_DIR}/lutf8lib.c
     ${LUA_DIR}/lvm.c
-    ${LUA_DIR}/lzio.c
-
+    ${LUA_DIR}/lzio.c 
 )
 
 include(FetchContent)
@@ -53,7 +52,6 @@ FetchContent_Declare(luajit
 )
 FetchContent_MakeAvailable(luajit)
 ]]
-
 
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
@@ -113,7 +111,14 @@ add_executable(
     "src/components/includes.h" 
     "src/components/CRigidBody.h" 
     "src/lua_interpreter/LuaState.cpp"
-    "src/components/CInformation.h")
+    "src/components/CInformation.h" 
+    "src/components/CHealth.h" 
+    "src/components/CHealth.cpp" 
+    "src/components/CText.h" 
+    "src/components/CText.cpp"
+    "src/components/CTouchTrigger.h"
+    "src/components/CScript.h"
+    )
 
 target_link_libraries(GatorEngine
     sfml-graphics
