@@ -2,13 +2,34 @@
 #include "SceneLayoutWindow.h"
 #include <imgui_internal.h>
 
-static const short kSelectionBoxBorder = 5; // Border thickness around selected entities
+static constexpr short kSelectionBoxBorder = 5; // Border thickness around selected entities
+static constexpr float kResizeDampen = 0.03f;
 
 void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const sf::FloatRect& dimensions, bool isActive) {
 	ImGui::SetCursorPos(ImVec2(dimensions.top, dimensions.left));
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, isActive ? kSelectionBoxBorder : 0); // Show border only if active
 	ImGui::Button(("##DraggableBox" + std::to_string(entity->id())).c_str(), ImVec2(dimensions.width, dimensions.height));
 	ImGui::PopStyleVar();
+}
+
+void DrawGridLines() {
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	ImU32 color = IM_COL32(255, 255, 255, 20); // Add some transparency
+	for (float x = Editor::grid_size_ / 2; x < windowSize.x; x += Editor::grid_size_) {
+		drawList->AddLine(ImVec2(windowPos.x + x, windowPos.y), ImVec2(windowPos.x + x, windowPos.y + windowSize.y), color);
+	}
+	for (float y = Editor::grid_size_ / 2; y < windowSize.y; y += Editor::grid_size_) {
+		drawList->AddLine(ImVec2(windowPos.x, windowPos.y + y), ImVec2(windowPos.x + windowSize.x, windowPos.y + y), color);
+	}
+}
+
+// Calculate snap position based on the grid
+Vec2 SnapToGrid(const Vec2& position) {
+	float x = round(position.x / Editor::grid_size_) * Editor::grid_size_;
+	float y = round(position.y / Editor::grid_size_) * Editor::grid_size_;
+	return Vec2(x, y);
 }
 
 void HandleSelectInteraction(const std::shared_ptr<Entity>& entity) {
@@ -21,8 +42,15 @@ void HandleMoveInteraction(const std::shared_ptr<Entity>& entity) {
 	auto& transform = *(entity->getComponent<CTransform>());
 
 	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-		transform.position.x += ImGui::GetIO().MouseDelta.x;
-		transform.position.y += ImGui::GetIO().MouseDelta.y;
+		// Get the mouse position relative to the current window to match CTransform coordinates
+		ImVec2 globalMousePos = ImGui::GetIO().MousePos;
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		Vec2 localMousePos;
+		localMousePos.x = globalMousePos.x - windowPos.x;
+		localMousePos.y = globalMousePos.y - windowPos.y;
+
+		// Move the entity to the snap position
+		transform.position = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
 	}
 }
 
@@ -53,7 +81,6 @@ void DrawResizeHandle(const ImVec2& center, float radius, bool xAxis) {
 }
 
 void HandleResizeInteraction(const std::shared_ptr<Entity>& entity, bool onX) {
-	static float kResizeDampen = 0.03f;
 	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 		auto transform = entity->getComponent<CTransform>();
 		ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
@@ -89,11 +116,6 @@ void SceneLayoutWindow::PreDraw() {
 }
 
 void SceneLayoutWindow::DrawFrames() {
-	// Prevent drawing buttons when not in moving or selecting state
-	if (Editor::state != Editor::State::Selecting &&
-		Editor::state != Editor::State::Moving &&
-		Editor::state != Editor::State::Resizing) return;
-
 	// If resizing, draw resize handles over active entity
 	if (Editor::active_entity_ && Editor::state == Editor::State::Resizing) {
 		auto transform = Editor::active_entity_->getComponent<CTransform>();
@@ -136,20 +158,30 @@ void SceneLayoutWindow::DrawFrames() {
 	}
 
 	// If selecting, moving, or resizing, draw a selection box over each entity
-	auto entityList = EntityManager::GetInstance().getEntitiesRenderingList();
-	for (const auto& entity : entityList) {
-		// Skip unselectable entities
-		if (entity->hasComponent<CInformation>() && !entity->getComponent<CInformation>()->selectable) continue;
+	if (Editor::state == Editor::State::Selecting ||
+		Editor::state == Editor::State::Moving ||
+		Editor::state == Editor::State::Resizing) {
 
-		// Skip entities without a transform component
-		if (!entity->hasComponent<CTransform>()) continue;
+		auto entityList = EntityManager::GetInstance().getEntitiesRenderingList();
+		for (const auto& entity : entityList) {
+			// Skip unselectable entities
+			if (entity->hasComponent<CInformation>() && !entity->getComponent<CInformation>()->selectable) continue;
 
-		static constexpr float margin = kSelectionBoxBorder * 3 / 2;
-		DrawSelectionBox(entity, entity->GetRect(margin), entity == Editor::active_entity_);
-		HandleSelectInteraction(entity);
-		if (Editor::state == Editor::State::Moving) { // If moving, also handle moving interaction
-			HandleMoveInteraction(entity);
+			// Skip entities without a transform component
+			if (!entity->hasComponent<CTransform>()) continue;
+
+			static constexpr float margin = kSelectionBoxBorder * 3 / 2;
+			DrawSelectionBox(entity, entity->GetRect(margin), entity == Editor::active_entity_);
+			HandleSelectInteraction(entity);
+			if (Editor::state == Editor::State::Moving) { // If moving, also handle moving interaction
+				HandleMoveInteraction(entity);
+			}
 		}
+	}
+
+	// If showing grid lines, draw them
+	if (Editor::show_grid_) {
+		DrawGridLines();
 	}
 }
 
