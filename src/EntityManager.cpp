@@ -100,7 +100,7 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() 
 }
 
 std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
-	return entitiesUIList_;
+	return entities_UI_list_;
 }
 
 //Sorts entities based off layer and order in the explorer window
@@ -127,5 +127,5 @@ void EntityManager::UpdateUIRenderingList() {
 		}
 	}
 
-	entitiesUIList_ = newList;
+	entities_UI_list_ = newList;
 }

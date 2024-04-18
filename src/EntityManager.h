@@ -65,7 +65,7 @@ private:
 	EntityVec entities_rendering_list_;
 
 	// Vector that stores entities with UI or Health Components
-	EntityVec entitiesUIList_;
+	EntityVec entities_UI_list_;
 };
 
 #endif // ENTITYMANAGER_H
