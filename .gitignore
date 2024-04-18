@@ -27,3 +27,6 @@ extern/SFML/src/SFML/Graphics/cmake_install.cmake
 extern/SFML/src/SFML/Network/cmake_install.cmake
 extern/SFML/src/SFML/System/cmake_install.cmake
 extern/SFML/src/SFML/Window/cmake_install.cmake
+
+# Other Files
+last-scene.json
