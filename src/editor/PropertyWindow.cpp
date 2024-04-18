@@ -216,30 +216,30 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& tou
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
 {
-    DrawProperty("Health Total", health->healthTotal_);
-    DrawProperty("Current Health", health->currentHealth_);
+    DrawProperty("Health Total", health->health_total);
+    DrawProperty("Current Health", health->current_health);
     
-    DrawProperty("Draw Health Bar", health->drawHealth_);
+    DrawProperty("Draw Health Bar", health->draw_health);
 
-    if (health->drawHealth_) 
+    if (health->draw_health) 
     {   // To make the property window less clunky
-        DrawProperty("Follow Entity", health->followEntity); 
+        DrawProperty("Follow Entity", health->follow_entity); 
 
-        if (health->followEntity) 
+        if (health->follow_entity) 
         {
-            DrawProperty("Bar Offset", health->healthBarOffset_);
+            DrawProperty("Bar Offset", health->health_bar_offset);
         }
         else {
-            DrawProperty("Bar Position", health->healthBarPosition_);
+            DrawProperty("Bar Position", health->health_bar_position);
         }
 
-        DrawProperty("Bar Scale", health->healthBarScale_);
+        DrawProperty("Bar Scale", health->health_bar_scale);
     }
 
-    DrawProperty("Respawn Entity", health->respawnCharacter_);
+    DrawProperty("Respawn Entity", health->respawn_character);
 
-    if (health->respawnCharacter_) {
-        DrawProperty("Respawn Position", health->respawnPosition_);
+    if (health->respawn_character) {
+        DrawProperty("Respawn Position", health->respawn_position);
     }
    
 }
@@ -247,10 +247,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text) 
 {
     DrawProperty("Text Font", text);
-    DrawProperty("Text Style", text->style_);
-    DrawProperty("Message", text->message_);
-    DrawProperty("Character Size", text->characterSize_);
-    DrawProperty("Text Color", text->textColor_);
+    DrawProperty("Text Style", text->style);
+    DrawProperty("Message", text->message);
+    DrawProperty("Character Size", text->character_size);
+    DrawProperty("Text Color", text->text_color);
 
 }
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CCharacter> character)
@@ -360,7 +360,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val)
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
-    const char* preview_value = val->name_.c_str();
+    const char* preview_value = val->name.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Fonts", preview_value)) {
@@ -368,8 +368,8 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(fontNameList[i], is_selected)) {
                 selection = i;
-                val->font_ = assetManager.GetFont(fontNameList[selection]);
-                val->name_ = fontNameList[selection];
+                val->font = assetManager.GetFont(fontNameList[selection]);
+                val->name = fontNameList[selection];
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -619,15 +619,15 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
     float centerPos = (contentWidth - buttonWidth) * 0.5f;
     ImGui::SetCursorPosX(centerPos);
 
-    const char* buttonLabel = val->playAnimation ? "Stop Test Animation" : "Play Test Animation";
+    const char* buttonLabel = val->play_animation ? "Stop Test Animation" : "Play Test Animation";
 
     if (ImGui::Button(buttonLabel)) {
-        val->playAnimation = !val->playAnimation;
+        val->play_animation = !val->play_animation;
     }
 
     ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
 
-    ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
+    ImGui::BeginTable("EmptyTemp", 2, table_flags_); // Don't want to disrupt the draw component function 
 }
 
 void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
@@ -640,7 +640,7 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
 
     // When pressed, add the input to its map
     if (ImGui::Button("Create")) {
-        touchtrigger->tagMap.emplace(tag, Action::NoAction);
+        touchtrigger->tag_map.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }

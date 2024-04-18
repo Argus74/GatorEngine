@@ -70,7 +70,7 @@ void ExplorerWindow::DrawFrames() {
 			}
 
 			// Draw the entity's tag as a selectable
-			const bool isSelected = Editor::active_entity_ == entity && Editor::state != Editor::State::Testing;
+			const bool isSelected = Editor::kActiveEntity == entity && Editor::kState != Editor::State::Testing;
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
 			if (ImGui::Selectable(label.c_str(), isSelected) && Editor::kState != Editor::State::Testing) {
 				Editor::kActiveEntity = entity;
@@ -105,19 +105,19 @@ void ExplorerWindow::DrawFrames() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
 	if (ImGui::BeginPopupContextItem(kEntityContextMenuID)) {
 		// Determine if the entity is disabled
-		bool disabled = Editor::active_entity_->isDisabled();
+		bool disabled = Editor::kActiveEntity->isDisabled();
 		if (disabled) {
 			if (ImGui::Selectable(kEnableLabel)) {
-				Editor::active_entity_->setDisabled(false);
+				Editor::kActiveEntity->setDisabled(false);
 			}
 		}
 		else {
 			if (ImGui::Selectable(kDisableLabel)) {
-				Editor::active_entity_->setDisabled(true);
+				Editor::kActiveEntity->setDisabled(true);
 			}
 		}
 		if (ImGui::Selectable(kCloneLabel)) {
-			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
+			EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
 		}
 		if (ImGui::Selectable(kDeleteLabel)) {
 			EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);

@@ -4,6 +4,7 @@
 #include "AssetManager.h"
 #include "./editor/Editor.h"
 #include "util/Serializable.h"
+#include "lua_interpreter/LuaState.h"
 #include <memory>
 
 // typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
@@ -29,12 +30,14 @@ private:
 
 	void sUserInput();
 	void sTouchTrigger();
+	void sScripts();
 	void sMovement();
 	void sPhysics();
 	void sCollision();
 	void sBackground();
 	// void sAnimation();
 	void sRender();
+	void sUI();
 
 	// std::shared_ptr<Scene> current_scene_;
 	std::map<sf::Keyboard::Key, bool> key_map_;
@@ -54,7 +57,6 @@ public:
 	sf::Keyboard::Key last_key_pressed;
 	std::map <std::shared_ptr<Entity>, std::shared_ptr<LuaState>> lua_states;
 	sf::Clock* deltaClock;
-	// sf::Clock* delta_clock;
 	void addEntitiesForTest();
 	void changeScene(const std::string& path);
 	void saveScene(const std::string& path);

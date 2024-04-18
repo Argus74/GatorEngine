@@ -107,7 +107,7 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
 void EntityManager::sortEntitiesForRendering() {
 	entities_rendering_list_ = entities_;
 	//std::cout << "Sorted" << std::endl;
-	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+	std::stable_sort(entities_rendering_list_.begin(), entities_rendering_list_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
 		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
 		});
 

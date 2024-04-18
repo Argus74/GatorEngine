@@ -4,37 +4,37 @@
 
 CHealth::CHealth() {
 	auto& assetManager = AssetManager::GetInstance();
-	frontHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
-	backHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
-	originalTextureBounds_ = frontHealthBar_.getTextureRect();
+	front_health_bar.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
+	back_health_bar.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
+	original_texture_bounds = front_health_bar.getTextureRect();
 }
 
 CHealth::CHealth(float healthTotal, float currentHealth) {
 	auto& assetManager = AssetManager::GetInstance();
-	frontHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
-	backHealthBar_.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
-	originalTextureBounds_ = frontHealthBar_.getTextureRect();
-	healthTotal_ = healthTotal;
-	currentHealth_ = currentHealth;
+	front_health_bar.setTexture(assetManager.GetTexturePrivate("HealthBarFull")); //For now hard code the assets used for health bar
+	back_health_bar.setTexture(assetManager.GetTexturePrivate("HealthBarEmpty"));
+	original_texture_bounds = front_health_bar.getTextureRect();
+	health_total = healthTotal;
+	current_health = currentHealth;
 }
 
 void CHealth::Update() { 
-	float percentage = currentHealth_ / healthTotal_;
+	float percentage = current_health / health_total;
 
 	// Calculate the visible width based on the percentage
-	int visibleWidth = static_cast<int>(originalTextureBounds_.width * percentage);
+	int visibleWidth = static_cast<int>(original_texture_bounds.width * percentage);
 
 	// Set the texture rectangle of the sprite to only show a portion
-	frontHealthBar_.setTextureRect(sf::IntRect(originalTextureBounds_.left, originalTextureBounds_.top, visibleWidth, originalTextureBounds_.height));
+	front_health_bar.setTextureRect(sf::IntRect(original_texture_bounds.left, original_texture_bounds.top, visibleWidth, original_texture_bounds.height));
 
 	sf::Color color = AssetManager::LerpColor(sf::Color::Red, sf::Color::Green, percentage);
-	frontHealthBar_.setColor(color);
+	front_health_bar.setColor(color);
 
 }
 
 bool CHealth::UpdateHealth(float dmg) { // Returns True if entity should be dead, returns false if not
-	currentHealth_ += dmg;
-	if (currentHealth_ <= 0)
+	current_health += dmg;
+	if (current_health <= 0)
 		return true;
 	else
 		return false;

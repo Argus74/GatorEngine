@@ -127,7 +127,7 @@ public:
 	template <typename T, typename... TArgs>
 	std::shared_ptr<T> addComponent(TArgs&&... mArgs) { // .. TArgs allows for any amount of components to be in the parameter
 		auto component = std::make_shared<T>(std::forward<TArgs>(mArgs)...);
-		std::get<std::shared_ptr<T>>(m_components) = component;
+		std::get<std::shared_ptr<T>>(components) = component;
 		component->has = true;
 		return component;
 	}
@@ -341,6 +341,34 @@ public:
 			if (info != nullptr) {
 				addComponent(info);
 				getComponent<CInformation>()->deserialize(it->value);
+				continue;
+			}
+
+			auto script = createComponentByName<CScript>(it->name.GetString());
+			if (script != nullptr) {
+				addComponent(script);
+				getComponent<CScript>()->deserialize(it->value);
+				continue;
+			}
+
+			auto character = createComponentByName<CCharacter>(it->name.GetString());
+			if (character != nullptr) {
+				addComponent(character);
+				getComponent<CCharacter>()->deserialize(it->value);
+				continue;
+			}
+
+			auto text = createComponentByName<CText>(it->name.GetString());
+			if (text != nullptr) {
+				addComponent(text);
+				getComponent<CText>()->deserialize(it->value);
+				continue;
+			}
+
+			auto health = createComponentByName<CHealth>(it->name.GetString());
+			if (health != nullptr) {
+				addComponent(health);
+				getComponent<CHealth>()->deserialize(it->value);
 			}
         }	
 	}

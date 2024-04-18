@@ -78,15 +78,15 @@ LuaState::LuaState(std::string lua_state_file, std::shared_ptr<Entity> attached_
 	cCharacter["JumpForce"] = &CCharacter::jump_force;
 
 	sol::usertype<CHealth> cHealth = lua_.new_usertype<CHealth>("CHealth");
-	cHealth["CurrentHealth"] = &CHealth::currentHealth_;
-	cHealth["HealthTotal"] = &CHealth::healthTotal_;
-	cHealth["DrawHealth"] = &CHealth::drawHealth_;
-	cHealth["FollowEntity"] = &CHealth::followEntity;
-	cHealth["RespawnCharacter"] = &CHealth::respawnCharacter_;
-	cHealth["RespawnPosition"] = &CHealth::respawnPosition_;
+	cHealth["CurrentHealth"] = &CHealth::current_health;
+	cHealth["HealthTotal"] = &CHealth::health_total;
+	cHealth["DrawHealth"] = &CHealth::draw_health;
+	cHealth["FollowEntity"] = &CHealth::follow_entity;
+	cHealth["RespawnCharacter"] = &CHealth::respawn_character;
+	cHealth["RespawnPosition"] = &CHealth::respawn_position;
 
 	sol::usertype<CText> cText = lua_.new_usertype<CText>("CText");
-	cText["Text"] = &CText::text_;
+	cText["Text"] = &CText::text;
 
 
 	sol::usertype<Entity> entity = lua_.new_usertype<Entity>("Entity");

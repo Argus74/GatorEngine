@@ -108,7 +108,7 @@ void TabBarWindow::DrawFrames()
 
                 // Background button
                 auto backgroundButton = [&]() {
-                    auto& entity = EntityManager::GetInstance().addEntity("Background");
+                    auto entity = EntityManager::GetInstance().addEntity("Background");
                     entity->addComponent<CBackgroundColor>();   
                     entity->addComponent<CSprite>("DefaultBackground");
                     entity->getComponent<CName>()->name = "Background";

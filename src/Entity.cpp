@@ -91,12 +91,12 @@ sf::FloatRect& Entity::GetRect(float margin) {
 
 	// Set selection box size, depending on the entity's current sprite
 	if (hasComponent<CSprite>()) {
-		auto& sprite = getComponent<CSprite>()->sprite_;
+		auto& sprite = getComponent<CSprite>()->sprite;
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;
 	}
 	else if (hasComponent<CAnimation>()) {
-		auto& sprite = getComponent<CAnimation>()->animation_.sprite_;
+		auto& sprite = getComponent<CAnimation>()->animation.sprite;
 		sprite.setScale(transform.scale.x, transform.scale.y); // Hacky fix to get sprite with correct scale
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;

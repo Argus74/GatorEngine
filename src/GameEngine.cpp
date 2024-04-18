@@ -49,7 +49,7 @@ AssetManager& GameEngine::assets()
 void GameEngine::init()
 {
 	//Intializing all png files as textures in Start Assets folder
-	AssetManager::GetInstance().IntializeTextureAssets("assets/StartAssets");
+	AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
 	AssetManager::GetInstance().AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
 	AssetManager::GetInstance().AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	Animation ani = Animation("DefaultAnimation", AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
@@ -112,6 +112,7 @@ void GameEngine::update()
 
 	if (Editor::kState == Editor::State::Testing) {
 		sTouchTrigger();
+		sScripts();
 		sMovement();
 		sPhysics();
 		sCollision();
@@ -119,6 +120,7 @@ void GameEngine::update()
 
 	sBackground();
 	sRender();
+	sUI();
 	//sRenderColliders();
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
 
@@ -262,6 +264,41 @@ void GameEngine::sTouchTrigger()
 					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
 				}
 			}
+		}
+	}
+}
+
+void GameEngine::sScripts() 
+{
+	//First, check if there are any entities that have been given a script component. If so,
+	//add them to map of entities to lua states
+	for (auto entity : EntityManager::GetInstance().getEntities())
+	{
+		if (entity->hasComponent<CScript>() && !lua_states[entity])
+		{
+			//Verify that the script name that the user typed in the editor is valid
+			std::string script_name = entity->getComponent<CScript>()->script_name;
+			std::ifstream file(script_name);
+			if (!file.good())
+			{
+				std::cout << "Invalid script name: " << script_name << std::endl;
+				continue;
+			}
+			//Attach a script to the player instance
+			
+			std::shared_ptr<LuaState> new_lua_state = std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
+			lua_states[entity] = new_lua_state;
+			entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+		}
+	}
+
+	//For each lua state, update the script
+	for (auto node : lua_states)
+	{
+		//For each lua state, update the script
+		if (node.second)
+		{
+			node.second->Update();
 		}
 	}
 }
@@ -432,6 +469,85 @@ void GameEngine::sRender()
 			}
 		}
 	}
+}
+
+void GameEngine::sUI()
+{
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList(); // We only iterate through the UI rendering list 
+
+	for (auto& entity : entityList) {
+
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->draw_health && !entity->isDisabled()) 
+		{ // Health Bar 
+			auto healthComponent = entity->getComponent<CHealth>();
+			
+			sf::Sprite backHealth(healthComponent->back_health_bar);
+			sf::Sprite frontHealth(healthComponent->front_health_bar);
+
+			//Making the sprite for the front Health bar
+			healthComponent->Update();
+
+			// Set the origin of the sprite to its center
+			sf::FloatRect bounds = backHealth.getLocalBounds();
+			backHealth.setOrigin(bounds.width / 2, bounds.height / 2);
+			sf::FloatRect bounds2 = frontHealth.getLocalBounds();
+			//Hard coded for now, the best way to allow the user to customize health bars would be a different approach
+			frontHealth.setOrigin(bounds.width / 2 - 7, bounds2.height / 2);
+
+			// Set the position of the sprite to the center position
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			Vec2 scale = healthComponent->health_bar_scale;
+
+			if (healthComponent->follow_entity) {
+				// The position is above
+				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->health_bar_offset;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			else {
+				Vec2 position = healthComponent->health_bar_position;
+				backHealth.setPosition(position.x, position.y + yOffset);
+				backHealth.setScale(scale.x, scale.y);
+
+				// Set the position of the sprite to the center position
+				frontHealth.setPosition(position.x, position.y + yOffset);
+				frontHealth.setScale(scale.x, scale.y);
+			}
+			
+			GameEngine::GetInstance().window().draw(backHealth);
+			GameEngine::GetInstance().window().draw(frontHealth);
+			
+		}
+
+		if (entity->hasComponent<CText>() && !entity->isDisabled()) 
+		{
+			auto transformComponent = entity->getComponent<CTransform>(); // Transform related 
+			Vec2 scale = transformComponent->scale;
+			Vec2 position = transformComponent->position;
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
+
+			textComponent->text.setFont(textComponent->font);
+			textComponent->text.setString(textComponent->message);
+			textComponent->text.setCharacterSize(textComponent->character_size);
+			textComponent->text.setFillColor(textComponent->text_color);
+			textComponent->text.setStyle(textComponent->style);
+			
+			sf::FloatRect bounds = textComponent->text.getLocalBounds();
+			textComponent->text.setScale(scale.x, scale.y);
+			textComponent->text.setPosition(position.x, position.y + yOffset);
+			textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			GameEngine::GetInstance().window().draw(textComponent->text);
+		}
+	} 
 }
 
 bool GameEngine::isRunning()

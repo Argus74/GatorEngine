@@ -1,6 +1,6 @@
 #include "FileBarWindow.h"
 #include "nfd.h"
-#include <filesystem>
+#include "../GameEngine.h"
 
 FileBarWindow::FileBarWindow() {
     name_ = "File Bar";
