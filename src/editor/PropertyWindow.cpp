@@ -191,8 +191,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animati
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody)
 {
     DrawProperty("Is Static", rigidbody->static_body);
-    //DrawProperty("Density", rigidbody->density);
-    //DrawProperty("Friction", rigidbody->friction);
+    DrawProperty("Density", rigidbody->density);
+    DrawProperty("Friction", rigidbody->friction);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CBackgroundColor> background)
