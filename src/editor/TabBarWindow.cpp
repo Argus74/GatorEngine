@@ -32,16 +32,16 @@ void DrawGridButtons(int index)
 {
     static const char* kShowGrid = "Show Grid";
     static const char* kSnapToGrid = "Snap to Grid";
-    static const char* kGridSize = "Grid Size";
+    static const char* kGridSize = "##GridSize";
     static short textHeight = ImGui::GetTextLineHeight();
     ImGui::SetCursorPosX(GetGridPositionX(3));
     ImGui::SetCursorPosY(TAB_ROW_YOFFSET(ImGui::GetMainViewport()));
-    ImGui::Checkbox("Show Grid", &Editor::show_grid_);
+    ImGui::Checkbox(kShowGrid, &Editor::show_grid_);
     ImGui::SetCursorPosX(GetGridPositionX(3));
-    ImGui::Checkbox("Snap to Grid", &Editor::snap_to_grid_);
+    ImGui::Checkbox(kSnapToGrid, &Editor::snap_to_grid_);
     ImGui::SetCursorPosX(GetGridPositionX(3));
-    ImGui::SetNextItemWidth(ImGui::CalcTextSize(kGridSize).x + 20);
-    ImGui::InputFloat("##GridSize", &Editor::grid_size_);
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize(kSnapToGrid).x);
+    ImGui::InputInt(kGridSize, &Editor::grid_size_);
     // Clamp grid size to a reasonable range
     if (Editor::grid_size_ < 1) {
         Editor::grid_size_ = 1;
