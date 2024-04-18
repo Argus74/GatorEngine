@@ -25,32 +25,3 @@ bool CSprite::loadFromAssetManager(const std::string& textureName) {
 	portion = sf::IntRect(0, 0, texture.getSize().x, texture.getSize().y);
 	return true;
 }
-
-void CSprite::setPosition(float x, float y) {
-	sprite.setPosition(x, y);
-}
-
-void CSprite::setPosition(Vec2 pos) {
-	float x = pos.x;
-	float y = pos.y;
-	std::cout << "Pos: " << x << ", " << y << std::endl;
-	sprite.setPosition(x, y);
-}
-
-
-void CSprite::setScale(float xScale, float yScale) {
-	sprite.setScale(xScale, yScale);
-}
-
-void CSprite::setScale(Vec2 scale) {
-	float x = scale.x;
-	float y = scale.y;
-	std::cout << "Scale: " << x << ", " << y << std::endl;
-	sprite.setScale(x, y);
-} 
-
-void CSprite::setTexturePortion(sf::Rect<int> portion) {
-	sprite.setTextureRect(portion);
-	sprite.setOrigin(portion.width / 2, portion.height / 2);
-	this->portion = portion;
-}

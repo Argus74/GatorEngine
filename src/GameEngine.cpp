@@ -101,7 +101,6 @@ void GameEngine::addEntitiesForTest()
 	ground->addComponent<CName>("Ground");
 	//ground->getComponent<CSprite>()->texture = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
-	ground->getComponent<CSprite>()->setTexturePortion(sf::IntRect(95, 0, 48, 48));
 	GatorPhysics::GetInstance().createBody(ground.get(), true);
 }
 
@@ -184,7 +183,7 @@ void GameEngine::sUserInput()
 			{
 				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
-				if (!entity->getComponent<CUserInput>())
+				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
 
 				auto findAndDispatch = [entity](auto &inputMap, const auto &eventButton)
@@ -306,7 +305,7 @@ void GameEngine::sScripts()
 void GameEngine::sMovement()
 {
 	for (auto entity : EntityManager::GetInstance().getEntities()) {
-		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>()) continue;
+		if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() || entity->isDisabled()) continue;
 		float speed = 5.0;
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
@@ -339,7 +338,7 @@ void GameEngine::sPhysics()
 	
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CRigidBody>())
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
 		{
 			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
 			std::map<Entity*, b2Body*>& entity_to_bodies_ = GatorPhysics::GetInstance().GetEntityToBodies();
@@ -354,7 +353,7 @@ void GameEngine::sPhysics()
 	// For each entity move them based on their velocity and physics components
 	for (auto entity : EntityManager::GetInstance().getEntities())
 	{
-		if (entity->hasComponent<CTransform>())
+		if (entity->hasComponent<CTransform>() && !entity->isDisabled())
 		{
 			auto transform = entity->getComponent<CTransform>();
 			// Update the position based on the velocity
@@ -403,7 +402,7 @@ void GameEngine::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entityList) {
-		if (entity->hasComponent<CBackgroundColor>()) {
+		if (entity->hasComponent<CBackgroundColor>() && !entity->isDisabled()) {
 			auto background = entity->getComponent<CBackgroundColor>();
 			window_.clear(background->color);
 			return;
@@ -422,7 +421,7 @@ void GameEngine::sRender()
 
 	for (auto &entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
+		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -445,7 +444,7 @@ void GameEngine::sRender()
 				window_.draw(spriteComponent->sprite);
 		}
 
-		if (entity->hasComponent<CAnimation>())
+		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
