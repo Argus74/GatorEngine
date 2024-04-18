@@ -7,17 +7,50 @@
 #include "../AssetManager.h"
 #include "../EntityManager.h"
 
-
 float GetGridPositionX(int index)
 {
     static short tileSize = ImGui::GetMainViewport()->Size.y * 0.075;
     return ImGui::GetMainViewport()->Size.x / 20 + index * (tileSize + 40);
 }
 
-float GetGridPositionY(float width)
+// Draw label on top of group of buttons, beginning at startIndex through endIndex
+void DrawSectionLabel(const char* label, int startIndex, int endIndex)
 {
-    return (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - width / 2;
+    const ImGuiViewport* mv = ImGui::GetMainViewport();
+    short startX = GetGridPositionX(startIndex);
+    short endX = GetGridPositionX(endIndex + 1);
+    short separatorWidth = endX - startX;
+    short y = (TAB_ROW_YOFFSET(mv)) / 2 + 5; // Hardcoded 5px offset downwards
+
+    ImGui::SetCursorPos(ImVec2(startX, y));
+    ImGui::PushClipRect(ImVec2(startX, y), ImVec2(endX, y + 50), true);
+    ImGui::SeparatorText(label);
+    ImGui::PopClipRect();
 }
+
+void DrawGridButtons(int index)
+{
+    static const char* kShowGrid = "Show Grid";
+    static const char* kSnapToGrid = "Snap to Grid";
+    static const char* kGridSize = "Grid Size";
+    static short textHeight = ImGui::GetTextLineHeight();
+    ImGui::SetCursorPosX(GetGridPositionX(3));
+    ImGui::SetCursorPosY(TAB_ROW_YOFFSET(ImGui::GetMainViewport()));
+    ImGui::Checkbox("Show Grid", &Editor::show_grid_);
+    ImGui::SetCursorPosX(GetGridPositionX(3));
+    ImGui::Checkbox("Snap to Grid", &Editor::snap_to_grid_);
+    ImGui::SetCursorPosX(GetGridPositionX(3));
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize(kGridSize).x + 20);
+    ImGui::InputFloat("##GridSize", &Editor::grid_size_);
+    // Clamp grid size to a reasonable range
+    if (Editor::grid_size_ < 1) {
+        Editor::grid_size_ = 1;
+    }
+    else if (Editor::grid_size_ > 500) {
+        Editor::grid_size_ = 500;
+    }
+}
+
 
 TabBarWindow::TabBarWindow()
 {
@@ -36,25 +69,12 @@ void TabBarWindow::DrawFrames()
 {
     if (ImGui::BeginTabBar("MainTabs"))
     {
-        // Math to resize icons_ and maintain their relative position
-        float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
-        float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
-
         if (Editor::state != Editor::State::Testing) // only available for use when user isn't testing the game
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
-
-                // Hardcode text above buttons
-
-                short x = GetGridPositionX(1);
-                short y = GetGridPositionY(imageSize) - ;
-
-                // Text
-                ImGui::PushItemWidth(ImGui::GetMainViewport()->Size.x / 5);
-                ImGui::SetCursorPos(ImVec2(GetGridPositionX(1), (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2));
-                ImGui::Text("Tools");
-                ImGui::PopItemWidth();
+                // === Tools ==================
+                DrawSectionLabel("Tools", 0, 3);
 
                 // Select button
                 auto selectButton = [&]() {
@@ -83,30 +103,13 @@ void TabBarWindow::DrawFrames()
                 DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 
                     2, scaleButton, (Editor::state == Editor::State::Resizing));
 
-                static const char* kShowGrid = "Show Grid";
-                static const char* kSnapToGrid = "Snap to Grid";
-                static const char* kGridSize = "Grid Size";
-                static short textHeight = ImGui::GetTextLineHeight();
-                ImGui::SetCursorPosX(GetGridPositionX(3));
-                ImGui::SetCursorPosY(GetGridPositionY(imageSize));
-                ImGui::Checkbox("Show Grid", &Editor::show_grid_);
-                ImGui::SetCursorPosX(GetGridPositionX(3));
-                ImGui::Checkbox("Snap to Grid", &Editor::snap_to_grid_);
-                ImGui::SetCursorPosX(GetGridPositionX(3));
-                ImGui::SetNextItemWidth(ImGui::CalcTextSize(kGridSize).x + 20);
-                ImGui::InputFloat("##GridSize", &Editor::grid_size_);
-                // Clamp grid size to a reasonable range
-                if (Editor::grid_size_ < 1) {
-                    Editor::grid_size_ = 1;
-                } else if (Editor::grid_size_ > 500) {
-					Editor::grid_size_ = 500;
-				}
-
                 //// TODO: Rotate button
-                //auto rotateButton = [&]() {
-                //    /*Editor::state = Editor::State::;*/
-                //};
-                //DrawButton("Rotate", icons_[0], 3, rotateButton);
+
+                // Grid options
+                DrawGridButtons(3);
+
+                /// === Insert =================
+                DrawSectionLabel("Insert", 6, 9);
 
                 // Sprite button
                 spriteNameList_ = AssetManager::GetInstance().GenerateAssetNameList("textures");
@@ -122,7 +125,7 @@ void TabBarWindow::DrawFrames()
 
                 };
                 DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
-                    5, spriteButton);
+                    6, spriteButton);
 
                 // Game Object button
                 auto gameObjectButton = [&]() {
@@ -133,7 +136,8 @@ void TabBarWindow::DrawFrames()
                     EntityManager::GetInstance().sortEntitiesForRendering();
                     EntityManager::GetInstance().UpdateUIRenderingList();
 				};
-                DrawButton("Game Object", AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6, gameObjectButton);
+                DrawButton("Game Object", AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 
+                    7, gameObjectButton);
 
                 // Background button
                 auto backgroundButton = [&]() {
@@ -164,7 +168,8 @@ void TabBarWindow::DrawFrames()
 
                     entity->getComponent<CTransform>()->scale = scl;
                 };
-                DrawButton("Background", AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 7, backgroundButton);
+                DrawButton("Background", AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 
+                    8, backgroundButton);
 
                 // Player button
                 auto playerButton = [&]() {
@@ -183,7 +188,8 @@ void TabBarWindow::DrawFrames()
                     };
                     GatorPhysics::GetInstance().createBody(m_player.get(), false);
                 };
-                DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 8, playerButton);
+                DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 
+                    9, playerButton);
 
                 ImGui::EndTabItem();
             }
@@ -222,7 +228,7 @@ void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index,
     // Math to resize icons_ and maintain their relative position
     auto mv = ImGui::GetMainViewport();
     static short imageSize = TAB_BUTTON_SIZE(mv);
-    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), GetGridPositionY(imageSize));
+    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), TAB_ROW_YOFFSET(mv));
 
     // Use bold colors for an active button
     if (highlighted) {
