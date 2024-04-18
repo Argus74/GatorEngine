@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.h"
+#include "Scene_Old.h"
 #include "EntityManager.h"
 
 #include <map>
@@ -9,14 +9,15 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-class Scene_Play : public Scene
+class Scene_Play : public Scene_Old
 {
 
 protected:
 
-	std::shared_ptr<Entity>	m_player;
-	std::string	m_levelPath;
-	Vec2 m_mousePos;
+	std::shared_ptr<Entity>	player_;
+	std::string	level_path_;
+	Vec2 mouse_pos_;
+
 public:
 	Scene_Play();
 	Scene_Play(const std::string& filename);

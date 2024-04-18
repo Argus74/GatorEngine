@@ -39,9 +39,11 @@ void GatorPhysics::update()
 	{
 		//Update the physics bodies to match the static/dynamic status of the entities
 		Entity* entity = node.first;
+
 		b2Body* body = entity->getComponent<CRigidBody>()->body;
+
 		//If it is not static, then we need to update the physics body
-		if (!entity->getComponent<CRigidBody>()->staticBody)
+		if (!entity->getComponent<CRigidBody>()->static_body)
 		{
 			body->SetType(b2_dynamicBody);
 		}
@@ -63,13 +65,13 @@ void GatorPhysics::update()
 		float newHeight;
 		if (entity->hasComponent<CAnimation>())
 		{
-			newWidth = entity->getComponent<CAnimation>()->animation_.sprite_.getLocalBounds().getSize().x / 2 * xScale / scale_;
-			newHeight = entity->getComponent<CAnimation>()->animation_.sprite_.getLocalBounds().getSize().y / 2 * yScale / scale_;
+			newWidth = entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().x / 2 * xScale / scale_;
+			newHeight = entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().y / 2 * yScale / scale_;
 		}
 		else if (entity->hasComponent<CSprite>())
 		{
-			newWidth = entity->getComponent<CSprite>()->sprite_.getLocalBounds().getSize().x / 2 * xScale / scale_;
-			newHeight = entity->getComponent<CSprite>()->sprite_.getLocalBounds().getSize().y / 2 * yScale / scale_;
+			newWidth = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().x / 2 * xScale / scale_;
+			newHeight = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().y / 2 * yScale / scale_;
 		}
 		shape->SetAsBox(newWidth, newHeight);
 
@@ -84,7 +86,7 @@ void GatorPhysics::update()
 
 
 	//Step the physics world
-	world_.Step(timeStep, velocityIterations, positionIterations);
+	world_.Step(time_step_, velocity_iterations_, position_iterations_);
 
 	for (auto node : entity_to_bodies_) {
 		//Update the positions/rotation of the entities to match the physics bodies
@@ -116,13 +118,13 @@ void GatorPhysics::setGravity(Vec2 gravity)
 	gravity_ = b2Vec2(gravity.x, gravity.y);
 }
 
-void GatorPhysics::createBody(Entity* entity, bool is_static)
+void GatorPhysics::createBody(Entity* entity, bool isStatic)
 {
 	b2BodyDef newBodyDef;
 	b2PolygonShape newBox;
-	bool has_sprite = entity->hasComponent<CSprite>();
-	bool has_animations = entity->hasComponent<CAnimation>();
-	sf::Sprite& sprite = has_sprite ? entity->getComponent<CSprite>()->sprite_ : entity->getComponent<CAnimation>()->animation_.sprite_;
+	bool hasSprite = entity->hasComponent<CSprite>();
+	bool hasAnimations = entity->hasComponent<CAnimation>();
+	sf::Sprite& sprite = hasSprite ? entity->getComponent<CSprite>()->sprite : entity->getComponent<CAnimation>()->animation.sprite;
 	float boxWidth = sprite.getLocalBounds().getSize().x * (1 / scale_) / 2;
 	float boxHeight = sprite.getLocalBounds().getSize().y * (1 / scale_) / 2;
 	newBox.SetAsBox(boxWidth, boxHeight);
@@ -133,8 +135,7 @@ void GatorPhysics::createBody(Entity* entity, bool is_static)
 	fixtureDef.shape = &newBox;
 	fixtureDef.density = 1.0f;
 	fixtureDef.friction = 0.3f;
-
-	if (is_static)
+	if (isStatic)
 	{
 		newBodyDef.type = b2_staticBody;
 	}
@@ -144,9 +145,9 @@ void GatorPhysics::createBody(Entity* entity, bool is_static)
 	}
 
 	//Create a fixture to represent the collider that will sense collisions
-	b2FixtureDef sensor_fixture_def;
-	sensor_fixture_def.shape = &newBox;
-	sensor_fixture_def.isSensor = true;
+	b2FixtureDef sensorFixtureDef;
+	sensorFixtureDef.shape = &newBox;
+	sensorFixtureDef.isSensor = true;
 
 	float worldY = GameEngine::GetInstance().window().getSize().y;
 
@@ -157,8 +158,8 @@ void GatorPhysics::createBody(Entity* entity, bool is_static)
 	b2Body* newBody = world_.CreateBody(&newBodyDef);
 	newBody->SetFixedRotation(true);
 	b2Fixture* newFixture = newBody->CreateFixture(&fixtureDef);
-	b2Fixture* sensor_fixture = newBody->CreateFixture(&sensor_fixture_def);
-	entity->addComponent<CRigidBody>(is_static, newBody, newFixture, sensor_fixture);
+	b2Fixture* sensorFixture = newBody->CreateFixture(&sensorFixtureDef);
+	entity->addComponent<CRigidBody>(isStatic, newBody, newFixture, sensorFixture);
 
 	//Add the entity to the user data of the body so we can access the entity from the body
 	entity_to_bodies_[entity] = newBody;
@@ -184,7 +185,7 @@ void GatorPhysics::BeginContact(b2Contact* contact)
 		if (normal.y < 0.5)
 		{
 
-			std::cout << entity->getComponent<CName>()->componentName << "Grounded" << std::endl;
+			std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
 			entity->getComponent<CCharacter>()->is_grounded = true;
 		}
 		else

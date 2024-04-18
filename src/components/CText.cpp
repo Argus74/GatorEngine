@@ -6,18 +6,18 @@ CText::CText() {
 	loadFromAssetManager();
 }
 
-CText::CText(const std::string& name) : name_(name) {
+CText::CText(const std::string& name) : name(name) {
 	loadFromAssetManager();
 }
 
 bool CText::loadFromAssetManager() {
 	auto& assetManager = AssetManager::GetInstance();
 	try {
-		font_ = assetManager.GetFont(name_);
+		font = assetManager.GetFont(name);
 		return true;
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Failed to load font: " << name_ << " with error: " << e.what() << std::endl;
+		std::cerr << "Failed to load font: " << name << " with error: " << e.what() << std::endl;
 		return false;
 	}
 }
@@ -25,11 +25,11 @@ bool CText::loadFromAssetManager() {
 bool CText::loadFromAssetManager(const std::string& textureName) {
 	auto& assetManager = AssetManager::GetInstance();
 	try {
-		font_ = assetManager.GetFont(name_);
+		font = assetManager.GetFont(name);
 		return true;
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Failed to load font: " << name_ << " with error: " << e.what() << std::endl;
+		std::cerr << "Failed to load font: " << name << " with error: " << e.what() << std::endl;
 		return false;
 	}
 }

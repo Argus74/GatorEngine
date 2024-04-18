@@ -3,7 +3,6 @@
 #include <string>   
 #include <sstream>  
 
-
 Action::Action() { }
 
 Action::Action(const std::string& name, const std::string& type)

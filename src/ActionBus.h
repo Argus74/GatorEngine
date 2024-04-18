@@ -71,7 +71,7 @@ class ActionBus {
 	 ActionBus() = default;
 
 	 // Map of entities and the actions they triggered
-	 std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entityActionsMap;
+	 std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entity_actions_map_;
 };
 
 #endif // ACTION_BUS_H

@@ -38,10 +38,10 @@ public:
 		Resizing,
 		Testing,
 		None
-	} state;
+	} kState;
 
 	// Active entity to modify.
-	static std::shared_ptr<Entity> active_entity_;
+	static std::shared_ptr<Entity> kActiveEntity;
 private:
 	// List of all windows in the Editor
 	std::vector<std::unique_ptr<UIWindow>> windows_;

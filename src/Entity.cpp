@@ -1,10 +1,10 @@
 #include "Entity.h"
 
-Entity::Entity(const std::string& tag, size_t id) : id_(id), tag_(tag), is_alive_(true) {
+Entity::Entity(const std::string& tag, size_t id) : id_(id), tag(tag), is_alive_(true) {
 	// Initialization of components, if required
 }
 
-Entity::Entity() : id_(0), tag_("Default"), is_alive_(true) {
+Entity::Entity() : id_(0), tag("Default"), is_alive_(true) {
 	// Default initialization
 }
 
@@ -32,7 +32,7 @@ Entity& Entity::operator=(Entity&& rhs) {
 
 void Entity::clone(const Entity& other) {
 	id_ = other.id_ + 1; // Increment the ID of the new entity
-	tag_ = other.tag_;
+	tag = other.tag;
 	is_alive_ = other.is_alive_;
 	disabled_ = other.disabled_;
 
@@ -91,12 +91,12 @@ sf::FloatRect& Entity::GetRect(float margin) {
 
 	// Set selection box size, depending on the entity's current sprite
 	if (hasComponent<CSprite>()) {
-		auto& sprite = getComponent<CSprite>()->sprite_;
+		auto& sprite = getComponent<CSprite>()->sprite;
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;
 	}
 	else if (hasComponent<CAnimation>()) {
-		auto& sprite = getComponent<CAnimation>()->animation_.sprite_;
+		auto& sprite = getComponent<CAnimation>()->animation.sprite;
 		sprite.setScale(transform.scale.x, transform.scale.y); // Hacky fix to get sprite with correct scale
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;

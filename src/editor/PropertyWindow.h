@@ -21,6 +21,10 @@ private:
 	template <typename T>
 	void DrawComponent(T& component);
 
+	// Draw a + button in the header of a User Input component
+	// TODO: Make waaaay more generic
+	void DrawUserInputAddButton(std::shared_ptr<CUserInput> userinput);
+
 	// Draw the properties of a component
 	void DrawComponentProperties(std::shared_ptr<CUserInput> userinput);
 	void DrawComponentProperties(std::shared_ptr<CTransform> transform);
@@ -72,10 +76,10 @@ private:
 	void DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger);
 	
     // ImGui customization options for tables (the rows under each component header)
-    ImGuiTableFlags table_flags;
+    ImGuiTableFlags table_flags_;
 
-	// ImGui customization options for tree nodes (the component header bars)
-	ImGuiTreeNodeFlags tree_node_flags;
+    // ImGui customization options for tree nodes (the component header bars)
+    ImGuiTreeNodeFlags tree_node_flags_;
 };
 
 // Used to map SFML key enums to strings for display in the property window

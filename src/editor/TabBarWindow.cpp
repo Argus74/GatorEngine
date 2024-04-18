@@ -36,7 +36,7 @@ void TabBarWindow::DrawFrames()
         float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
         float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
 
-        if (Editor::state != Editor::State::Testing) // only available for use when user isn't testing the game
+        if (Editor::kState != Editor::State::Testing) // only available for use when user isn't testing the game
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
@@ -48,34 +48,34 @@ void TabBarWindow::DrawFrames()
 
                 // Select button
                 auto selectButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Selecting) ? 
+                    Editor::kState = (Editor::kState == Editor::State::Selecting) ? 
                         Editor::State::None : 
                         Editor::State::Selecting;
 				};
                 DrawButton("Select", AssetManager::GetInstance().GetTexturePrivate("SelectIcon"), 
-                    0, selectButton, (Editor::state == Editor::State::Selecting));
+                    0, selectButton, (Editor::kState == Editor::State::Selecting));
 
                 // Move button
                 auto moveButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Moving) ?
+                    Editor::kState = (Editor::kState == Editor::State::Moving) ?
                         Editor::State::None :
                         Editor::State::Moving;
                 };
                 DrawButton("Move", AssetManager::GetInstance().GetTexturePrivate("MoveIcon"), 
-                    1, moveButton, (Editor::state == Editor::State::Moving));
+                    1, moveButton, (Editor::kState == Editor::State::Moving));
 
                 // Scale button
                 auto scaleButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Resizing) ?
+                    Editor::kState = (Editor::kState == Editor::State::Resizing) ?
                         Editor::State::None :
                         Editor::State::Resizing;
                 };
                 DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 
-                    2, scaleButton, (Editor::state == Editor::State::Resizing));
+                    2, scaleButton, (Editor::kState == Editor::State::Resizing));
 
                 //// TODO: Rotate button
                 //auto rotateButton = [&]() {
-                //    /*Editor::state = Editor::State::;*/
+                //    /*Editor::kState = Editor::State::;*/
                 //};
                 //DrawButton("Rotate", icons_[0], 3, rotateButton);
 
@@ -108,7 +108,7 @@ void TabBarWindow::DrawFrames()
 
                 // Background button
                 auto backgroundButton = [&]() {
-                    auto& entity = EntityManager::GetInstance().addEntity("Background");
+                    auto entity = EntityManager::GetInstance().addEntity("Background");
                     entity->addComponent<CBackgroundColor>();   
                     entity->addComponent<CSprite>("DefaultBackground");
                     entity->getComponent<CName>()->name = "Background";
@@ -126,8 +126,9 @@ void TabBarWindow::DrawFrames()
                     );
 
                     entity->getComponent<CTransform>()->position = pos;
+                    entity->getComponent<CTransform>()->resetPosition();
 
-                    auto sprite = entity->getComponent<CSprite>()->sprite_;
+                    auto sprite = entity->getComponent<CSprite>()->sprite;
                     const Vec2 scl = Vec2(
                         static_cast<float>(sceneWidth) / sprite.getLocalBounds().width,
                         static_cast<float>(sceneHeight) / sprite.getLocalBounds().height
@@ -144,9 +145,9 @@ void TabBarWindow::DrawFrames()
                     m_player->addComponent<CInformation>();
                     m_player->addComponent<CTransform>(Vec2(50, 50));
                     auto anim = m_player->addComponent<CAnimation>();
-                    anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
+                    anim->animation = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
                     auto input = m_player->addComponent<CUserInput>();
-                    input->keyMap = { 
+                    input->key_map = { 
                         {sf::Keyboard::Space, Action::Jump}, 
                         {sf::Keyboard::S, Action::MoveDown}, // TODO: replace this?
                         {sf::Keyboard::A, Action::MoveLeft},
@@ -165,15 +166,16 @@ void TabBarWindow::DrawFrames()
         {
             // Start Button
             static auto startButton = [&]() {
-                Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
+                Editor::kState = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
             };
             DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 
-                4, startButton, (Editor::state == Editor::State::Testing));
+                4, startButton, (Editor::kState == Editor::State::Testing));
 
             // Stop Button
             static auto stopButton = [&]() {
-                Editor::state = Editor::State::None; // Testing stopped: Reset state to none
+                Editor::kState = Editor::State::None; // Testing stopped: Reset kState to none
+                EntityManager::GetInstance().resetPositions();
                 // TODO: end game: unload content/reset entity pos?
             };
             DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 5, stopButton);

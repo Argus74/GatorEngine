@@ -14,15 +14,15 @@ PropertyWindow::PropertyWindow()
 {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
-    table_flags = 0;
-    table_flags |= ImGuiTableFlags_Borders;
-    table_flags &= ~ImGuiTableFlags_BordersOuterV;
-    table_flags &= ~ImGuiTableFlags_BordersOuterH;
-    table_flags |= ImGuiTableFlags_NoPadInnerX;
-    table_flags |= ImGuiTableFlags_NoPadOuterX;
+    table_flags_ = 0;
+    table_flags_ |= ImGuiTableFlags_Borders;
+    table_flags_ &= ~ImGuiTableFlags_BordersOuterV;
+    table_flags_ &= ~ImGuiTableFlags_BordersOuterH;
+    table_flags_ |= ImGuiTableFlags_NoPadInnerX;
+    table_flags_ |= ImGuiTableFlags_NoPadOuterX;
 
-    tree_node_flags = 0;
-    tree_node_flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    tree_node_flags_ = 0;
+    tree_node_flags_ |= ImGuiTreeNodeFlags_DefaultOpen;
 }
 
 void PropertyWindow::SetPosition()
@@ -45,28 +45,28 @@ void PropertyWindow::PreDraw()
 void PropertyWindow::DrawFrames()
 {
     // Draw blank window if no active entity
-    if (!Editor::active_entity_ || Editor::state == Editor::State::Testing)
+    if (!Editor::kActiveEntity || Editor::kState == Editor::State::Testing) 
     {
         name_ = " ";
         return;
     }
 
     // Name the window with entity's CName, if it exists
-    bool hasCName = Editor::active_entity_->hasComponent<CName>();
-    std::string nameTag = hasCName ? Editor::active_entity_->getComponent<CName>()->name : "NULL";
+    bool hasCName = Editor::kActiveEntity->hasComponent<CName>();
+    std::string nameTag = hasCName ? Editor::kActiveEntity->getComponent<CName>()->name : "NULL";
     name_ = "Properties - " + nameTag;
 
     // Draw a section for each component of the entity
-    Editor::active_entity_->forEachComponent([&](auto& component, int index)
+    Editor::kActiveEntity->forEachComponent([&](auto& component, int index) 
+    {
+        if (component && component->has) 
         {
-            if (component && component->has)
-            {
-                DrawComponent(component);
-            }
-        });
+            DrawComponent(component);
+        }
+    });
 
     // Draw a button for adding new components
-    DrawPopupButton("Add Component", Editor::active_entity_,
+    DrawPopupButton("Add Component", Editor::kActiveEntity,
         ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f));
 }
 
@@ -81,11 +81,11 @@ void PropertyWindow::DrawComponent(T& component)
     bool isOpen = true;
 
     // For the Information Component, Name Component, and Transform component we don't allow the user to remove the component 
-    if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>)
+    if constexpr (std::is_same_v<T, std::shared_ptr<CInformation>> || std::is_same_v<T, std::shared_ptr<CName>> || std::is_same_v<T, std::shared_ptr<CTransform>>) 
     {
-        if (ImGui::CollapsingHeader(component->componentName, tree_node_flags))
+        if (ImGui::CollapsingHeader(component->kComponentName, tree_node_flags_))
         {
-            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
                 DrawComponentProperties(component);
                 ImGui::EndTable();
@@ -94,7 +94,7 @@ void PropertyWindow::DrawComponent(T& component)
         }
     }
     else {
-        if (ImGui::CollapsingHeader(component->componentName, &isOpen, tree_node_flags))
+        if (ImGui::CollapsingHeader(component->kComponentName, &isOpen, tree_node_flags_))
         {
             // Hacky solution to draw a button within header that allows user to add a new binding
             if constexpr (std::is_same_v<T, std::shared_ptr<CUserInput>>)
@@ -126,7 +126,7 @@ void PropertyWindow::DrawComponent(T& component)
                 ImGui::PopStyleColor();
             }
 
-            if (ImGui::BeginTable(component->componentName, 2, table_flags))
+            if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
                 DrawComponentProperties(component);
                 ImGui::EndTable();
@@ -135,17 +135,17 @@ void PropertyWindow::DrawComponent(T& component)
 
         if (!isOpen)
         {
-            Editor::active_entity_->removeComponent(component);
+            Editor::kActiveEntity->removeComponent(component);
         }
     }
 
-
+    
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform)
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
-    DrawProperty("Position", transform->position);
+    DrawProperty("Origin", transform->origin);
     DrawProperty("Scale", transform->scale);
     DrawProperty("Velocity", transform->velocity);
     DrawProperty("Angle", transform->angle);
@@ -165,10 +165,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape)
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput)
 {
-    for (auto& entry : userinput->mouseMap) {
+    for (auto& entry : userinput->mouse_map) {
         DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);
     }
-    for (auto& entry : userinput->keyMap) {
+    for (auto& entry : userinput->key_map) {
         DrawProperty(kSFMLKeyNames[static_cast<int>(entry.first)], entry.second);
     }
 }
@@ -176,21 +176,21 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinp
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
 {
     DrawProperty("Sprite", sprite);
-    DrawProperty("Draw Sprite", sprite->drawSprite_);
+    DrawProperty("Draw Sprite", sprite->draw_sprite);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
 {
-    DrawProperty("Animation Name", animation);
-    DrawProperty("Animation Speed", animation->animationSpeed_);
+    DrawProperty("Animation Name", animation->name);
+    DrawProperty("Animation Speed", animation->animation_speed);
     DrawButton(animation);
     
-    //DrawProperty("Disappear", animation->disappear_); For now removing the ability to make the Animation to disappear after one run
+    //DrawProperty("Disappear", animation->disappear); For now removing the ability to make the Animation to disappear after one run For now removing the ability to make the Animation to disappear after one run
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody)
 {
-    DrawProperty("Is Static", rigidbody->staticBody);
+    DrawProperty("Is Static", rigidbody->static_body);
     //DrawProperty("Density", rigidbody->density);
     //DrawProperty("Friction", rigidbody->friction);
 }
@@ -209,37 +209,37 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
 {
-	for (auto& entry : touchtrigger->tagMap) {
+	for (auto& entry : touchtrigger->tag_map) {
 		DrawProperty(entry.first.c_str(), entry.second);
 	}
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
 {
-    DrawProperty("Health Total", health->healthTotal_);
-    DrawProperty("Current Health", health->currentHealth_);
+    DrawProperty("Health Total", health->health_total);
+    DrawProperty("Current Health", health->current_health);
     
-    DrawProperty("Draw Health Bar", health->drawHealth_);
+    DrawProperty("Draw Health Bar", health->draw_health);
 
-    if (health->drawHealth_) 
+    if (health->draw_health) 
     {   // To make the property window less clunky
-        DrawProperty("Follow Entity", health->followEntity); 
+        DrawProperty("Follow Entity", health->follow_entity); 
 
-        if (health->followEntity) 
+        if (health->follow_entity) 
         {
-            DrawProperty("Bar Offset", health->healthBarOffset_);
+            DrawProperty("Bar Offset", health->health_bar_offset);
         }
         else {
-            DrawProperty("Bar Position", health->healthBarPosition_);
+            DrawProperty("Bar Position", health->health_bar_position);
         }
 
-        DrawProperty("Bar Scale", health->healthBarScale_);
+        DrawProperty("Bar Scale", health->health_bar_scale);
     }
 
-    DrawProperty("Respawn Entity", health->respawnCharacter_);
+    DrawProperty("Respawn Entity", health->respawn_character);
 
-    if (health->respawnCharacter_) {
-        DrawProperty("Respawn Position", health->respawnPosition_);
+    if (health->respawn_character) {
+        DrawProperty("Respawn Position", health->respawn_position);
     }
    
 }
@@ -247,10 +247,10 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text) 
 {
     DrawProperty("Text Font", text);
-    DrawProperty("Text Style", text->style_);
-    DrawProperty("Message", text->message_);
-    DrawProperty("Character Size", text->characterSize_);
-    DrawProperty("Text Color", text->textColor_);
+    DrawProperty("Text Style", text->style);
+    DrawProperty("Message", text->message);
+    DrawProperty("Character Size", text->character_size);
+    DrawProperty("Text Color", text->text_color);
 
 }
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CCharacter> character)
@@ -360,7 +360,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val)
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
-    const char* preview_value = val->name_.c_str();
+    const char* preview_value = val->name.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Fonts", preview_value)) {
@@ -368,8 +368,8 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(fontNameList[i], is_selected)) {
                 selection = i;
-                val->font_ = assetManager.GetFont(fontNameList[selection]);
-                val->name_ = fontNameList[selection];
+                val->font = assetManager.GetFont(fontNameList[selection]);
+                val->name = fontNameList[selection];
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -413,7 +413,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
-    const char* preview_value = val->name_.c_str();
+    const char* preview_value = val->name.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Sprites", preview_value)) {
@@ -421,8 +421,9 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(spriteNameList[i], is_selected)) {
                 selection = i;
-                val->sprite_.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
-                val->name_ = spriteNameList[selection];
+                // val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
+                val->name = spriteNameList[selection];
+                val->loadFromAssetManager();
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -440,7 +441,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CAnimation>& val)
     int selection = 0;
 
     // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
-    const char* preview_value = val->name_.c_str();
+    const char* preview_value = val->name.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Animations", preview_value)) {
@@ -448,8 +449,8 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CAnimation>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(animationNameList[i], is_selected)) {
                 selection = i;
-                val->animation_ = assetManager.GetAnimation(animationNameList[selection]);
-                val->name_ = animationNameList[selection];
+                val->animation = assetManager.GetAnimation(animationNameList[selection]);
+                val->name = animationNameList[selection];
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -522,14 +523,14 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CUserInput> userinput)
     ImGui::NewLine();
 
     // When pressed, add the input to its map, so long as it doesn't already exist
-    if (ImGui::Button("Create"))
-    {
-        if (typeSelection == 0 && userinput->keyMap.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->keyMap.end())
+        if (ImGui::Button("Create")) 
         {
-            userinput->keyMap.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
+            if (typeSelection == 0 && userinput->key_map.find(static_cast<sf::Keyboard::Key>(inputSelection)) == userinput->key_map.end())
+            {
+            userinput->key_map.emplace(static_cast<sf::Keyboard::Key>(inputSelection), Action::NoAction);
         }
-        else if (userinput->mouseMap.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouseMap.end()) {
-            userinput->mouseMap.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
+        else if (userinput->mouse_map.find(static_cast<sf::Mouse::Button>(inputSelection)) == userinput->mouse_map.end()) {
+            userinput->mouse_map.emplace(static_cast<sf::Mouse::Button>(inputSelection), Action::NoAction);
         }
         ImGui::CloseCurrentPopup();
     }
@@ -575,18 +576,18 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
 
     if (ImGui::BeginCombo("##Components", selectionName))
     {
-        Editor::active_entity_->forEachComponent([&](auto& component, int index)
-            {
-                // Don't display components that already exist
-                if (component && component->has) return;
+        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
+        {
+            // Don't display components that already exist
+            if (component && component->has) return;
 
-                bool isSelected = (selection == index);
-                if (ImGui::Selectable(component->componentName, isSelected))
-                {
-                    selection = index;
-                    selectionName = component->componentName;
-                }
-            });
+            bool isSelected = (selection == index);
+            if (ImGui::Selectable(component->kComponentName, isSelected))
+            {
+                selection = index;
+                selectionName = component->kComponentName;
+            }
+        });
         ImGui::EndCombo();
     }
     ImGui::NewLine();
@@ -594,11 +595,11 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
     // Draw button that, when pressed, find & initialize the component if it is nullptr
     if (ImGui::Button("Create"))
     {
-        Editor::active_entity_->forEachComponent([&](auto& component, int index)
+        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
         {
             if (!component && selection == index)
             {
-                Editor::active_entity_->addComponent(component);
+                Editor::kActiveEntity->addComponent(component);
                 EntityManager::GetInstance().UpdateUIRenderingList();
 
             }
@@ -618,15 +619,15 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
     float centerPos = (contentWidth - buttonWidth) * 0.5f;
     ImGui::SetCursorPosX(centerPos);
 
-    const char* buttonLabel = val->playAnimation ? "Stop Test Animation" : "Play Test Animation";
+    const char* buttonLabel = val->play_animation ? "Stop Test Animation" : "Play Test Animation";
 
     if (ImGui::Button(buttonLabel)) {
-        val->playAnimation = !val->playAnimation;
+        val->play_animation = !val->play_animation;
     }
 
     ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
 
-    ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
+    ImGui::BeginTable("EmptyTemp", 2, table_flags_); // Don't want to disrupt the draw component function 
 }
 
 void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
@@ -639,7 +640,7 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
 
     // When pressed, add the input to its map
     if (ImGui::Button("Create")) {
-        touchtrigger->tagMap.emplace(tag, Action::NoAction);
+        touchtrigger->tag_map.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
 }
