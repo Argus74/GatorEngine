@@ -56,7 +56,10 @@ void GameEngine::init()
 	AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
 	AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
-	readFromJSONFile("last-scene.json");
+
+	if (!readFromJSONFile("last-scene.json")) {
+		current_scene_path_ = "scenes/Default.scene";
+	}
 
 	//123
 	window_.setFramerateLimit(60);
