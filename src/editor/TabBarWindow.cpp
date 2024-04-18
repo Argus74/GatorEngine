@@ -9,8 +9,8 @@
 
 float GetGridPositionX(int index)
 {
-    static short tileSize = ImGui::GetMainViewport()->Size.y * 0.075;
-    return ImGui::GetMainViewport()->Size.x / 20 + index * (tileSize + 40);
+    ImGuiViewport* mv = ImGui::GetMainViewport();
+    return WINDOW_HEIGHT(mv) / 20 + index * (TAB_BUTTON_SIZE(mv) + 40);
 }
 
 // Draw label on top of group of buttons, beginning at startIndex through endIndex
@@ -51,6 +51,55 @@ void DrawGridButtons(int index)
     }
 }
 
+void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index, std::function<void()> onClick, bool highlighted)
+{
+    // Math to resize icons_ and maintain their relative position
+    auto mv = ImGui::GetMainViewport();
+    short imageSize = TAB_BUTTON_SIZE(mv);
+    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), TAB_ROW_YOFFSET(mv));
+
+    // Use bold colors for an active button
+    if (highlighted) {
+        static ImVec4 activeColor = ImVec4(0.25f, 0.58f, 0.98f, 1.0f);
+        ImGui::PushStyleColor(ImGuiCol_Button, activeColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, activeColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
+    }
+
+    // Draw the image button
+    ImGui::SetCursorPos(buttonPos);
+    if (ImGui::ImageButton(name, texture, sf::Vector2f(imageSize, imageSize))) {
+        onClick();
+    }
+
+    // Draw text underneath button
+    if (std::string(name) != "Sprite") {
+        // Center text underneath based on its size
+        short textWidth = ImGui::CalcTextSize(name).x - 8; // CalcTextSize seems to consistently be ~8 pixels off?
+        float x = buttonPos.x + ((imageSize - textWidth) / 2);
+        ImVec2 buttonTextPos = ImVec2(x, buttonPos.y + imageSize + 10);
+
+        ImGui::SetCursorPos(buttonTextPos);
+        ImGui::Text(name);
+        // Special case for Sprite button // TODO: Refactor
+    }
+    else {
+        // Center combo box underneath the button
+        ImVec2 comboPos = ImVec2(buttonPos.x, buttonPos.y + imageSize + 10);
+        ImGui::SetCursorPos(comboPos);
+
+        // Set the width of the combo box to match the text width
+        ImGui::PushItemWidth(20);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+        ImGui::Combo("Sprite##", &selectedSpriteIndex_, spriteNameList_.data(), spriteNameList_.size());
+        ImGui::PopStyleVar();
+        ImGui::PopItemWidth();
+    }
+
+    if (highlighted) {
+        ImGui::PopStyleColor(3);
+    }
+}
 
 TabBarWindow::TabBarWindow()
 {
@@ -227,54 +276,5 @@ void TabBarWindow::DrawFrames()
         }
 
         ImGui::EndTabBar();
-    }
-}
-
-void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index, std::function<void()> onClick, bool highlighted)
-{
-    // Math to resize icons_ and maintain their relative position
-    auto mv = ImGui::GetMainViewport();
-    static short imageSize = TAB_BUTTON_SIZE(mv);
-    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), TAB_ROW_YOFFSET(mv));
-
-    // Use bold colors for an active button
-    if (highlighted) {
-        static ImVec4 activeColor = ImVec4(0.25f, 0.58f, 0.98f, 1.0f);
-        ImGui::PushStyleColor(ImGuiCol_Button, activeColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, activeColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
-    }
-
-    // Draw the image button
-    ImGui::SetCursorPos(buttonPos);
-    if (ImGui::ImageButton(name, texture, sf::Vector2f(imageSize, imageSize))) {
-        onClick();
-    }
-
-    // Draw text underneath button
-    if (std::string(name) != "Sprite") {
-        // Center text underneath based on its size
-        short textWidth = ImGui::CalcTextSize(name).x - 8; // CalcTextSize seems to consistently be ~8 pixels off?
-        float x = buttonPos.x + ((imageSize - textWidth) / 2);
-        ImVec2 buttonTextPos = ImVec2(x, buttonPos.y + imageSize + 10);
-
-        ImGui::SetCursorPos(buttonTextPos);
-        ImGui::Text(name);
-    // Special case for Sprite button // TODO: Refactor
-    } else {
-        // Center combo box underneath the button
-        ImVec2 comboPos = ImVec2(buttonPos.x, buttonPos.y + imageSize + 10);
-        ImGui::SetCursorPos(comboPos);
-
-        // Set the width of the combo box to match the text width
-        ImGui::PushItemWidth(20);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
-        ImGui::Combo("Sprite##", &selectedSpriteIndex_, spriteNameList_.data(), spriteNameList_.size());
-        ImGui::PopStyleVar();
-        ImGui::PopItemWidth();
-    }
-
-    if (highlighted) {
-        ImGui::PopStyleColor(3);
     }
 }

@@ -74,7 +74,6 @@ void ExplorerWindow::DrawFrames() {
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
 			if (ImGui::Selectable(label.c_str(), isSelected) && Editor::state != Editor::State::Testing) {
 				Editor::active_entity_ = entity;
-				Editor::state = Editor::State::Selecting;
 			}
 
 			if (isDisabled) {
