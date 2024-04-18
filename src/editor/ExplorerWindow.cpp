@@ -168,6 +168,7 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 			else {
+				;
 				entityList.erase(entityList.begin() + sourceIndex);
 				entityList.push_back(entity);
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List

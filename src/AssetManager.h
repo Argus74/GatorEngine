@@ -117,11 +117,11 @@ private:
 	AssetManager();
 
 	std::map<std::string, sf::Texture*> textures_;
-	std::map<std::string, sf::Texture*> gameEngineTextures_;  //Used for Assets needed for Gator Engine, E.G Icon Buttons, or Sprite Buttons	
+	std::map<std::string, sf::Texture*> game_engine_textures_;  //Used for Assets needed for Gator Engine, E.G Icon Buttons, or Sprite Buttons	
 	std::map<std::string, sf::SoundBuffer*> sounds_; //Sounds are stored as a sound buffer, and then played with a function using SMFL::Sound
 	std::map<std::string, sf::Font*> fonts_;
 	std::map<std::string, Animation*> animations_;
-	
+	std::map<std::string, std::string> texture_paths_;	
 };
 
 

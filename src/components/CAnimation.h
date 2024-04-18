@@ -5,16 +5,17 @@
 class CAnimation : public Component {
 public:
 	DECLARE_COMPONENT_NAME("Animation");
-	Animation animation_;
-	sf::Sprite sprite_;
-	std::string name_ = "DefaultAnimation";
+	Animation animation;
+	sf::Sprite sprite;
+	std::string name = "DefaultAnimation";
 	//std::string jumpAnimationName_ = "";           Later on if we decide we can make it easy to switch to a jump animation based off the characters state. Up to y'all
-	float animationSpeed_;
-	bool playAnimation = false; // If in the editor they want to play test their animation
-	bool disappear_;
+	float animation_speed;
+	bool play_animation = false; // If in the editor they want to play test their animation
+	bool disappear;
 	//bool jumpAnimation;
 	
 	CAnimation();
+	CAnimation(std::string name);
 	void changeSpeed();
 	void update();
 	
@@ -22,4 +23,16 @@ public:
 
 	void setAnimation(const Animation& newAnimation);
 
+	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(name.c_str());
+		writer.EndObject();
+	}
+
+    void deserialize(const rapidjson::Value& value) override {
+		name = value["name"].GetString();
+		animation = AssetManager::GetInstance().GetAnimation(name);
+		animation_speed = animation.speed;
+	}
 };

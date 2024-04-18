@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include "editor/Editor.h"
 #include <algorithm>
 
 // Factory function to get the singleton instance
@@ -13,11 +14,12 @@ EntityManager::EntityManager() {}
 // Add an entity with a given tag
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
-	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
+	std::cout << "Adding entity with tag: " << tag << std::endl;
+	auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
 	newEntity->addComponent<CName>();
 	newEntity->addComponent<CInformation>();
 	newEntity->addComponent<CTransform>();
-	m_toAdd.push_back(newEntity);
+	to_add_.push_back(newEntity);
 	sortEntitiesForRendering();
 	UpdateUIRenderingList();
 	return newEntity;
@@ -26,78 +28,88 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
 {
 	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity); // Call cpy ctr
-	m_totalEntities++; // Increment total entities out here too
-	m_toAdd.push_back(newEntity);
+	total_entities_++; // Increment total entities out here too
+	to_add_.push_back(newEntity);
 }
 
 // Update function called every frame
 void EntityManager::update()
 {
 	// Add new entities to the main vector and map
-	for (auto& entity : m_toAdd) {
-		m_entities.push_back(entity);
+	for (auto& entity : to_add_) {
+		entities_.push_back(entity);
 		sortEntitiesForRendering(); //Sorting render list
 		UpdateUIRenderingList();
 	}
-	m_toAdd.clear();
+	to_add_.clear();
 
 	// Remove dead entities from the main vector
-	m_entities.erase(
-		std::remove_if(m_entities.begin(), m_entities.end(),
+	entities_.erase(
+		std::remove_if(entities_.begin(), entities_.end(),
 			[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
-		m_entities.end()
+		entities_.end()
 	);
 
-
+	if (Editor::state != Editor::State::Testing) {
+		resetPositions();
+	}
 }
 
 // Get all entities
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
 {
-	return m_entities;
+	return entities_;
 }
 
 //Remove entity from our entity list, rendering list, and physics world
 void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 {
-	for (int i  = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] != entity) continue;
+	for (int i  = 0; i < entities_.size(); i++) {
+		if (entities_[i] != entity) continue;
 
 		if (entity->hasComponent<CRigidBody>()) {
 			GatorPhysics::GetInstance().destroyBody(entity.get());
 		}
 
-		m_entities.erase(m_entities.begin() + i);
+		entities_.erase(entities_.begin() + i);
 		sortEntitiesForRendering(); //Resorting our Render List
 		UpdateUIRenderingList();
 	}
 }
 
+void EntityManager::resetPositions() {
+	for (auto entity : entities_) {
+		if (entity->hasComponent<CTransform>()) {
+			auto transform = entity->getComponent<CTransform>();
+			transform->resetPosition();	
+		}
+	}
+}
 //Clear our entity list
 void EntityManager::reset()
 {
-	m_entities.clear();
-	m_toAdd.clear();
+	entities_.clear();
+	to_add_.clear();
 
-	m_totalEntities = 0;
+	total_entities_ = 0;
 }
 
 //Return Entity Manager's RenderingList
 std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
-	return entitiesRenderingList_;
+	return entities_rendering_list_;
 }
 
 std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
-	return entitiesUIList_;
+	return entities_UI_list_;
 }
 
 //Sorts entities based off layer and order in the explorer window
 void EntityManager::sortEntitiesForRendering() {
-	entitiesRenderingList_ = m_entities;
-	std::cout << "Sorted" << std::endl;
-	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+	entities_rendering_list_ = entities_;
+	//std::cout << "Sorted" << std::endl;
+	std::stable_sort(entities_rendering_list_.begin(), entities_rendering_list_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
 		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
-	});
+		});
 
 	/*  Renderlist Debug output
 	for (const std::shared_ptr<Entity>& a : entitiesRenderingList_) {
@@ -109,11 +121,23 @@ void EntityManager::sortEntitiesForRendering() {
 
 void EntityManager::UpdateUIRenderingList() {
 	EntityVec newList;
-	for (auto& entity : m_entities) {
+	for (auto& entity : entities_) {
 		if (entity->hasComponent<CHealth>() || entity->hasComponent<CText>()) {
 			newList.push_back(entity);
 		}
 	}
 
-	entitiesUIList_ = newList;
+	entities_UI_list_ = newList;
+}
+
+std::shared_ptr<Entity> EntityManager::getEntityByName(const std::string& name) {
+	for (const auto& entity : entities_) {
+		if (entity->hasComponent<CName>()) {
+			auto& nameComponent = entity->getComponent<CName>();
+			if (nameComponent->name == name) {
+				return entity;
+			}
+		}
+	}
+	return nullptr; // Return nullptr if no entity with the given name is found
 }

@@ -137,7 +137,7 @@ void TabBarWindow::DrawFrames()
 
                 // Background button
                 auto backgroundButton = [&]() {
-                    auto& entity = EntityManager::GetInstance().addEntity("Background");
+                    auto entity = EntityManager::GetInstance().addEntity("Background");
                     entity->addComponent<CBackgroundColor>();   
                     entity->addComponent<CSprite>("DefaultBackground");
                     entity->getComponent<CName>()->name = "Background";
@@ -155,8 +155,9 @@ void TabBarWindow::DrawFrames()
                     );
 
                     entity->getComponent<CTransform>()->position = pos;
+                    entity->getComponent<CTransform>()->resetPosition();
 
-                    auto sprite = entity->getComponent<CSprite>()->sprite_;
+                    auto sprite = entity->getComponent<CSprite>()->sprite;
                     const Vec2 scl = Vec2(
                         static_cast<float>(sceneWidth) / sprite.getLocalBounds().width,
                         static_cast<float>(sceneHeight) / sprite.getLocalBounds().height
@@ -173,9 +174,9 @@ void TabBarWindow::DrawFrames()
                     m_player->addComponent<CInformation>();
                     m_player->addComponent<CTransform>(Vec2(50, 50));
                     auto anim = m_player->addComponent<CAnimation>();
-                    anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
+                    anim->animation = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
                     auto input = m_player->addComponent<CUserInput>();
-                    input->keyMap = { 
+                    input->key_map = { 
                         {sf::Keyboard::Space, Action::Jump}, 
                         {sf::Keyboard::S, Action::MoveDown}, // TODO: replace this?
                         {sf::Keyboard::A, Action::MoveLeft},
@@ -203,6 +204,7 @@ void TabBarWindow::DrawFrames()
             // Stop Button
             static auto stopButton = [&]() {
                 Editor::state = Editor::State::None; // Testing stopped: Reset state to none
+                EntityManager::GetInstance().resetPositions();
                 // TODO: end game: unload content/reset entity pos?
             };
             DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 5, stopButton);
