@@ -65,6 +65,9 @@ private:
 	//Button to play animation when in scene editor state
 	void DrawButton(std::shared_ptr<CAnimation>& val);
 
+	//Button to allow a user to choose a script to attach to an entity
+	//void DrawButton(std::shared_ptr<CScript>& val);
+
 	// Draw a button that opens a popup for some subject
 	template <typename T>
 	void DrawPopupButton(const char* name, T& subject, ImVec2 size); // todo rename
