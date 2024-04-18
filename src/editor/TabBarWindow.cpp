@@ -7,6 +7,10 @@
 #include "../AssetManager.h"
 #include "../EntityManager.h"
 
+static const char* kShowGrid = "Show Grid";
+static const char* kSnapToGrid = "Grid Snap";
+static const char* kGridSize = "##GridSize";
+
 float GetGridPositionX(int index)
 {
     ImGuiViewport* mv = ImGui::GetMainViewport();
@@ -30,9 +34,6 @@ void DrawSectionLabel(const char* label, int startIndex, int endIndex)
 
 void DrawGridButtons(int index)
 {
-    static const char* kShowGrid = "Show Grid";
-    static const char* kSnapToGrid = "Snap to Grid";
-    static const char* kGridSize = "##GridSize";
     static short textHeight = ImGui::GetTextLineHeight();
     ImGui::SetCursorPosX(GetGridPositionX(3));
     ImGui::SetCursorPosY(TAB_ROW_YOFFSET(ImGui::GetMainViewport()));
@@ -40,7 +41,7 @@ void DrawGridButtons(int index)
     ImGui::SetCursorPosX(GetGridPositionX(3));
     ImGui::Checkbox(kSnapToGrid, &Editor::snap_to_grid_);
     ImGui::SetCursorPosX(GetGridPositionX(3));
-    ImGui::SetNextItemWidth(ImGui::CalcTextSize(kSnapToGrid).x);
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize(kSnapToGrid).x + 22); // +20 px for checkbox
     ImGui::InputInt(kGridSize, &Editor::grid_size_);
     // Clamp grid size to a reasonable range
     if (Editor::grid_size_ < 1) {
