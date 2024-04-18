@@ -109,7 +109,7 @@ void TabBarWindow::DrawFrames()
                 DrawGridButtons(3);
 
                 /// === Insert =================
-                DrawSectionLabel("Insert", 6, 9);
+                DrawSectionLabel("Insert", 6, 10);
 
                 // Sprite button
                 spriteNameList_ = AssetManager::GetInstance().GenerateAssetNameList("textures");
@@ -190,6 +190,13 @@ void TabBarWindow::DrawFrames()
                 };
                 DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 
                     9, playerButton);
+
+                // Collectible button
+                auto collectibleButton = [&]() {
+                    // TODO: Implement collectible button
+                };
+                DrawButton("Collectible", AssetManager::GetInstance().GetTexturePrivate("CollectibleIcon"),
+                    10, collectibleButton);
 
                 ImGui::EndTabItem();
             }
