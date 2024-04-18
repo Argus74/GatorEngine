@@ -227,6 +227,7 @@ void TabBarWindow::DrawFrames()
                     m_player->addComponent<CName>("Player");
                     m_player->addComponent<CInformation>();
                     m_player->addComponent<CTransform>(Vec2(50, 50));
+                    m_player->addComponent<CHealth>();
                     auto anim = m_player->addComponent<CAnimation>();
                     anim->animation_ = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
                     auto input = m_player->addComponent<CUserInput>();
