@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../AssetManager.h"
 #include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>

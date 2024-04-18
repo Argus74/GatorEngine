@@ -14,12 +14,14 @@ EntityManager::EntityManager() {}
 // Add an entity with a given tag
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
+	std::cout << "Adding entity with tag: " << tag << std::endl;
 	auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
 	newEntity->addComponent<CName>();
 	newEntity->addComponent<CInformation>();
 	newEntity->addComponent<CTransform>();
 	to_add_.push_back(newEntity);
-	EntityManager::GetInstance().sortEntitiesForRendering();
+	sortEntitiesForRendering();
+	UpdateUIRenderingList();
 	return newEntity;
 }
 
@@ -36,7 +38,8 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : to_add_) {
 		entities_.push_back(entity);
-		EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting render list
+		sortEntitiesForRendering(); //Sorting render list
+		UpdateUIRenderingList();
 	}
 	to_add_.clear();
 
@@ -68,8 +71,9 @@ void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
 			GatorPhysics::GetInstance().destroyBody(entity.get());
 		}
 
-			entities_.erase(entities_.begin() + i);
-		EntityManager::GetInstance().sortEntitiesForRendering(); //Resorting our Render List
+		entities_.erase(entities_.begin() + i);
+		sortEntitiesForRendering(); //Resorting our Render List
+		UpdateUIRenderingList();
 	}
 }
 
@@ -81,12 +85,12 @@ void EntityManager::resetPositions() {
 		}
 	}
 }
-
 //Clear our entity list
 void EntityManager::reset()
 {
 	entities_.clear();
 	to_add_.clear();
+
 	total_entities_ = 0;
 }
 
@@ -95,17 +99,33 @@ std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() 
 	return entities_rendering_list_;
 }
 
+std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
+	return entitiesUIList_;
+}
+
 //Sorts entities based off layer and order in the explorer window
 void EntityManager::sortEntitiesForRendering() {
 	entities_rendering_list_ = entities_;
-	std::cout << "Sorted" << std::endl;
-	std::stable_sort(entities_rendering_list_.begin(), entities_rendering_list_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+	//std::cout << "Sorted" << std::endl;
+	std::stable_sort(entitiesRenderingList_.begin(), entitiesRenderingList_.end(), [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
 		return a->getComponent<CInformation>()->layer < b->getComponent<CInformation>()->layer; // Primary sort by layer
-	});
+		});
 
 	/*  Renderlist Debug output
 	for (const std::shared_ptr<Entity>& a : entitiesRenderingList_) {
 		std::cout << "Entity Name: " << a->getComponent<CName>()->name << ", Layer: " << a->getComponent<CInformation>()->layer << "  ";
 	}
 	std::cout << std::endl; */
+}
+
+
+void EntityManager::UpdateUIRenderingList() {
+	EntityVec newList;
+	for (auto& entity : entities_) {
+		if (entity->hasComponent<CHealth>() || entity->hasComponent<CText>()) {
+			newList.push_back(entity);
+		}
+	}
+
+	entitiesUIList_ = newList;
 }

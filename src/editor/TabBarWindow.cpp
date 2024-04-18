@@ -89,6 +89,8 @@ void TabBarWindow::DrawFrames()
                     entity->addComponent<CInformation>();
                     GatorPhysics::GetInstance().createBody(entity.get(), true);
                     EntityManager::GetInstance().sortEntitiesForRendering();
+                    EntityManager::GetInstance().UpdateUIRenderingList();
+
                 };
                 DrawButton("Sprite", AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
                     5, spriteButton);
@@ -100,12 +102,13 @@ void TabBarWindow::DrawFrames()
                     entity->addComponent<CName>("Game Object");
                     entity->addComponent<CInformation>();
                     EntityManager::GetInstance().sortEntitiesForRendering();
+                    EntityManager::GetInstance().UpdateUIRenderingList();
 				};
                 DrawButton("Game Object", AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6, gameObjectButton);
 
                 // Background button
                 auto backgroundButton = [&]() {
-                    auto entity = EntityManager::GetInstance().addEntity("Background");
+                    auto& entity = EntityManager::GetInstance().addEntity("Background");
                     entity->addComponent<CBackgroundColor>();   
                     entity->addComponent<CSprite>("DefaultBackground");
                     entity->getComponent<CName>()->name = "Background";
@@ -122,7 +125,7 @@ void TabBarWindow::DrawFrames()
                         sceneHeight / 2
                     );
 
-                    entity->getComponent<CTransform>()->origin = pos;
+                    entity->getComponent<CTransform>()->position = pos;
                     entity->getComponent<CTransform>()->resetPosition();
 
                     auto sprite = entity->getComponent<CSprite>()->sprite;

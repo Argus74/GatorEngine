@@ -5,7 +5,7 @@
 #include "Entity.h"
 #include "Vec2.h"
 
-class GatorPhysics {
+class GatorPhysics : b2ContactListener {
 
 private:
 		int32 velocity_iterations_ = 6;
@@ -17,13 +17,17 @@ private:
 		b2World world_ = b2World(gravity_);
 		std::map<Entity*, b2Body*> entity_to_bodies_;
 public:
-		
-		static GatorPhysics& GetInstance();
-		b2World* getWorld();
-		float getScale();
-		std::map<Entity*, b2Body*>& GetEntityToBodies();
-		void update();
-		void setGravity(Vec2 gravity);
-		void createBody(Entity* entity, bool isStatic);
-		void destroyBody(Entity* entity);
+
+	static GatorPhysics& GetInstance();
+	b2World* getWorld();
+	float getScale();
+	std::map<Entity*, b2Body*>& GetEntityToBodies();
+	void update();
+	void setGravity(Vec2 gravity);
+	void createBody(Entity* entity, bool isStatic);
+	void destroyBody(Entity* entity);
+	void BeginContact(b2Contact* contact) override;
+	void EndContact(b2Contact* contact) override;
+	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
+	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 };

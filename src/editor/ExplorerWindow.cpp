@@ -15,6 +15,8 @@ static constexpr char* kExplorerLabel = "##Explorer";
 static constexpr char* kDropTargetLabel = "##Target";
 static constexpr char* kCloneLabel = "Clone";
 static constexpr char* kDeleteLabel = "Delete";
+static constexpr char* kDisableLabel = "Disable";
+static constexpr char* kEnableLabel = "Enable";
 static constexpr short kDropTargetHeight = 10;
 
 
@@ -42,6 +44,7 @@ void ExplorerWindow::PreDraw() {
 }
 
 void ExplorerWindow::DrawFrames() {
+
 	// Draw the list box
 	if (ImGui::BeginListBox(kExplorerLabel, ImVec2(ImGui::GetContentRegionAvail().x, -1))) {
 
@@ -54,16 +57,28 @@ void ExplorerWindow::DrawFrames() {
 			// Handle drag-and-drops above this selectable
 			DrawDropTarget(i);
 
+			// Determine if the entity is disabled
+			bool isDisabled = entity->isDisabled();
+
 			// Draw little icon
 			ImGui::Image(icon_, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
 			ImGui::SameLine();
 
+			// Change text color if entity is disabled
+			if (isDisabled) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray color
+			}
+
 			// Draw the entity's tag as a selectable
-			const bool isSelected = Editor::kActiveEntity == entity && Editor::kState != Editor::State::Testing;
+			const bool isSelected = Editor::active_entity_ == entity && Editor::state != Editor::State::Testing;
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
 			if (ImGui::Selectable(label.c_str(), isSelected) && Editor::kState != Editor::State::Testing) {
 				Editor::kActiveEntity = entity;
 				Editor::kState = Editor::State::Selecting;
+			}
+
+			if (isDisabled) {
+				ImGui::PopStyleColor();
 			}
 
 			// Open context menu on right-click // TODO: Bug if right-click while context menu open
@@ -89,12 +104,25 @@ void ExplorerWindow::DrawFrames() {
 	// Draw context menu
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
 	if (ImGui::BeginPopupContextItem(kEntityContextMenuID)) {
+		// Determine if the entity is disabled
+		bool disabled = Editor::active_entity_->isDisabled();
+		if (disabled) {
+			if (ImGui::Selectable(kEnableLabel)) {
+				Editor::active_entity_->setDisabled(false);
+			}
+		}
+		else {
+			if (ImGui::Selectable(kDisableLabel)) {
+				Editor::active_entity_->setDisabled(true);
+			}
+		}
 		if (ImGui::Selectable(kCloneLabel)) {
-			EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
+			EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
 		}
 		if (ImGui::Selectable(kDeleteLabel)) {
 			EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
 		}
+		
 		ImGui::EndPopup();
 	}
 	ImGui::PopStyleVar();
@@ -137,12 +165,14 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 				entityList.erase(entityList.begin() + sourceIndex);
 				// Otherwise, must be end of the list (targetIndex == -1), so just move there
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
+				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 			else {
 				;
 				entityList.erase(entityList.begin() + sourceIndex);
 				entityList.push_back(entity);
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
+				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 
 			// Once complete, make this the active entity

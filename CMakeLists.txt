@@ -40,7 +40,7 @@ add_library(
     ${LUA_DIR}/lundump.c
     ${LUA_DIR}/lutf8lib.c
     ${LUA_DIR}/lvm.c
-    ${LUA_DIR}/lzio.c
+    ${LUA_DIR}/lzio.c 
 )
 
 include(FetchContent)
@@ -52,7 +52,6 @@ FetchContent_Declare(luajit
 )
 FetchContent_MakeAvailable(luajit)
 ]]
-
 
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
@@ -113,7 +112,13 @@ add_executable(
     "src/components/CRigidBody.h" 
     "src/lua_interpreter/LuaState.cpp"
     "src/components/CInformation.h" 
-    "src/components/CTouchTrigger.h")
+    "src/components/CHealth.h" 
+    "src/components/CHealth.cpp" 
+    "src/components/CText.h" 
+    "src/components/CText.cpp"
+    "src/components/CTouchTrigger.h"
+    "src/components/CScript.h"
+    )
 
 target_link_libraries(GatorEngine
     sfml-graphics
@@ -133,6 +138,7 @@ ${IMGUI_DIR}
 ${IMGUI_SFML_DIR}
 PRIVATE ${EXTERNALS_DIR}
 PRIVATE ${LUA_DIR} # as of sol2 3.2.2, lua.hpp must be accesible through root include '#include <lua.hpp>'
+${PROJECT_SOURCE_DIR}/src/lua_interpreter
 )
 
 set_property(
@@ -182,12 +188,6 @@ if (WIN32)
             ${CMAKE_SOURCE_DIR}/extern/luajit.dll
             $<TARGET_FILE_DIR:GatorEngine>)
 
-        # Copy lua scripts
-        add_custom_command(TARGET GatorEngine POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/src/lua_scripts
-            $<TARGET_FILE_DIR:GatorEngine>)
-
         add_custom_command(TARGET GatorEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/extern/nfd.dll
@@ -196,6 +196,22 @@ if (WIN32)
 endif()
 
 
+# Copy lua scripts
+    #add_custom_command(TARGET GatorEngine POST_BUILD
+        #COMMAND ${CMAKE_COMMAND} -E copy_directory
+        #${CMAKE_SOURCE_DIR}/src/lua_scripts
+        #$<TARGET_FILE_DIR:GatorEngine>)
+
+# Watch for Lua script changes
+#file(GLOB_RECURSE LUA_SCRIPTS "${CMAKE_SOURCE_DIR}/src/lua_scripts/*.lua")
+
+# Copy Lua scripts on build
+#[[foreach(LuaFile ${LUA_SCRIPTS})
+    add_custom_command(
+        TARGET GatorEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LuaFile} $<TARGET_FILE_DIR:GatorEngine>
+    )
+endforeach()]]
 
 # Copy asset folder
 add_custom_command(TARGET GatorEngine POST_BUILD

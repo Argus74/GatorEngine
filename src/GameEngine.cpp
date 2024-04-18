@@ -2,7 +2,7 @@
 
 
 GameEngine::GameEngine() {}
-GameEngine &GameEngine::GetInstance()
+GameEngine& GameEngine::GetInstance()
 {
 	// TODO: insert return statement here
 	static GameEngine instance_;
@@ -36,12 +36,12 @@ void GameEngine::run()
 	running_ = true;
 }
 
-sf::RenderWindow &GameEngine::window()
+sf::RenderWindow& GameEngine::window()
 {
 	return window_;
 }
 
-AssetManager &GameEngine::assets()
+AssetManager& GameEngine::assets()
 {
 	return AssetManager::GetInstance();
 }

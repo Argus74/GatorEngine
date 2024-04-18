@@ -51,6 +51,9 @@ private:
 	}
 
 public:
+	sf::Keyboard::Key last_key_pressed;
+	std::map <std::shared_ptr<Entity>, std::shared_ptr<LuaState>> lua_states;
+	sf::Clock* deltaClock;
 	// sf::Clock* delta_clock;
 	void addEntitiesForTest();
 	void changeScene(const std::string& path);
