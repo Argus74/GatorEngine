@@ -37,11 +37,20 @@ void GatorPhysics::update()
 
 	for (auto node : entity_to_bodies_)
 	{
-		//Update the physics bodies to match the static/dynamic status of the entities
 		Entity* entity = node.first;
-
 		b2Body* body = entity->getComponent<CRigidBody>()->body;
 
+		//First check if the node is disabled, if it is, then we don't need to update the physics body
+		if (entity->isDisabled())
+		{
+			body->SetEnabled(false);
+			continue;
+		}
+		else
+		{
+			body->SetEnabled(true);
+		}
+		//Update the physics bodies to match the static/dynamic status of the entities
 		//If it is not static, then we need to update the physics body
 		if (!entity->getComponent<CRigidBody>()->static_body)
 		{
