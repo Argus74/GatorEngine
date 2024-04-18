@@ -31,7 +31,7 @@ Entity& Entity::operator=(Entity&& rhs) {
 }
 
 void Entity::clone(const Entity& other) {
-	id_ = other.id_ + 1; // Increment the ID of the new entity
+	id_ = other.id_; // ID should be changed after, by the EM, to reflect the new entity
 	tag_ = other.tag_;
 	is_alive_ = other.is_alive_;
 	disabled_ = other.disabled_;
