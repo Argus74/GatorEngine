@@ -246,10 +246,11 @@ void Scene_Play::sTouchTrigger()
 				
 				if (touchTrigger->action_ == UpdateCollectible) 
 				{  // Only proceeding with an action if their is an collectable component attached, and its nots a health
-					if (entity->hasComponent<CCollectable>() && !entity->getComponent<CCollectable>()->isHealth_) 
-					{
+					if (entity->hasComponent<CCollectable>() && !entity->getComponent<CCollectable>()->isHealth_ ) 
+					{ 
 						// We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
-						
+						if (entity->getComponent<CCollectable>()->collectableTextEntity != nullptr)
+							Interact(entity, entity->getComponent<CCollectable>()->collectableTextEntity);
 					}
 				}
 				else if (touchTrigger->action_ == UpdateHealth) 
@@ -395,8 +396,13 @@ void Scene_Play::sUI() {
 
 			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
 
+			std::string outputString = textComponent->message_;
+			if (textComponent->isCounter_) {
+				outputString += std::to_string(textComponent->counter_);
+			}
+
 			textComponent->text_.setFont(textComponent->font_);
-			textComponent->text_.setString(textComponent->message_);
+			textComponent->text_.setString(outputString);
 			textComponent->text_.setCharacterSize(textComponent->characterSize_);
 			textComponent->text_.setFillColor(textComponent->textColor_);
 			textComponent->text_.setStyle(textComponent->style_);
@@ -503,8 +509,9 @@ void Scene_Play::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_
 			collectibleEnity->setDisabled(true);
 		}
 	}
-	else if (entityPair->hasComponent<CText>()) // We are going to add score to the text compo
-	{
+	else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->isCounter_) 
+	{ // We are going to add score to the text comp
+		
 		entityPair->getComponent<CText>()->counter_ += collectibleComponent->pointsToAdd;
 
 		if (collectibleComponent->disappearOnTouch_)

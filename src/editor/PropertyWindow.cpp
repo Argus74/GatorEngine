@@ -234,6 +234,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CCollectable>& coll
     }
     else {
         DrawProperty("Points to Add", collectable->pointsToAdd);
+        DrawProperty("UI to Connect", collectable);
     }
 
     DrawProperty("Disappear", collectable->disappearOnTouch_);
@@ -277,6 +278,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text)
     DrawProperty("Character Size", text->characterSize_);
     DrawProperty("Text Color", text->textColor_);
     DrawProperty("Collectable Counter", text->isCounter_);
+
     if (text->isCounter_)
         DrawProperty("Count", text->counter_);
 
@@ -368,13 +370,48 @@ void PropertyWindow::DrawInputField(unsigned int& val)
     }
 }
 
+// Used to list all different Game Objects with CText in the Collectable Component
+void PropertyWindow::DrawInputField(std::shared_ptr<CCollectable>& val) { 
+    auto& entityList = EntityManager::GetInstance().getEntities();
+    int selection = -1; // Static to keep the selection persistent between frames
+
+    // Define the preview value
+    std::string preview_value = (val->collectableTextEntity && val->collectableTextEntity->hasComponent<CText>())
+        ? val->collectableTextEntity->getComponent<CName>()->name
+        : "Select an entity with text";
+
+    // Begin a combo box to allow selection from entities that have a CText component
+    if (ImGui::BeginCombo("##TextEntities", preview_value.c_str())) {
+        for (int i = 0; i < entityList.size(); i++) {
+            auto& entity = entityList[i];
+            // Check if the entity has a CText component
+            if (entity->hasComponent<CText>()) {
+                auto nameComp = entity->getComponent<CName>();
+                std::string displayName = nameComp ? nameComp->name : "Unnamed Entity"; // Use entity name if available
+
+                // Determine if this entity is the currently selected one
+                bool is_selected = (val->collectableTextEntity == entity);
+                if (ImGui::Selectable(displayName.c_str(), is_selected)) {
+                    selection = i;
+                    val->collectableTextEntity = entity; // Set the collectableEntity to the selected entity
+                }
+
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+}
+
 void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val) 
 {
     auto& assetManager = AssetManager::GetInstance();
     auto fontNameList = assetManager.GenerateAssetNameList("fonts");
     int selection = 0;
 
-    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text
     const char* preview_value = val->name_.c_str();
 
     // Use BeginCombo and EndCombo for a custom preview value

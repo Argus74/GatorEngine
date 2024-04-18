@@ -18,7 +18,6 @@ public:
 	TriggerAction action_ = TriggerAction::None;
 	Vec2 triggerSize_ = Vec2(50, 50);
 
-
 	CTouchTrigger() {}
 };
 

@@ -53,10 +53,11 @@ private:
     void DrawInputField(sf::Mouse::Button& val);
 	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
-	void DrawInputField(std::shared_ptr <CInformation>& val);
-	void DrawInputField(std::shared_ptr <CText>& val);
+	void DrawInputField(std::shared_ptr<CInformation>& val);
+	void DrawInputField(std::shared_ptr<CText>& val);
 	void DrawInputField(unsigned int& val); // Used to processs textStyle
 	void DrawInputField(TriggerAction& val); // Used to list possible trigger actions
+	void DrawInputField(std::shared_ptr<CCollectable>& val); // Used to list all different Game Objects with CText
 	
 
 

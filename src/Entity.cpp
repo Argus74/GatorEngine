@@ -74,7 +74,7 @@ void Entity::setDisabled(bool disable) {
 void Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
 	auto healthComponent = this->getComponent<CHealth>();
 
-	if (healthComponent->UpdateHealth(dmg)) {
+	if (healthComponent->UpdateHealth(dmg)) { // True if the player "died"
 		if (healthComponent->respawnCharacter_) { 
 			this->getComponent<CTransform>()->position = healthComponent->respawnPosition_;
 		}
