@@ -19,6 +19,9 @@ CHealth::CHealth(float healthTotal, float currentHealth) {
 }
 
 void CHealth::Update() { 
+	if (currentHealth_ > healthTotal_) {
+		currentHealth_ = healthTotal_;
+	}
 	float percentage = currentHealth_ / healthTotal_;
 
 	// Calculate the visible width based on the percentage
@@ -34,8 +37,11 @@ void CHealth::Update() {
 
 bool CHealth::UpdateHealth(float dmg) { // Returns True if entity should be dead, returns false if not
 	currentHealth_ += dmg;
-	if (currentHealth_ <= 0)
+
+	if (currentHealth_ <= 0) {
+		currentHealth_ = healthTotal_; 
 		return true;
+	}
 	else
 		return false;
 }

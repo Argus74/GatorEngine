@@ -13,7 +13,12 @@
 class CTouchTrigger : public Component {
 public:
 	DECLARE_COMPONENT_NAME("Touch Trigger");
-	std::map<std::string, Action> tagMap;
+
+	std::string tag_ = "";
+	TriggerAction action_ = TriggerAction::None;
+	Vec2 triggerSize_ = Vec2(50, 50);
+
+
 	CTouchTrigger() {}
 };
 

@@ -71,26 +71,30 @@ void Entity::setDisabled(bool disable) {
 	disabled_ = disable;
 }
 
-bool Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
-	if (this->hasComponent<CHealth>()) {
-		auto healthComponent = this->getComponent<CHealth>();
+void Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
+	auto healthComponent = this->getComponent<CHealth>();
 
-		if (healthComponent->UpdateHealth(dmg))
+	if (healthComponent->UpdateHealth(dmg)) {
+		if (healthComponent->respawnCharacter_) { 
+			this->getComponent<CTransform>()->position = healthComponent->respawnPosition_;
+		}
+		else { // We disable our character if the Dev doesn't want to respawn the entity
 			disabled_ = true;
+		}
+	}
 
-		return true;
-	}
-	else {
-		return false;
-	}
 }
 
 sf::FloatRect& Entity::GetRect(float margin) {
 	auto& transform = *(getComponent<CTransform>());
 	sf::FloatRect rect;
 
-	// Set selection box size, depending on the entity's current sprite
-	if (hasComponent<CSprite>()) {
+	if (hasComponent<CTouchTrigger>()) {
+		auto& triggerBox = getComponent<CTouchTrigger>()->triggerSize_;
+		rect.width = triggerBox.x;
+		rect.height = triggerBox.y;
+	}
+	else if (hasComponent<CSprite>()) { // Set selection box size, depending on the entity's current sprite
 		auto& sprite = getComponent<CSprite>()->sprite_;
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;

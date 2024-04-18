@@ -230,21 +230,38 @@ void Scene_Play::sTouchTrigger()
 {
 	auto& entities = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entities) {
-		// Skip entities without a touch trigger component
-		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		// Skip entities without a touch trigger component, or that are disabled
+		if (!entity->hasComponent<CTouchTrigger>() || entity->isDisabled()) continue;
 		auto touchTrigger = entity->getComponent<CTouchTrigger>();
 		auto triggerRect = entity->GetRect();
 
 		// If has touch trigger, check if it is touching any other entity
-		for (auto& actionTags : touchTrigger->tagMap) {
-			for (auto& entityTouched : entities) {
-				// Skip entities without the tag we're caring about
-				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+		for (auto& entityTouched : entities) {
+			// Skip entities without the tag we're caring about
+			if (touchTrigger->tag_ != entityTouched->getComponent<CInformation>()->tag) continue;
 
-				// Check if the entity is touching the entity with the touch trigger
-				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
-				if (triggerRect.intersects(entityTouchedRect)) {
-					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+			// Check if the entity is touching the entity with the touch trigger
+			auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+			if (triggerRect.intersects(entityTouchedRect)) {
+				
+				if (touchTrigger->action_ == UpdateCollectible) 
+				{  // Only proceeding with an action if their is an collectable component attached, and its nots a health
+					if (entity->hasComponent<CCollectable>() && !entity->getComponent<CCollectable>()->isHealth_) 
+					{
+						// We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
+						
+					}
+				}
+				else if (touchTrigger->action_ == UpdateHealth) 
+				{
+					if (entity->hasComponent<CCollectable>() && entity->getComponent<CCollectable>()->isHealth_)
+					{
+						Interact(entity, entityTouched);
+					}
+				} 
+				else if (touchTrigger->action_ == GiveJump) 
+				{
+					ActionBus::GetInstance().Dispatch(entityTouched, Jump);
 				}
 			}
 		}
@@ -471,5 +488,30 @@ void Scene_Play::sBackground() {
 
 	// Otherwise, default to a black background
 	GameEngine::GetInstance().window().clear(sf::Color(0, 0, 0));
+}
+
+
+void Scene_Play::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_ptr<Entity> entityPair)
+{
+	auto collectibleComponent = collectibleEnity->getComponent<CCollectable>(); 
+	if (collectibleComponent->isHealth_ && entityPair->hasComponent<CHealth>())
+	{ // If its health we are going to add points to the CHealth component of the entityPair
+		entityPair->updateHealth(collectibleComponent->pointsToAdd);
+
+		if (collectibleComponent->disappearOnTouch_)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	}
+	else if (entityPair->hasComponent<CText>()) // We are going to add score to the text compo
+	{
+		entityPair->getComponent<CText>()->counter_ += collectibleComponent->pointsToAdd;
+
+		if (collectibleComponent->disappearOnTouch_)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	} 
+
 }
 

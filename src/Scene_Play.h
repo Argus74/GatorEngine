@@ -34,4 +34,5 @@ public:
 	void sBackground();
 	void spawnPlayer();
 	void sUI();
+	void Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_ptr<Entity> entityPair); // Used for sTouchTrigger()
 };

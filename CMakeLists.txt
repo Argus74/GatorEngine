@@ -117,7 +117,8 @@ add_executable(
     "src/components/CHealth.cpp" 
     "src/components/CText.h" 
     "src/components/CText.cpp"
-    "src/components/CTouchTrigger.h")
+    "src/components/CTouchTrigger.h" 
+    "src/components/CCollectable.h")
 
 target_link_libraries(GatorEngine
     sfml-graphics

@@ -12,7 +12,7 @@
 #include "CHealth.h"
 #include "CText.h"
 #include "CTouchTrigger.h"
-
+#include "CCollectable.h"
 
 
 

@@ -116,7 +116,7 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
-            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
+            /*if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
                 // Position the button to the right of the header
                 static const char* name = "Add Trigger";
                 ImGui::SameLine(); // same line as header
@@ -124,7 +124,7 @@ void PropertyWindow::DrawComponent(T& component)
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
-            }
+            } */
 
             if (ImGui::BeginTable(component->componentName, 2, table_flags))
             {
@@ -207,9 +207,36 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
 {
-	for (auto& entry : touchtrigger->tagMap) {
-		DrawProperty(entry.first.c_str(), entry.second);
-	}
+    DrawProperty("Trigger Tag", touchtrigger->tag_);
+    DrawProperty("Trigger Action", touchtrigger->action_);
+
+    if (touchtrigger->action_ != TriggerAction::None) {
+        if (touchtrigger->action_ != TriggerAction::UpdateCollectible) {
+
+        } 
+        else if (touchtrigger->action_ != TriggerAction::UpdateHealth) {
+
+        }
+        else if (touchtrigger->action_ != TriggerAction::GiveJump) {
+
+        }
+        DrawProperty("Trigger Size", touchtrigger->triggerSize_);
+    } 
+ 
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CCollectable>& collectable) 
+{
+    DrawProperty("Add Health", collectable->isHealth_);
+    
+    if (collectable->isHealth_) {
+        DrawProperty("Health Points", collectable->pointsToAdd);
+    }
+    else {
+        DrawProperty("Points to Add", collectable->pointsToAdd);
+    }
+
+    DrawProperty("Disappear", collectable->disappearOnTouch_);
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
@@ -249,6 +276,9 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text)
     DrawProperty("Message", text->message_);
     DrawProperty("Character Size", text->characterSize_);
     DrawProperty("Text Color", text->textColor_);
+    DrawProperty("Collectable Counter", text->isCounter_);
+    if (text->isCounter_)
+        DrawProperty("Count", text->counter_);
 
 }
 
@@ -467,6 +497,13 @@ void PropertyWindow::DrawInputField(Action& val)
     val = static_cast<Action>(selection);
 }
 
+void PropertyWindow::DrawInputField(TriggerAction& val) 
+{
+    int selection = static_cast<int>(val);
+    ImGui::Combo("##TriggerActions", &selection, kTriggerActionNames, IM_ARRAYSIZE(kTriggerActionNames));
+    val = static_cast<TriggerAction>(selection);
+}
+
 template <typename T>
 void PropertyWindow::DrawPopupButton(const char* name, T& subject, ImVec2 size) 
 {
@@ -563,7 +600,7 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
         Editor::active_entity_->forEachComponent([&](auto& component, int index)
         {
             // Don't display components that already exist
-            if (component && component->has) return;
+            if (component && component->has ) return;
 
             bool isSelected = (selection == index);
             if (ImGui::Selectable(component->componentName, isSelected))
@@ -614,7 +651,7 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
     ImGui::BeginTable("EmptyTemp", 2, table_flags); // Don't want to disrupt the draw component function 
 }
 
-void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
+/* void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
 {
     // Decide which input type to use so we can display the correct map below
     ImGui::Text("Specify tag of entities who can trigger");
@@ -627,4 +664,4 @@ void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
         touchtrigger->tagMap.emplace(tag, Action::NoAction);
         ImGui::CloseCurrentPopup();
     }
-}
+} */

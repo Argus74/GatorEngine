@@ -10,6 +10,8 @@ public:
 	unsigned int style_ = sf::Text::Regular;
 	int characterSize_ = 24;
 	sf::Color textColor_ = sf::Color::Black;
+	float counter_ = 0;
+	bool isCounter_ = false;
 
 	sf::Text text_;
 
@@ -18,4 +20,6 @@ public:
 
 	bool loadFromAssetManager();
 	bool loadFromAssetManager(const std::string& textureName);
+
+
 };

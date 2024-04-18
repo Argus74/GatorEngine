@@ -48,7 +48,7 @@ void TabBarWindow::DrawFrames()
                 // Hardcode text above buttons
 
                 short x = GetGridPositionX(1);
-                short y = GetGridPositionY(imageSize) - ;
+                short y = GetGridPositionY(imageSize);
 
                 // Text
                 ImGui::PushItemWidth(ImGui::GetMainViewport()->Size.x / 5);

@@ -21,7 +21,8 @@ typedef std::tuple< //ass we add more components, we add them here
 	std::shared_ptr<CBackgroundColor>,
 	std::shared_ptr<CHealth>,
 	std::shared_ptr<CText>,
-	std::shared_ptr<CTouchTrigger>
+	std::shared_ptr<CTouchTrigger>,
+	std::shared_ptr<CCollectable>
 > ComponentTuple;
 
 class Entity {
@@ -46,7 +47,7 @@ public:
 	bool isAlive();
 	bool isDisabled();
 	void setDisabled(bool disable);
-	bool updateHealth(float dmg);
+	void updateHealth(float dmg);
 
 	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
 	sf::FloatRect& GetRect(float margin = 0.0f);
