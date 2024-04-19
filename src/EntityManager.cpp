@@ -96,6 +96,16 @@ void EntityManager::resetPositions() {
 			auto transform = entity->getComponent<CTransform>();
 			transform->resetPosition();	
 		}
+		if (entity->hasComponent<CHealth>()) { 
+			auto health = entity->getComponent<CHealth>();
+			if (health->reset()) // If the entity was killed then we Enable it 
+				entity->setDisabled(false);
+		}
+		if (entity->hasComponent<CCollectable>()) {
+			auto collectable = entity->getComponent<CCollectable>();
+			if (collectable->reset())
+				entity->setDisabled(false);
+		}
 	}
 }
 //Clear our entity list

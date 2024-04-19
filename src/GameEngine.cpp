@@ -444,7 +444,7 @@ void GameEngine::sRender()
 
 	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>())
+		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
@@ -462,7 +462,6 @@ void GameEngine::sRender()
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite.setRotation(angle);
 
-
 			if (spriteComponent->draw_sprite)
 				GameEngine::GetInstance().window().draw(spriteComponent->sprite);
 		}
@@ -476,6 +475,7 @@ void GameEngine::sRender()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation.sprite);
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = sprite.getLocalBounds();
 			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
@@ -488,7 +488,7 @@ void GameEngine::sRender()
 			GameEngine::GetInstance().window().draw(sprite);
 
 
-			if (animationComponent->play_animation || Editor::state == 3)
+			if (animationComponent->play_animation || Editor::state == Editor::Testing)
 				animationComponent->update();
 		}
 	}
@@ -634,6 +634,8 @@ void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_
 	if (collectibleComponent->is_health && entityPair->hasComponent<CHealth>())
 	{ // If its health we are going to add points to the CHealth component of the entityPair
 		entityPair->updateHealth(collectibleComponent->points_to_add);
+
+		collectibleComponent->touched = true;
 
 		if (collectibleComponent->disappear_on_touch)
 		{

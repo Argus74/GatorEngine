@@ -40,7 +40,7 @@ bool CHealth::UpdateHealth(float dmg) { // Returns True if entity should be dead
 
 	if (current_health <= 0) {
 		current_health = health_total;
-
+		killed = true;
 		return true;
 	}
 	else

@@ -534,7 +534,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(spriteNameList[i], is_selected)) {
                 selection = i;
-                // val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
+                val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
                 val->name = spriteNameList[selection];
                 val->loadFromAssetManager();
             }

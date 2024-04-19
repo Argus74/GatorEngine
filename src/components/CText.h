@@ -48,13 +48,39 @@ public:
 	}
 
 	void deserialize(const rapidjson::Value& value) override {
-		name = value["name"].GetString();
-		loadFromAssetManager();
-		message = value["message"].GetString();
-		style = value["style"].GetUint();
-		character_size = value["characterSize"].GetInt();
-		text_color = sf::Color(value["textColorR"].GetUint(), value["textColorG"].GetUint(), value["textColorB"].GetUint(), value["textColorA"].GetUint());
-		counter = value["counter"].GetDouble();
-		is_counter = value["is_counter"].GetBool();
+		if (value.HasMember("name") && value["name"].IsString()) {
+			name = value["name"].GetString();
+			loadFromAssetManager();
+		}
+
+		if (value.HasMember("message") && value["message"].IsString()) {
+			message = value["message"].GetString();
+		}
+
+		if (value.HasMember("style") && value["style"].IsUint()) {
+			style = value["style"].GetUint();
+		}
+
+		if (value.HasMember("characterSize") && value["characterSize"].IsInt()) {
+			character_size = value["characterSize"].GetInt();
+		}
+
+		if (value.HasMember("textColorR") && value["textColorR"].IsUint() &&
+			value.HasMember("textColorG") && value["textColorG"].IsUint() &&
+			value.HasMember("textColorB") && value["textColorB"].IsUint() &&
+			value.HasMember("textColorA") && value["textColorA"].IsUint()) {
+			text_color = sf::Color(value["textColorR"].GetUint(),
+				value["textColorG"].GetUint(),
+				value["textColorB"].GetUint(),
+				value["textColorA"].GetUint());
+		}
+
+		if (value.HasMember("counter") && value["counter"].IsDouble()) {
+			counter = static_cast<float>(value["counter"].GetDouble());
+		}
+
+		if (value.HasMember("isCounter") && value["isCounter"].IsBool()) {
+			is_counter = value["isCounter"].GetBool();
+		}
 	}
 };

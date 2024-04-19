@@ -12,6 +12,15 @@ public:
 	bool disappear_on_touch = true;
     std::string text_entity_name = "";
 
+    bool touched = false; // If the collectable is touched, this is the flag
+
+    bool reset() {
+        if (touched && disappear_on_touch)
+            return true; // Respawn the entity
+        else
+            return false;
+    }
+
 	CCollectable() {}
 
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {

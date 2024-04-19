@@ -35,6 +35,7 @@ Editor::Editor() {
     style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.50f);
 
 
+    Editor::state = None;
     active_entity_ = nullptr;
     show_grid_ = false;
     snap_to_grid_ = false;

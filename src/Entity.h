@@ -117,6 +117,10 @@ public:
 		{
 			return hasComponent<CText>();
 		}
+		else if (componentName == "CCollectable")
+		{
+			return hasComponent<CCollectable>();
+		}
 		else
 		{
 			return false;
@@ -180,6 +184,10 @@ public:
 		else if (componentName == "CText")
 		{
 			addComponent<CText>();
+		}
+		else if (componentName == "CCollectable")
+		{
+			addComponent<CCollectable>();
 		}
 		else
 		{
@@ -369,6 +377,12 @@ public:
 			if (health != nullptr) {
 				addComponent(health);
 				getComponent<CHealth>()->deserialize(it->value);
+			}
+
+			auto collectable = createComponentByName<CCollectable>(it->name.GetString());
+			if (health != nullptr) {
+				addComponent(collectable);
+				getComponent<CCollectable>()->deserialize(it->value);
 			}
         }	
 	}
