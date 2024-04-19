@@ -71,7 +71,7 @@ int main()
     //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
     newGame.changeScene(newGame.currentScenePath());
     //LuaState newLuaState("script.lua");
-    
+
     while (window.isOpen())
     {
         newGame.update();

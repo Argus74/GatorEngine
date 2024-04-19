@@ -50,16 +50,14 @@ void GameEngine::init()
 {
 	//Intializing all png files as textures in Start Assets folder
 	AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
-	AssetManager::GetInstance().AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
-	AssetManager::GetInstance().AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	Animation ani = Animation("DefaultAnimation", AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
 	AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
 	AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
 
-	/*if (!readFromJSONFile("last-scene.json")) {
+	if (!readFromJSONFile("last-scene.json")) {
 		current_scene_path_ = "scenes/Default.scene";
-	} */
+	} 
 
 	//123
 	window_.setFramerateLimit(60);
@@ -100,7 +98,7 @@ void GameEngine::addEntitiesForTest()
 	auto ground = EntityManager::GetInstance().addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
-	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CSprite>("Grass Tile");
 	ground->addComponent<CName>("Ground");
 	//ground->getComponent<CSprite>()->texture = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
