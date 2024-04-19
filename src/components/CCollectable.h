@@ -37,7 +37,7 @@ public:
 
         writer.Key("text_entity_name");
         writer.String(text_entity_name.c_str());
-      
+
         writer.EndObject();
     }
 
@@ -52,6 +52,10 @@ public:
 
         if (value.HasMember("disappear_on_touch") && value["disappear_on_touch"].IsBool()) {
             disappear_on_touch = value["disappear_on_touch"].GetBool();
+        }
+
+        if (value.HasMember("text_entity_name") && value["text_entity_name"].IsString()) {
+            text_entity_name = value["text_entity_name"].GetString();
         }
 
        

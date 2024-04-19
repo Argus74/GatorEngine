@@ -64,7 +64,7 @@ public:
 	template <typename T>
 	bool hasComponent() const {
 		auto ptr = std::get<std::shared_ptr<T>>(components);
-		return ptr != nullptr && ptr->has;
+		return ptr && ptr->has; // Check for ptr being non-null before accessing ->has
 	}
 
 	//Used for compatability with lua
@@ -338,6 +338,12 @@ public:
 				continue;
 			}
 
+			auto userinput = createComponentByName<CUserInput>(it->name.GetString());
+			if (userinput != nullptr) {
+				addComponent(userinput);
+				getComponent<CUserInput>()->deserialize(it->value);
+			}
+
 			auto touchTrigger = createComponentByName<CTouchTrigger>(it->name.GetString());
 			if (touchTrigger != nullptr) {
 				addComponent(touchTrigger);
@@ -380,7 +386,7 @@ public:
 			}
 
 			auto collectable = createComponentByName<CCollectable>(it->name.GetString());
-			if (health != nullptr) {
+			if (collectable != nullptr) {
 				addComponent(collectable);
 				getComponent<CCollectable>()->deserialize(it->value);
 			}

@@ -48,12 +48,10 @@ void HandleMoveInteraction(const std::shared_ptr<Entity>& entity) {
 		Vec2 localMousePos;
 		localMousePos.x = globalMousePos.x - windowPos.x;
 		localMousePos.y = globalMousePos.y - windowPos.y;
-		std::cout << "Local Mouse pos" << localMousePos.x << ", " << localMousePos.y << std::endl;
 
 		// Move the entity to the snap position
-		std::cout << "Before pos" << transform.position.x << ", " << transform.position.y << std::endl;
 		transform.position = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
-		std::cout << "After pos" << transform.position.x << ", " << transform.position.y << std::endl;	
+		transform.origin = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
 	}
 }
 

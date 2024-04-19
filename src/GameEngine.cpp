@@ -110,10 +110,9 @@ void GameEngine::addEntitiesForTest()
 void GameEngine::update()
 {
 	EntityManager::GetInstance().update();
+	
 	sUserInput();
-	std::cout << Editor::state << std::endl;
-
-	if (Editor::state == Editor::State::None) {
+	if (Editor::state == Editor::State::Testing) {
 		sTouchTrigger();
 		sScripts();
 		sMovement();
@@ -185,7 +184,6 @@ void GameEngine::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
 				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
@@ -258,7 +256,8 @@ void GameEngine::sTouchTrigger()
 		// If has touch trigger, check if it is touching any other entity
 		for (auto& entityTouched : entities) {
 			// Skip entities without the tag we're caring about
-			if (touchTrigger->tag != entityTouched->getComponent<CInformation>()->tag) continue;
+			if (touchTrigger->tag != entityTouched->getComponent<CInformation>()->tag 
+				|| entity->isDisabled() || entityTouched->isDisabled()) continue;
 
 			// Check if the entity is touching the entity with the touch trigger
 			auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
@@ -392,34 +391,6 @@ void GameEngine::sCollision()
 {
 	GatorPhysics::GetInstance().update();
 }
-
-// void GameEngine::sAnimation()
-// {
-// 	// Need to add GetComponent, AddComponent templates to entity.
-// 	auto &entityManager = EntityManager::GetInstance();
-// 	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
-
-// 	for (auto &entity : entityList)
-// 	{
-// 		if (entity->hasComponent<CAnimation>())
-// 		{
-// 			auto transformComponent = entity->getComponent<CTransform>();
-// 			Vec2 scale = transformComponent->scale;
-// 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-// 			auto animationComponent = entity->getComponent<CAnimation>();
-// 			animationComponent->changeSpeed();
-// 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-// 			sf::Sprite sprite(animationComponent->animation.sprite);
-// 			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
-// 			sprite.setScale(scale.x, scale.y);
-// 			window_.draw(sprite);
-
-// 			if (Editor::kState == Editor::State::Testing) {
-// 				animationComponent->update();
-// 			}
-// 		}
-// 	}
-// }
 
 void GameEngine::sBackground() {
 	// Find first component of type CBackground and draw it

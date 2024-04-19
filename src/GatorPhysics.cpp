@@ -38,9 +38,13 @@ void GatorPhysics::update()
 	for (auto node : entity_to_bodies_)
 	{
 		Entity* entity = node.first;
+		if (entity == nullptr) continue;
+		if ( !entity->hasComponent<CRigidBody>()) continue;
+
 		b2Body* body = entity->getComponent<CRigidBody>()->body;
 
 		//First check if the node is disabled, if it is, then we don't need to update the physics body
+		
 		if (entity->isDisabled())
 		{
 			body->SetEnabled(false);

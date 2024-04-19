@@ -20,7 +20,7 @@ public:
 
 	CTouchTrigger() {}
 
-	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
 
         writer.Key("tag");
@@ -36,16 +36,29 @@ public:
         writer.Key("y");
         writer.Double(trigger_size.y);
         writer.EndObject();
-	}
 
-	void deserialize(const rapidjson::Value& value) override {
-        tag = value["tag"].GetString();
-        action = static_cast<TriggerAction>(value["action"].GetInt());
-        const rapidjson::Value& size = value["triggerSize"];
-        trigger_size.x = size["x"].GetDouble();
-        trigger_size.y = size["y"].GetDouble();
+        writer.EndObject();
+    }
 
-	}
+    void deserialize(const rapidjson::Value& value) override {
+        if (value.HasMember("tag") && value["tag"].IsString()) {
+            tag = value["tag"].GetString();
+        }
+
+        if (value.HasMember("action") && value["action"].IsInt()) {
+            action = static_cast<TriggerAction>(value["action"].GetInt());
+        }
+
+        if (value.HasMember("triggerSize") && value["triggerSize"].IsObject()) {
+            const rapidjson::Value& size = value["triggerSize"];
+            if (size.HasMember("x") && size["x"].IsDouble()) {
+                trigger_size.x = size["x"].GetDouble();
+            }
+            if (size.HasMember("y") && size["y"].IsDouble()) {
+                trigger_size.y = size["y"].GetDouble();
+            }
+        }
+    }
 };
 
 #endif // TOUCH_TRIGGER_H

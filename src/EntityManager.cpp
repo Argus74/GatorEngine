@@ -63,9 +63,6 @@ void EntityManager::update()
 		entities_.end()
 	);
 
-	if (Editor::state != Editor::State::Testing) {
-		resetPositions();
-	}
 }
 
 // Get all entities
