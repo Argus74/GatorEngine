@@ -81,7 +81,7 @@ add_subdirectory(${BOX2D_DIR})
 
 # Main executable
 add_executable(
-    GatorEngine 
+     GatorEngine 
     "src/main.cpp"
     "src/Entity.cpp" 
     "src/EntityManager.cpp" 
@@ -93,9 +93,8 @@ add_executable(
     "src/editor/TabBarWindow.cpp"
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
-    "src/Scene.cpp"
-    #"src/Scene_Old.cpp"
-    "src/Scene_Play.cpp"
+    # "src/util/Scene.cpp"
+    # "src/Scene_Play.cpp"
     "src/GatorPhysics.cpp"
     "src/editor/SceneLayoutWindow.cpp"
     "src/ActionBus.cpp" 
@@ -113,10 +112,10 @@ add_executable(
     "src/components/CHealth.cpp" 
     "src/components/CText.h" 
     "src/components/CText.cpp"
-    "src/components/CCollectable.h"
     "src/components/CTouchTrigger.h"
     "src/components/CScript.h"
     )
+
 
 target_link_libraries(GatorEngine
     sfml-graphics
