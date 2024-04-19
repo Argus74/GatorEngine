@@ -16,6 +16,7 @@ class GameEngine : public Serializable
 
 private:
 	GameEngine();
+	
 	sf::RenderWindow window_ = sf::RenderWindow(sf::VideoMode(1366, 768), "Gator Engine");
 
 	// std::string m_currentScene;
@@ -24,7 +25,7 @@ private:
 	bool running_ = true;
 	bool initialized_ = false;
 	size_t current_frame_ = 0;
-	std::string current_scene_path_;	
+	std::string current_scene_path_ = "scenes/default.scene";
 
 	void init();
 
@@ -64,6 +65,7 @@ public:
 	void saveScene(const std::string& path);
 	void update();
 	static GameEngine& GetInstance();
+
 	// void ChangeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
 	void quit();
 	void run();

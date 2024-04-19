@@ -15,6 +15,8 @@ GameEngine& GameEngine::GetInstance()
 	return instance_;
 }
 
+
+
 // void GameEngine::ChangeScene(const std::string &sceneName, std::shared_ptr<Scene> scene, bool endcurrent_scene_)
 // {
 // 	if (endcurrent_scene_)
@@ -109,9 +111,9 @@ void GameEngine::update()
 {
 	EntityManager::GetInstance().update();
 	sUserInput();
-	addEntitiesForTest();
+	std::cout << Editor::state << std::endl;
 
-	if (Editor::state == Editor::State::Testing) {
+	if (Editor::state == Editor::State::None) {
 		sTouchTrigger();
 		sScripts();
 		sMovement();
@@ -436,17 +438,17 @@ void GameEngine::sBackground() {
 
 void GameEngine::sRender()
 {
-	auto &entityManager = EntityManager::GetInstance();
+	auto& entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntitiesRenderingList();
 
-	for (auto &entity : entityList)
+	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
-		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
+		if (entity->hasComponent<CSprite>())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
-			Vec2 position = Editor::state == Editor::State::Testing ? transformComponent->position : transformComponent->origin; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
@@ -455,14 +457,14 @@ void GameEngine::sRender()
 			spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite.setScale(scale.x, scale.y);
-      
-      //Rotation
+
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite.setRotation(angle);
-			
+
 
 			if (spriteComponent->draw_sprite)
-				window_.draw(spriteComponent->sprite);
+				GameEngine::GetInstance().window().draw(spriteComponent->sprite);
 		}
 
 		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
@@ -483,10 +485,11 @@ void GameEngine::sRender()
 			sprite.setScale(scale.x, scale.y);
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
-			window_.draw(sprite);
-			if (Editor::state == Editor::State::Testing) {
+			GameEngine::GetInstance().window().draw(sprite);
+
+
+			if (animationComponent->play_animation || Editor::state == 3)
 				animationComponent->update();
-			}
 		}
 	}
 }

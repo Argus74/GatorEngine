@@ -14,7 +14,7 @@ public:
 	CTransform(const Vec2& origin, const Vec2& scl, float ang)
 		: origin(origin), position(origin), scale(scl), angle(ang) {}
 	
-	void resetPosition() { position = origin; };
+	void resetPosition() { origin = position; };
 
 	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
 		writer.StartObject();

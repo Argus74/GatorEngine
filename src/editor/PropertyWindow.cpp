@@ -46,7 +46,7 @@ void PropertyWindow::PreDraw()
 void PropertyWindow::DrawFrames()
 {
     // Draw blank window if no active entity
-    if (!Editor::state || Editor::state == Editor::State::Testing) 
+    if (!Editor::active_entity_ || Editor::state == Editor::State::Testing)
     {
         name_ = " ";
         return;
@@ -146,7 +146,7 @@ void PropertyWindow::DrawComponent(T& component)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform)
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
-    DrawProperty("Origin", transform->origin);
+    DrawProperty("Position", transform->position);
     DrawProperty("Scale", transform->scale);
     DrawProperty("Velocity", transform->velocity);
     DrawProperty("Angle", transform->angle);

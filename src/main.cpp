@@ -69,7 +69,7 @@ int main()
     ImGui::SFML::Init(window);
     Editor editor;
     //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
-    newGame.changeScene(newGame.currentScenePath());
+    //newGame.changeScene("scenes/Default.scene");
     //LuaState newLuaState("script.lua");
 
     while (window.isOpen())

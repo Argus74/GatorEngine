@@ -25,6 +25,19 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 	return newEntity;
 }
 
+std::shared_ptr<Entity> EntityManager::addEntityStart(const std::string& tag)
+{
+	std::cout << "Adding entity with tag: " << tag << std::endl;
+	auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
+	newEntity->addComponent<CName>();
+	newEntity->addComponent<CInformation>();
+	newEntity->addComponent<CTransform>();
+	entities_.push_back(newEntity);
+	sortEntitiesForRendering();
+	UpdateUIRenderingList();
+	return newEntity;
+}
+
 void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
 {
 	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity); // Call cpy ctr

@@ -148,6 +148,11 @@ add_custom_command(TARGET GatorEngine POST_BUILD
     ${CMAKE_SOURCE_DIR}/assets
     $<TARGET_FILE_DIR:GatorEngine>/assets)
 
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/scenes
+    $<TARGET_FILE_DIR:GatorEngine>/scenes)
+
 
 if (WIN32)
         # Copy SFML DLLs
@@ -209,9 +214,3 @@ endif()
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LuaFile} $<TARGET_FILE_DIR:GatorEngine>
     )
 endforeach()]]
-
-# Copy asset folder
-add_custom_command(TARGET GatorEngine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets
-    $<TARGET_FILE_DIR:GatorEngine>/assets)
