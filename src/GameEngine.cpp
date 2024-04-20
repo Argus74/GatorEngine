@@ -70,6 +70,7 @@ void GameEngine::changeScene(const std::string& path)
 	EntityManager::GetInstance().reset();
 	Editor::state = Editor::State::None;
 	Editor::active_entity_ = nullptr;
+	GatorPhysics::GetInstance().clearBodies();
 	Scene scene;
 	scene.readFromJSONFile(path);	
 	current_scene_path_ = path;

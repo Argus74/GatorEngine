@@ -39,7 +39,7 @@ void GatorPhysics::update()
 	{
 		Entity* entity = node.first;
 		if (entity == nullptr) continue;
-		if ( !entity->hasComponent<CRigidBody>()) continue;
+		if (!entity->initialized || !entity->hasComponent<CRigidBody>()) continue;
 
 		b2Body* body = entity->getComponent<CRigidBody>()->body;
 
@@ -222,4 +222,12 @@ void GatorPhysics::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 
 void GatorPhysics::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
+}
+
+void GatorPhysics::clearBodies() 
+{
+	for (auto entity : entity_to_bodies_) {
+		world_.DestroyBody(entity.second);
+	}
+	entity_to_bodies_.clear();
 }

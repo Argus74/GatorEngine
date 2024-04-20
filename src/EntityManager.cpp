@@ -51,10 +51,12 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : to_add_) {
 		entities_.push_back(entity);
+		entity->initialized = true;
 		sortEntitiesForRendering(); //Sorting render list
 		UpdateUIRenderingList();
 	}
 	to_add_.clear();
+	
 
 	// Remove dead entities from the main vector
 	entities_.erase(

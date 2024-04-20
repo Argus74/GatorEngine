@@ -30,7 +30,6 @@ typedef std::tuple< //as we add more components, we add them here
 
 class Entity : public Serializable {
 	size_t id_;
-
 	bool is_alive_;
 	friend class EntityManager;
 	bool disabled_ = false;
@@ -51,12 +50,14 @@ public:
 	bool isDisabled();
 	void setDisabled(bool disable);
 	void updateHealth(float dmg);
-
+	
 	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
 	sf::FloatRect& GetRect(float margin = 0.0f);
 
 	std::string tag;
 	int layer = 1; //Don't need this here to be honest
+
+	bool initialized = false; // True once added to the entity manager list from to_add
 
 	// Component Accessors and Modifiers 
 
