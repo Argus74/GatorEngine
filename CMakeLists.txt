@@ -53,6 +53,18 @@ FetchContent_Declare(luajit
 FetchContent_MakeAvailable(luajit)
 ]]
 
+
+# Add SFML
+set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
+add_subdirectory(${SFML_DIR})
+
+FetchContent_Declare(
+    nativefiledialog-extended
+    GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+    GIT_TAG        17b6e8ce219c0677f94b63636abb9296b28841ca
+)
+FetchContent_MakeAvailable(nativefiledialog-extended)
+
 # Add core ImGui library
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/extern/imgui)
 
@@ -67,17 +79,9 @@ set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "Do not build Box2D testbed" FORCE)
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Do not build Box2D unit tests" FORCE)
 add_subdirectory(${BOX2D_DIR})
 
-# Add SFML
-set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
-add_subdirectory(${SFML_DIR})
-
-FetchContent_Declare(
-    nativefiledialog-extended
-    GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
-    GIT_TAG        17b6e8ce219c0677f94b63636abb9296b28841ca
-)
-FetchContent_MakeAvailable(nativefiledialog-extended)
-
+#Add nativefiledialog-extended
+# set(NATIVE_FILE_DIALOG_DIR ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended)
+# add_subdirectory(${NATIVE_FILE_DIALOG_DIR})
 
 # Main executable
 add_executable(
