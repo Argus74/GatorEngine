@@ -47,10 +47,10 @@ AssetManager::~AssetManager() {
     animations_.clear();
 
 
-    for (auto& pair : gameEngineTextures_) {
+    for (auto& pair : game_engine_textures_) {
         delete pair.second;
     }
-    gameEngineTextures_.clear();
+    game_engine_textures_.clear();
 }
 
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {
@@ -60,7 +60,9 @@ void AssetManager::AddTexture(const std::string& name, const std::string& path) 
         delete texture;
         return;
     }
+
     textures_[name] = texture;
+    texture_paths_[name] = path;
 }
 
 void AssetManager::AddTexturePrivate(const std::string& name, const std::string& path) {
@@ -70,7 +72,7 @@ void AssetManager::AddTexturePrivate(const std::string& name, const std::string&
         delete texture;
         return;
     }
-    gameEngineTextures_[name] = texture;
+    game_engine_textures_[name] = texture;
 }
 
 void AssetManager::AddSound(const std::string& name, const std::string& path) {
@@ -144,11 +146,11 @@ sf::Texture& AssetManager::GetTexture(const std::string& name) {
 }
 
 sf::Texture& AssetManager::GetTexturePrivate(const std::string& name) {
-    if (gameEngineTextures_.find(name) == gameEngineTextures_.end()) {
+    if (game_engine_textures_.find(name) == game_engine_textures_.end()) {
         std::cerr << "Texture not found: " << name << std::endl;
         throw std::runtime_error("Texture not found");
     }
-    return *gameEngineTextures_[name];
+    return *game_engine_textures_[name];
 }
 
 sf::SoundBuffer& AssetManager::GetSound(const std::string& name) {

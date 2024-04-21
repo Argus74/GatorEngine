@@ -20,12 +20,18 @@ public:
 	// Add an entity with a given tag
 	std::shared_ptr<Entity> addEntity(const std::string& tag);
 
+	// Adding entities through add entity puts it in a buffer thats added after update. Need to add entity immediatley
+	std::shared_ptr<Entity> addEntityStart(const std::string& tag);
+
 	// Get all entities
 	std::vector<std::shared_ptr<Entity>>& getEntities();
 
 	void removeEntity(std::shared_ptr<Entity> entity);
 
 	void cloneEntity(const std::shared_ptr<Entity>& entity);
+
+	// Reset all entities with CTransform component to their origin after testing
+	void resetPositions();
 
 	void reset();
 
@@ -36,10 +42,12 @@ public:
 	std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
 	
 	// Get list of rendering for UI rendering
-	std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList();
+	std::vector<std::shared_ptr<Entity>>& getUIRenderingList();
 
 	// Updating are our UI rendering list
 	void UpdateUIRenderingList();
+
+	std::shared_ptr<Entity> getEntityByName(const std::string& name);
 
 private:
 	// Constructor
@@ -50,19 +58,19 @@ private:
 	using EntityMap = std::unordered_map<std::string, EntityVec>;
 
 	// Vector to store all entities
-	EntityVec m_entities;
+	EntityVec entities_;
 
 	// Vector to store entities to be added in the next frame
-	EntityVec m_toAdd;
+	EntityVec to_add_;
 
 	// Total number of entities ever created, for unique IDs
-	size_t m_totalEntities = 0;
+	size_t total_entities_ = 0;
 
 	// Vector that stores the true rendering order of Entities  
-	EntityVec entitiesRenderingList_;
+	EntityVec entities_rendering_list_;
 
 	// Vector that stores entities with UI or Health Components
-	EntityVec entitiesUIList_;
+	EntityVec entities_UI_list_;
 };
 
 #endif // ENTITYMANAGER_H

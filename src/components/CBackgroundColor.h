@@ -13,4 +13,20 @@ public:
 	DECLARE_COMPONENT_NAME("Background Color");
 	sf::Color color;
 	CBackgroundColor() : color(sf::Color::Blue) {}
+
+	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+		writer.StartObject();
+		writer.Key("r");
+		writer.Int(color.r);
+		writer.Key("g");
+		writer.Int(color.g);
+		writer.Key("b");
+		writer.Int(color.b);
+		writer.Key("a");
+		writer.Int(color.a);
+		writer.EndObject();
+	}
+	void deserialize(const rapidjson::Value& value) override {
+		color = sf::Color(value["r"].GetInt(), value["g"].GetInt(), value["b"].GetInt(), value["a"].GetInt());
+	}
 };

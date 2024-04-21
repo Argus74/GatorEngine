@@ -1,10 +1,10 @@
 #include "Entity.h"
 
-Entity::Entity(const std::string& tag, size_t id) : id_(id), tag_(tag), is_alive_(true) {
+Entity::Entity(const std::string& tag, size_t id) : id_(id), tag(tag), is_alive_(true) {
 	// Initialization of components, if required
 }
 
-Entity::Entity() : id_(0), tag_("Default"), is_alive_(true) {
+Entity::Entity() : id_(0), tag("Default"), is_alive_(true) {
 	// Default initialization
 }
 
@@ -32,7 +32,7 @@ Entity& Entity::operator=(Entity&& rhs) {
 
 void Entity::clone(const Entity& other) {
 	id_ = other.id_; // ID should be changed after, by the EM, to reflect the new entity
-	tag_ = other.tag_;
+	tag = other.tag;
 	is_alive_ = other.is_alive_;
 	disabled_ = other.disabled_;
 
@@ -71,32 +71,37 @@ void Entity::setDisabled(bool disable) {
 	disabled_ = disable;
 }
 
-bool Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
-	if (this->hasComponent<CHealth>()) {
-		auto healthComponent = this->getComponent<CHealth>();
+void Entity::updateHealth(float dmg) { // Return true if there is a health component to take damage from
+	auto healthComponent = this->getComponent<CHealth>();
 
-		if (healthComponent->UpdateHealth(dmg))
+	if (healthComponent->UpdateHealth(dmg)) { // True if the player "died"
+		if (healthComponent->respawn_character) { 
+			this->getComponent<CTransform>()->position = healthComponent->respawn_position;
+		}
+		else { // We disable our character if the Dev doesn't want to respawn the entity
 			disabled_ = true;
+		}
+	}
 
-		return true;
-	}
-	else {
-		return false;
-	}
 }
 
 sf::FloatRect& Entity::GetRect(float margin) {
 	auto& transform = *(getComponent<CTransform>());
 	sf::FloatRect rect;
 
+	if (hasComponent<CTouchTrigger>()) {
+		auto& triggerBox = getComponent<CTouchTrigger>()->trigger_size;
+		rect.width = triggerBox.x;
+		rect.height = triggerBox.y;
+	}
+	else if (hasComponent<CSprite>()) { // Set selection box size, depending on the entity's current sprite
+		auto& sprite = getComponent<CSprite>()->sprite;
 	// Set selection box size, depending on the entity's current sprite
-	if (hasComponent<CSprite>()) {
-		auto& sprite = getComponent<CSprite>()->sprite_;
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;
 	}
 	else if (hasComponent<CAnimation>()) {
-		auto& sprite = getComponent<CAnimation>()->animation_.sprite_;
+		auto& sprite = getComponent<CAnimation>()->animation.sprite;
 		sprite.setScale(transform.scale.x, transform.scale.y); // Hacky fix to get sprite with correct scale
 		rect.width = sprite.getGlobalBounds().width + margin;
 		rect.height = sprite.getGlobalBounds().height + margin;

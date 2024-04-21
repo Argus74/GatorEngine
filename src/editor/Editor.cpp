@@ -7,11 +7,13 @@
 #include "SceneLayoutWindow.h"
 
 // Static variables
+
 Editor::State Editor::state;
 std::shared_ptr<Entity> Editor::active_entity_;
 bool Editor::show_grid_;
 bool Editor::snap_to_grid_;
 int Editor::grid_size_;
+
 
 Editor::Editor() {
     // Setup default, global style vars for consistent look
@@ -32,11 +34,13 @@ Editor::Editor() {
     style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.58f, 0.98f, 0.30f);
     style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.58f, 0.98f, 0.50f);
 
-    state = State::None;
+
+    Editor::state = None;
     active_entity_ = nullptr;
     show_grid_ = false;
     snap_to_grid_ = false;
     grid_size_ = 48;
+
 
     windows_.push_back(std::make_unique<FileBarWindow>());
     windows_.push_back(std::make_unique<TabBarWindow>());

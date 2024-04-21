@@ -39,6 +39,13 @@ static const char* kActionNames[] = {
 	"Jump"
 };
 
+static const char* kTriggerActionNames[] = {
+	"No Action",
+	"Update Health",
+	"Update Collectible",
+	"Give Jump"
+};
+
 static enum Action {
 	NoAction,
 	MoveUp,
@@ -47,6 +54,13 @@ static enum Action {
 	MoveRight,
 	Jump,
 	NUM_ACTIONS
+};
+
+static enum TriggerAction {
+	None,
+	UpdateHealth,
+	UpdateCollectible,
+	GiveJump
 };
 
 class ActionBus {
@@ -71,7 +85,7 @@ class ActionBus {
 	 ActionBus() = default;
 
 	 // Map of entities and the actions they triggered
-	 std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entityActionsMap;
+	 std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entity_actions_map_;
 };
 
 #endif // ACTION_BUS_H

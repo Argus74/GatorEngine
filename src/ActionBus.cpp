@@ -6,15 +6,15 @@ ActionBus& ActionBus::GetInstance() {
 }
 
 void ActionBus::Dispatch(const std::shared_ptr<Entity>& entity, Action action) {
-	entityActionsMap[entity][action] = true;
+	entity_actions_map_[entity][action] = true;
 }
 
 bool ActionBus::Received(const std::shared_ptr<Entity>& entity, Action action) {
-	return entityActionsMap[entity][action];
+	return entity_actions_map_[entity][action];
 }
 
 void ActionBus::Clear() {
-	for (auto& entity : entityActionsMap) {
+	for (auto& entity : entity_actions_map_) {
 		for (int i = 0; i < NUM_ACTIONS; i++) {
 			entity.second[i] = false;
 		}

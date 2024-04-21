@@ -51,6 +51,7 @@ void HandleMoveInteraction(const std::shared_ptr<Entity>& entity) {
 
 		// Move the entity to the snap position
 		transform.position = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
+		transform.origin = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
 	}
 }
 
