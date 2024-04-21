@@ -122,8 +122,11 @@ void GameEngine::update()
 
 	sBackground();
 	sRender();
+	if (Editor::kState == Editor::State::Testing) {
+		sRenderColliders();
+	}
 	sUI();
-	//sRenderColliders();
+	
 	//GatorPhysics &physics = GatorPhysics::GetInstance();
 
 
@@ -438,11 +441,10 @@ void GameEngine::sRender()
 			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite.setScale(scale.x, scale.y);
       
-      //Rotation
+			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite.setRotation(angle);
 			
-
 			if (spriteComponent->draw_sprite)
 				window_.draw(spriteComponent->sprite);
 		}
@@ -560,6 +562,39 @@ bool GameEngine::isRunning()
 bool GameEngine::isKeyPressed(sf::Keyboard::Key key)
 {
 	return sf::Keyboard::isKeyPressed(key);
+}
+
+void GameEngine::sRenderColliders() {
+	auto& entityManager = EntityManager::GetInstance();
+
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntities();
+
+	for (auto& entity : entityList)
+	{ // Looping through entity list and drawing the sprites to the render window.
+		if (entity->hasComponent<CRigidBody>() && !entity->isDisabled())
+		{
+			auto rigidBodyComponent = entity->getComponent<CRigidBody>();
+			b2Vec2 position = rigidBodyComponent->body->GetPosition();
+			//These sizes are half widths and half heights
+			b2Vec2 size = rigidBodyComponent->body->GetFixtureList()->GetAABB(0).GetExtents();
+			float xScale = entity->getComponent<CTransform>()->scale.x;
+			float yScale = entity->getComponent<CTransform>()->scale.y;
+			float entityWidth = size.x * 2  * GatorPhysics::GetInstance().getScale();
+			float entityHeight = size.y * 2 * GatorPhysics::GetInstance().getScale();
+			auto spriteComponent = sf::RectangleShape();
+			spriteComponent.setOrigin(entityWidth / 2, entityHeight / 2);
+			spriteComponent.setFillColor(sf::Color::White);
+			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+			float worldY = GameEngine::GetInstance().window().getSize().y;
+			float entityY = ((position.y * GatorPhysics::GetInstance().getScale()) - worldY) * -1;
+			float entityX = position.x * GatorPhysics::GetInstance().getScale();
+			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
+			//spriteComponent.setPosition(400, 400);
+			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
+			//spriteComponent.setSize(sf::Vector2f(1000, 1000));
+			window_.draw(spriteComponent);
+		}
+	}
 }
 
 // void GameEngine::sUserInput()
