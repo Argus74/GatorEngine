@@ -111,6 +111,7 @@ void EntityManager::resetPositions() {
 		}
 	}
 }
+
 //Clear our entity list
 void EntityManager::reset()
 {

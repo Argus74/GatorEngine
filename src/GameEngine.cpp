@@ -123,7 +123,7 @@ void GameEngine::update()
 
 	sBackground();
 	sRender();
-	if (Editor::kState == Editor::State::Testing) {
+	if (Editor::state == Editor::State::Testing) {
 		sRenderColliders();
 	}
 	sUI();
@@ -578,18 +578,11 @@ void GameEngine::sRenderColliders() {
 			float yScale = entity->getComponent<CTransform>()->scale.y;
 			float entityWidth = size.x * 2  * GatorPhysics::GetInstance().getScale();
 			float entityHeight = size.y * 2 * GatorPhysics::GetInstance().getScale();
-			auto spriteComponent = sf::RectangleShape();
-			spriteComponent.setOrigin(entityWidth / 2, entityHeight / 2);
-			spriteComponent.setFillColor(sf::Color::White);
+			
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			float worldY = GameEngine::GetInstance().window().getSize().y;
 			float entityY = ((position.y * GatorPhysics::GetInstance().getScale()) - worldY) * -1;
 			float entityX = position.x * GatorPhysics::GetInstance().getScale();
-			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
-			//spriteComponent.setPosition(400, 400);
-			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
-			//spriteComponent.setSize(sf::Vector2f(1000, 1000));
-			window_.draw(spriteComponent);
 		}
 	}
 }

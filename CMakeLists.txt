@@ -53,7 +53,6 @@ FetchContent_Declare(luajit
 FetchContent_MakeAvailable(luajit)
 ]]
 
-
 # Add SFML
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/extern/SFML)
 add_subdirectory(${SFML_DIR})
@@ -83,9 +82,10 @@ add_subdirectory(${BOX2D_DIR})
 # set(NATIVE_FILE_DIALOG_DIR ${CMAKE_SOURCE_DIR}/extern/nativefiledialog-extended)
 # add_subdirectory(${NATIVE_FILE_DIALOG_DIR})
 
+
 # Main executable
 add_executable(
-     GatorEngine 
+    GatorEngine 
     "src/main.cpp"
     "src/Entity.cpp" 
     "src/EntityManager.cpp" 
@@ -120,7 +120,6 @@ add_executable(
     "src/components/CScript.h"
     )
 
-
 target_link_libraries(GatorEngine
     sfml-graphics
     sfml-window
@@ -153,9 +152,9 @@ add_custom_command(TARGET GatorEngine POST_BUILD
     $<TARGET_FILE_DIR:GatorEngine>/assets)
 
 add_custom_command(TARGET GatorEngine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/scenes
-    $<TARGET_FILE_DIR:GatorEngine>/scenes)
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/scenes
+	$<TARGET_FILE_DIR:GatorEngine>/scenes)
 
 
 if (WIN32)
@@ -218,3 +217,9 @@ endif()
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LuaFile} $<TARGET_FILE_DIR:GatorEngine>
     )
 endforeach()]]
+
+# Copy asset folder
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:GatorEngine>/assets)
