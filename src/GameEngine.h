@@ -36,6 +36,7 @@ private:
 	void sPhysics();
 	void sCollision();
 	void sBackground();
+	void sRenderColliders();
 	// void sAnimation();
 	void sRender();
 	void sUI();
@@ -73,6 +74,7 @@ public:
 	AssetManager& assets();
 	bool isRunning();
 	bool isKeyPressed(sf::Keyboard::Key key);
+	
 	const std::string& currentScenePath() const { return current_scene_path_; };
 
 	//Delete copy and move constructors

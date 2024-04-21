@@ -65,12 +65,17 @@ void GatorPhysics::update()
 		}
 
 		//If anything happened to the positions/rotation/scale of the entities, update their physics bodies
+		//and trigger boxes
 		//float physicsY = (worldY - node.first->getComponent<CTransform>()->position.y);
 		float physicsY = (worldY - node.first->getComponent<CTransform>()->position.y) / scale_;
 		float physicsX = node.first->getComponent<CTransform>()->position.x / scale_;
 		node.second->SetTransform(b2Vec2(physicsX, physicsY), node.first->getComponent<CTransform>()->angle);
-		b2PolygonShape* shape = dynamic_cast<b2PolygonShape*>(node.second->GetFixtureList()[0].GetShape());
 
+		b2Fixture* firstFixture = node.second->GetFixtureList();
+		b2Fixture* secondFixture = firstFixture->GetNext();
+
+		b2PolygonShape* shape = dynamic_cast<b2PolygonShape*>(firstFixture->GetShape());
+		b2PolygonShape* sensorShape = dynamic_cast<b2PolygonShape*>(secondFixture->GetShape());
 		//Update the size of the physics body to match the size of the entity
 		float xScale = entity->getComponent<CTransform>()->scale.x;
 		float yScale = entity->getComponent<CTransform>()->scale.y;
@@ -87,12 +92,18 @@ void GatorPhysics::update()
 			newHeight = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().y / 2 * yScale / scale_;
 		}
 		shape->SetAsBox(newWidth, newHeight);
-
+		sensorShape->SetAsBox(newWidth, newHeight);
 		//Update the densities and friction of the physics bodies
 		b2Fixture* fixture = body->GetFixtureList();
-		//fixture->SetDensity(entity->getComponent<CRigidBody>()->density);
-		//fixture->SetFriction(entity->getComponent<CRigidBody>()->friction);
-		//body->ResetMassData();
+		fixture->SetDensity(entity->getComponent<CRigidBody>()->density);
+		fixture->SetFriction(entity->getComponent<CRigidBody>()->friction);
+
+		//Update the densities and friction of the sensor fixtures
+		fixture = body->GetFixtureList()->GetNext();
+		fixture[1].SetDensity(entity->getComponent<CRigidBody>()->density);
+		fixture->SetFriction(entity->getComponent<CRigidBody>()->friction);
+		
+		body->ResetMassData();
 		node.second->SetAwake(true);
 	}
 
@@ -100,6 +111,19 @@ void GatorPhysics::update()
 
 	//Step the physics world
 	world_.Step(time_step_, velocity_iterations_, position_iterations_);
+	//we will now print out the centroids of the bodies as well as the positions of the physics bodies. 
+	//We will also print out the widths
+	//and heights of the physics bodies.
+
+	std::cout << "Printing out the positions of the physics bodies" << std::endl;
+	for (auto node : entity_to_bodies_) {
+		b2Vec2 position = node.second->GetPosition();
+		std::cout << "Position: " << position.x << ", " << position.y << std::endl;
+		b2PolygonShape* shape = dynamic_cast<b2PolygonShape*>(node.second->GetFixtureList()[0].GetShape());
+		float width = shape->m_vertices[2].x - shape->m_vertices[0].x;
+		float height = shape->m_vertices[2].y - shape->m_vertices[0].y;
+		std::cout << "Width: " << width << " Height: " << height << std::endl;
+	}
 
 	for (auto node : entity_to_bodies_) {
 		//Update the positions/rotation of the entities to match the physics bodies
@@ -137,6 +161,13 @@ void GatorPhysics::createBody(Entity* entity, bool isStatic)
 	b2PolygonShape newBox;
 	bool hasSprite = entity->hasComponent<CSprite>();
 	bool hasAnimations = entity->hasComponent<CAnimation>();
+
+	if (!hasSprite && !hasAnimations)
+	{
+		std::cout << "Entity does not have a sprite or animation" << std::endl;
+		return;
+	}
+
 	sf::Sprite& sprite = hasSprite ? entity->getComponent<CSprite>()->sprite : entity->getComponent<CAnimation>()->animation.sprite;
 	float boxWidth = sprite.getLocalBounds().getSize().x * (1 / scale_) / 2;
 	float boxHeight = sprite.getLocalBounds().getSize().y * (1 / scale_) / 2;
@@ -197,7 +228,6 @@ void GatorPhysics::BeginContact(b2Contact* contact)
 		b2Vec2 normal = contact->GetManifold()->localNormal;
 		if (normal.y < 0.5)
 		{
-
 			std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
 			entity->getComponent<CCharacter>()->is_grounded = true;
 		}
