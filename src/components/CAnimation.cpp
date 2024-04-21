@@ -6,7 +6,7 @@ CAnimation::CAnimation() {}
 CAnimation::CAnimation(std::string name) : name(name) { 
 	auto& assetManager = AssetManager::GetInstance();
 	animation = assetManager.GetAnimation(name);
-	animation_speed = animation.speed;
+	animation_speed = 1;
 }
 
 void CAnimation::setAnimation(const Animation& newAnimation) {
@@ -14,7 +14,7 @@ void CAnimation::setAnimation(const Animation& newAnimation) {
 }
 
 void CAnimation::changeSpeed() {
-	animation_speed = animation.speed;
+	animation.speed = animation_speed;
 }
 
 void CAnimation::update() {

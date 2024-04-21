@@ -530,7 +530,8 @@ void GameEngine::sUI() {
 
 			std::string outputString = textComponent->message;
 			if (textComponent->is_counter) {
-				outputString += std::to_string(textComponent->counter);
+				int numberToAdd = textComponent->counter;
+				outputString += std::to_string(numberToAdd);
 			}
 
 			textComponent->text.setFont(textComponent->font);
@@ -614,7 +615,7 @@ void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_
 			collectibleEnity->setDisabled(true);
 		}
 	}
-	else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->counter)
+	else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->is_counter)
 	{ // We are going to add score to the text comp
 
 		entityPair->getComponent<CText>()->counter += collectibleComponent->points_to_add;

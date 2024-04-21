@@ -117,15 +117,6 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
-            /*if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
-                // Position the button to the right of the header
-                static const char* name = "Add Trigger";
-                ImGui::SameLine(); // same line as header
-                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-                ImGui::PopStyleColor();
-            } */
 
             if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
@@ -182,7 +173,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
 {
-    DrawProperty("Animation Name", animation->name);
+    DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animation_speed);
     DrawButton(animation);
     
@@ -429,41 +420,6 @@ void PropertyWindow::DrawInputField(unsigned int& val)
         ImGui::EndCombo();
     }
 }
-
-// Used to list all different Game Objects with CText in the Collectable Component
-/*void PropertyWindow::DrawInputField(std::shared_ptr<CCollectable>& val) {
-    auto& entityList = EntityManager::GetInstance().getEntities();
-    int selection = -1; // Static to keep the selection persistent between frames
-
-    // Define the preview value
-    std::string preview_value = (val->collectable_text_entity && val->collectable_text_entity->hasComponent<CText>())
-        ? val->collectable_text_entity->getComponent<CName>()->name
-        : "Select an entity with text";
-
-    // Begin a combo box to allow selection from entities that have a CText component
-    if (ImGui::BeginCombo("##TextEntities", preview_value.c_str())) {
-        for (int i = 0; i < entityList.size(); i++) {
-            auto& entity = entityList[i];
-            // Check if the entity has a CText component
-            if (entity->hasComponent<CText>()) {
-                auto nameComp = entity->getComponent<CName>();
-                std::string displayName = nameComp ? nameComp->name : "Unnamed Entity"; // Use entity name if available
-
-                // Determine if this entity is the currently selected one
-                bool is_selected = (val->collectable_text_entity == entity);
-                if (ImGui::Selectable(displayName.c_str(), is_selected)) {
-                    selection = i;
-                    val->collectable_text_entity = entity; // Set the collectableEntity to the selected entity
-                }
-
-                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-        }
-        ImGui::EndCombo();
-    }
-} */
 
 void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val) 
 {
@@ -749,18 +705,3 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
 
     ImGui::BeginTable("EmptyTemp", 2, table_flags_); // Don't want to disrupt the draw component function 
 }
-
-/* void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
-{
-    // Decide which input type to use so we can display the correct map below
-    ImGui::Text("Specify tag of entities who can trigger");
-    static std::string tag = "";
-    DrawInputField(tag);
-    ImGui::NewLine();
-
-    // When pressed, add the input to its map
-    if (ImGui::Button("Create")) {
-        touchtrigger->tag_map.emplace(tag, Action::NoAction);
-        ImGui::CloseCurrentPopup();
-    }
-} */

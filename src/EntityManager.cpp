@@ -104,6 +104,10 @@ void EntityManager::resetPositions() {
 			auto collectable = entity->getComponent<CCollectable>();
 			if (collectable->reset())
 				entity->setDisabled(false);
+		} 
+		if (entity->hasComponent<CText>()) {
+			auto text = entity->getComponent<CText>();
+			text->reset();
 		}
 	}
 }

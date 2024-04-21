@@ -15,6 +15,10 @@ public:
 
 	sf::Text text;
 
+	void reset() {
+		counter = 0;
+	}
+
 	CText();
 	CText(const std::string& name);
 
