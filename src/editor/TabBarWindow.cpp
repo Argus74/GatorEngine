@@ -224,21 +224,22 @@ void TabBarWindow::DrawFrames()
 
                 // Player button
                 auto playerButton = [&]() {
-                    auto m_player = EntityManager::GetInstance().addEntity("Player");
-                    m_player->addComponent<CName>("Player");
-                    m_player->addComponent<CInformation>();
-                    m_player->addComponent<CTransform>(Vec2(50, 50));
-                    m_player->addComponent<CHealth>();
-                    auto anim = m_player->addComponent<CAnimation>();
+                    auto player = EntityManager::GetInstance().addEntity("Player");
+                    player->addComponent<CName>("Player");
+                    player->addComponent<CInformation>();
+                    player->addComponent<CTransform>(Vec2(50, 50));
+                    player->addComponent<CHealth>();
+                    player->addComponent<CCharacter>();
+                    auto anim = player->addComponent<CAnimation>();
                     anim->animation = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
-                    auto input = m_player->addComponent<CUserInput>();
+                    auto input = player->addComponent<CUserInput>();
                     input->key_map = { 
                         {sf::Keyboard::Space, Action::Jump}, 
                         {sf::Keyboard::S, Action::MoveDown}, // TODO: replace this?
                         {sf::Keyboard::A, Action::MoveLeft},
                         {sf::Keyboard::D, Action::MoveRight}
                     };
-                    GatorPhysics::GetInstance().createBody(m_player.get(), false);
+                    GatorPhysics::GetInstance().createBody(player.get(), false);
                 };
                 DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 
                     9, playerButton);
