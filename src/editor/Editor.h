@@ -46,9 +46,7 @@ public:
 	// Grid properties
 	static bool show_grid_;
 	static bool snap_to_grid_;
-	static float grid_size_;
-
-
+	static int grid_size_;
 private:
 	// List of all windows in the Editor
 	std::vector<std::unique_ptr<UIWindow>> windows_;

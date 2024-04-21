@@ -41,7 +41,7 @@ std::shared_ptr<Entity> EntityManager::addEntityStart(const std::string& tag)
 void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
 {
 	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity); // Call cpy ctr
-	total_entities_++; // Increment total entities out here too
+	newEntity->id_ = total_entities_++;
 	to_add_.push_back(newEntity);
 }
 

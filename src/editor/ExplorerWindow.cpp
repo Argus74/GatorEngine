@@ -74,12 +74,6 @@ void ExplorerWindow::DrawFrames() {
 			std::string label = entityName + "##" + std::to_string(i); // Prevent name conflcits bugs
 			if (ImGui::Selectable(label.c_str(), isSelected) && Editor::state != Editor::State::Testing) {
 				Editor::active_entity_ = entity;
-				if (Editor::state == Editor::State::Selecting) 
-					Editor::state = Editor::State::Selecting;
-				else if (Editor::state == Editor::State::Moving)
-					Editor::state = Editor::State::Moving;
-				else 
-					Editor::state = Editor::State::Moving;
 			}
 
 			if (isDisabled) {
@@ -173,7 +167,6 @@ void ExplorerWindow::DrawDropTarget(int targetIndex) {
 				EntityManager::GetInstance().UpdateUIRenderingList();
 			}
 			else {
-				;
 				entityList.erase(entityList.begin() + sourceIndex);
 				entityList.push_back(entity);
 				EntityManager::GetInstance().sortEntitiesForRendering(); //Sorting our Render List
