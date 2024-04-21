@@ -20,6 +20,9 @@ public:
 	// Add an entity with a given tag
 	std::shared_ptr<Entity> addEntity(const std::string& tag);
 
+	// Adding entities through add entity puts it in a buffer thats added after update. Need to add entity immediatley
+	std::shared_ptr<Entity> addEntityStart(const std::string& tag);
+
 	// Get all entities
 	std::vector<std::shared_ptr<Entity>>& getEntities();
 
@@ -43,6 +46,8 @@ public:
 
 	// Updating are our UI rendering list
 	void UpdateUIRenderingList();
+
+	std::shared_ptr<Entity> getEntityByName(const std::string& name);
 
 private:
 	// Constructor

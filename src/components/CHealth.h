@@ -21,6 +21,15 @@ public:
 	bool respawn_character = false;
 	Vec2 respawn_position = Vec2(0, 0); // Respawn the character
 
+	bool killed = false;
+
+	bool reset() {
+		current_health = health_total;
+		if (killed)
+			return true;
+		return false;
+	}
+
 	CHealth();
 	CHealth(float healthTotal, float currentHealth);
 	void Update();

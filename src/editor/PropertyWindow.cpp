@@ -10,6 +10,7 @@
 #include "../Entity.h"
 #include "Editor.h"
 #include <filesystem> 
+
 PropertyWindow::PropertyWindow()
 {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
@@ -45,19 +46,19 @@ void PropertyWindow::PreDraw()
 void PropertyWindow::DrawFrames()
 {
     // Draw blank window if no active entity
-    if (!Editor::kActiveEntity || Editor::kState == Editor::State::Testing) 
+    if (!Editor::active_entity_ || Editor::state == Editor::State::Testing)
     {
         name_ = " ";
         return;
     }
 
     // Name the window with entity's CName, if it exists
-    bool hasCName = Editor::kActiveEntity->hasComponent<CName>();
-    std::string nameTag = hasCName ? Editor::kActiveEntity->getComponent<CName>()->name : "NULL";
+    bool hasCName = Editor::active_entity_->hasComponent<CName>();
+    std::string nameTag = hasCName ? Editor::active_entity_->getComponent<CName>()->name : "NULL";
     name_ = "Properties - " + nameTag;
 
     // Draw a section for each component of the entity
-    Editor::kActiveEntity->forEachComponent([&](auto& component, int index) 
+    Editor::active_entity_->forEachComponent([&](auto& component, int index)
     {
         if (component && component->has) 
         {
@@ -66,7 +67,7 @@ void PropertyWindow::DrawFrames()
     });
 
     // Draw a button for adding new components
-    DrawPopupButton("Add Component", Editor::kActiveEntity,
+    DrawPopupButton("Add Component", Editor::active_entity_,
         ImVec2(ImGui::GetContentRegionMax().x, ImGui::GetTextLineHeight() * 2.0f));
 }
 
@@ -116,15 +117,6 @@ void PropertyWindow::DrawComponent(T& component)
                 DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
                 ImGui::PopStyleColor();
             }
-            if constexpr (std::is_same_v<T, std::shared_ptr<CTouchTrigger>>) {
-                // Position the button to the right of the header
-                static const char* name = "Add Trigger";
-                ImGui::SameLine(); // same line as header
-                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - (ImGui::CalcTextSize(name).x * 1.05) - 40); // Right flush by 40 pixels
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Make button transparent
-                DrawPopupButton(name, component, ImVec2(ImGui::CalcTextSize(name).x * 1.05, ImGui::GetTextLineHeight() * 1.75));
-                ImGui::PopStyleColor();
-            }
 
             if (ImGui::BeginTable(component->kComponentName, 2, table_flags_))
             {
@@ -135,7 +127,7 @@ void PropertyWindow::DrawComponent(T& component)
 
         if (!isOpen)
         {
-            Editor::kActiveEntity->removeComponent(component);
+            Editor::active_entity_->removeComponent(component);
         }
     }
 
@@ -145,7 +137,7 @@ void PropertyWindow::DrawComponent(T& component)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform)
 {
     // TODO: Update below. These are based on the placeholder components in Entity.h
-    DrawProperty("Origin", transform->origin);
+    DrawProperty("Position", transform->position);
     DrawProperty("Scale", transform->scale);
     DrawProperty("Velocity", transform->velocity);
     DrawProperty("Angle", transform->angle);
@@ -181,7 +173,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CSprite> sprite)
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CAnimation> animation)
 {
-    DrawProperty("Animation Name", animation->name);
+    DrawProperty("Animation Name", animation);
     DrawProperty("Animation Speed", animation->animation_speed);
     DrawButton(animation);
     
@@ -209,9 +201,38 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CInformation>& inf
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger)
 {
-	for (auto& entry : touchtrigger->tag_map) {
-		DrawProperty(entry.first.c_str(), entry.second);
-	}
+    DrawProperty("Trigger Tag", touchtrigger->tag);
+    DrawProperty("Trigger Action", touchtrigger->action);
+
+    if (touchtrigger->action != TriggerAction::None) {
+        if (touchtrigger->action != TriggerAction::UpdateCollectible) {
+
+        } 
+        else if (touchtrigger->action != TriggerAction::UpdateHealth) {
+
+        }
+        else if (touchtrigger->action != TriggerAction::GiveJump) {
+
+        }
+        DrawProperty("Trigger Size", touchtrigger->trigger_size);
+    } 
+ 
+}
+
+void PropertyWindow::DrawComponentProperties(std::shared_ptr<CCollectable>& collectable) 
+{
+    DrawProperty("Add Health", collectable->is_health);
+    
+    if (collectable->is_health) {
+        DrawProperty("Health Points", collectable->points_to_add);
+    }
+    else {
+        DrawProperty("Points to Add", collectable->points_to_add);
+        DrawProperty("UI to Connect", collectable->text_entity_name);
+    }
+
+    DrawProperty("Disappear", collectable->disappear_on_touch);
+
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health) 
@@ -247,10 +268,16 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr <CHealth>& health)
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CText>& text) 
 {
     DrawProperty("Text Font", text);
+
     DrawProperty("Text Style", text->style);
     DrawProperty("Message", text->message);
     DrawProperty("Character Size", text->character_size);
     DrawProperty("Text Color", text->text_color);
+    DrawProperty("Collectable Counter", text->is_counter);
+
+    if (text->is_counter)
+        DrawProperty("Count", text->counter);
+
 
 }
 void PropertyWindow::DrawComponentProperties(std::shared_ptr <CCharacter> character)
@@ -400,8 +427,9 @@ void PropertyWindow::DrawInputField(std::shared_ptr <CText>& val)
     auto fontNameList = assetManager.GenerateAssetNameList("fonts");
     int selection = 0;
 
-    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text.
+    // Define the preview value. If no texture is selected (e.g., textureId is -1), show the placeholder text
     const char* preview_value = val->name.c_str();
+
 
     // Use BeginCombo and EndCombo for a custom preview value
     if (ImGui::BeginCombo("##Fonts", preview_value)) {
@@ -462,7 +490,7 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val)
             bool is_selected = (selection == i);
             if (ImGui::Selectable(spriteNameList[i], is_selected)) {
                 selection = i;
-                // val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
+                val->sprite.setTexture(assetManager.GetTexture(spriteNameList[selection]), true);
                 val->name = spriteNameList[selection];
                 val->loadFromAssetManager();
             }
@@ -522,6 +550,13 @@ void PropertyWindow::DrawInputField(Action& val)
     int selection = static_cast<int>(val);
     ImGui::Combo("##Actions", &selection, kActionNames, IM_ARRAYSIZE(kActionNames));
     val = static_cast<Action>(selection);
+}
+
+void PropertyWindow::DrawInputField(TriggerAction& val) 
+{
+    int selection = static_cast<int>(val);
+    ImGui::Combo("##TriggerActions", &selection, kTriggerActionNames, IM_ARRAYSIZE(kTriggerActionNames));
+    val = static_cast<TriggerAction>(selection);
 }
 
 template <typename T>
@@ -617,10 +652,10 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
 
     if (ImGui::BeginCombo("##Components", selectionName))
     {
-        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
+        Editor::active_entity_->forEachComponent([&](auto& component, int index)
         {
             // Don't display components that already exist
-            if (component && component->has) return;
+            if (component && component->has ) return;
 
             bool isSelected = (selection == index);
             if (ImGui::Selectable(component->kComponentName, isSelected))
@@ -636,11 +671,11 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity)
     // Draw button that, when pressed, find & initialize the component if it is nullptr
     if (ImGui::Button("Create"))
     {
-        Editor::kActiveEntity->forEachComponent([&](auto& component, int index)
+        Editor::active_entity_->forEachComponent([&](auto& component, int index)
         {
             if (!component && selection == index)
             {
-                Editor::kActiveEntity->addComponent(component);
+                Editor::active_entity_->addComponent(component);
                 EntityManager::GetInstance().UpdateUIRenderingList();
 
             }
@@ -669,19 +704,4 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>&val)
     ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Spacing at the bottom
 
     ImGui::BeginTable("EmptyTemp", 2, table_flags_); // Don't want to disrupt the draw component function 
-}
-
-void PropertyWindow::DrawPopup(std::shared_ptr<CTouchTrigger> touchtrigger)
-{
-    // Decide which input type to use so we can display the correct map below
-    ImGui::Text("Specify tag of entities who can trigger");
-    static std::string tag = "";
-    DrawInputField(tag);
-    ImGui::NewLine();
-
-    // When pressed, add the input to its map
-    if (ImGui::Button("Create")) {
-        touchtrigger->tag_map.emplace(tag, Action::NoAction);
-        ImGui::CloseCurrentPopup();
-    }
 }

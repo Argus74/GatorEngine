@@ -15,6 +15,8 @@ GameEngine& GameEngine::GetInstance()
 	return instance_;
 }
 
+
+
 // void GameEngine::ChangeScene(const std::string &sceneName, std::shared_ptr<Scene> scene, bool endcurrent_scene_)
 // {
 // 	if (endcurrent_scene_)
@@ -50,8 +52,6 @@ void GameEngine::init()
 {
 	//Intializing all png files as textures in Start Assets folder
 	AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
-	AssetManager::GetInstance().AddTexture("Ground", "assets/Terrain/Terrain (16x16).png");
-	AssetManager::GetInstance().AddTexture("Tree", "assets/Terrain/Terrain (16x16).png");
 	Animation ani = Animation("DefaultAnimation", AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
 	AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
 	Animation ani2 = Animation("RunningAnimation", AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
@@ -59,7 +59,7 @@ void GameEngine::init()
 
 	if (!readFromJSONFile("last-scene.json")) {
 		current_scene_path_ = "scenes/Default.scene";
-	}
+	} 
 
 	//123
 	window_.setFramerateLimit(60);
@@ -68,8 +68,9 @@ void GameEngine::init()
 void GameEngine::changeScene(const std::string& path) 
 {
 	EntityManager::GetInstance().reset();
-	Editor::kState = Editor::State::None;
-	Editor::kActiveEntity = nullptr;
+	Editor::state = Editor::State::None;
+	Editor::active_entity_ = nullptr;
+	GatorPhysics::GetInstance().clearBodies();
 	Scene scene;
 	scene.readFromJSONFile(path);	
 	current_scene_path_ = path;
@@ -100,7 +101,7 @@ void GameEngine::addEntitiesForTest()
 	auto ground = EntityManager::GetInstance().addEntity("Ground");
 	// The parameters to construct a transform are position and scale and angle of rotation
 	ground->addComponent<CTransform>(Vec2(224, 300), Vec2(1, 1), 0);
-	ground->addComponent<CSprite>("Ground");
+	ground->addComponent<CSprite>("Grass Tile");
 	ground->addComponent<CName>("Ground");
 	//ground->getComponent<CSprite>()->texture = GameEngine::GetInstance().assets().GetTexture("Ground");
 	//Need to select ground portion of the texture
@@ -110,9 +111,9 @@ void GameEngine::addEntitiesForTest()
 void GameEngine::update()
 {
 	EntityManager::GetInstance().update();
+	
 	sUserInput();
-
-	if (Editor::kState == Editor::State::Testing) {
+	if (Editor::state == Editor::State::Testing) {
 		sTouchTrigger();
 		sScripts();
 		sMovement();
@@ -122,7 +123,7 @@ void GameEngine::update()
 
 	sBackground();
 	sRender();
-	if (Editor::kState == Editor::State::Testing) {
+	if (Editor::state == Editor::State::Testing) {
 		sRenderColliders();
 	}
 	sUI();
@@ -167,15 +168,15 @@ void GameEngine::sUserInput()
 		}
 
 		// Editor-specific hotkeys
-		if (Editor::kActiveEntity && Editor::kState != Editor::State::Testing) {
+		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
 			// Ctrl+D to copy active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
-				EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
+				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
 			}
 
 			// Ctrl+X to delete active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
-				EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
+				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
 			}
 
 			// Ctrl+Z hotkey does not exist. Good luck o7
@@ -187,7 +188,6 @@ void GameEngine::sUserInput()
 			auto &entities = EntityManager::GetInstance().getEntities();
 			for (auto &entity : entities)
 			{
-				std::cout << "Event button: before " << std::endl;
 				// Skip entities without a cUserInput component
 				if (!entity->getComponent<CUserInput>() || entity->isDisabled())
 					continue;
@@ -230,7 +230,7 @@ void GameEngine::sUserInput()
 		}
 	}
 
-	if (Editor::kState == Editor::State::Testing)
+	if (Editor::state == Editor::State::Testing)
 	{
 		EntityManager::GetInstance().update();
 		// other systems here
@@ -252,21 +252,41 @@ void GameEngine::sTouchTrigger()
 {
 	auto& entities = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entities) {
-		// Skip entities without a touch trigger component
-		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		// Skip entities without a touch trigger component, or that are disabled
+		if (!entity->hasComponent<CTouchTrigger>() || entity->isDisabled()) continue;
 		auto touchTrigger = entity->getComponent<CTouchTrigger>();
 		auto triggerRect = entity->GetRect();
 
 		// If has touch trigger, check if it is touching any other entity
-		for (auto& actionTags : touchTrigger->tag_map) {
-			for (auto& entityTouched : entities) {
-				// Skip entities without the tag we're caring about
-				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+		for (auto& entityTouched : entities) {
+			// Skip entities without the tag we're caring about
+			if (touchTrigger->tag != entityTouched->getComponent<CInformation>()->tag 
+				|| entity->isDisabled() || entityTouched->isDisabled()) continue;
 
-				// Check if the entity is touching the entity with the touch trigger
-				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
-				if (triggerRect.intersects(entityTouchedRect)) {
-					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+			// Check if the entity is touching the entity with the touch trigger
+			auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+			if (triggerRect.intersects(entityTouchedRect)) {
+
+				if (touchTrigger->action == UpdateCollectible)
+				{  // Only proceeding with an action if their is an collectable component attached, and its nots a health
+					if (entity->hasComponent<CCollectable>() && !entity->getComponent<CCollectable>()->is_health)
+					{
+						// We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
+						auto collectableEnityText = EntityManager::GetInstance().getEntityByName(entity->getComponent<CCollectable>()->text_entity_name);
+						if (collectableEnityText != nullptr && collectableEnityText->hasComponent<CText>())
+							Interact(entity, collectableEnityText);
+					}
+				}
+				else if (touchTrigger->action == UpdateHealth)
+				{
+					if (entity->hasComponent<CCollectable>() && entity->getComponent<CCollectable>()->is_health)
+					{
+						Interact(entity, entityTouched);
+					}
+				}
+				else if (touchTrigger->action == GiveJump)
+				{
+					ActionBus::GetInstance().Dispatch(entityTouched, Jump);
 				}
 			}
 		}
@@ -376,34 +396,6 @@ void GameEngine::sCollision()
 	GatorPhysics::GetInstance().update();
 }
 
-// void GameEngine::sAnimation()
-// {
-// 	// Need to add GetComponent, AddComponent templates to entity.
-// 	auto &entityManager = EntityManager::GetInstance();
-// 	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntities();
-
-// 	for (auto &entity : entityList)
-// 	{
-// 		if (entity->hasComponent<CAnimation>())
-// 		{
-// 			auto transformComponent = entity->getComponent<CTransform>();
-// 			Vec2 scale = transformComponent->scale;
-// 			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
-// 			auto animationComponent = entity->getComponent<CAnimation>();
-// 			animationComponent->changeSpeed();
-// 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
-// 			sf::Sprite sprite(animationComponent->animation.sprite);
-// 			sprite.setPosition(position.x, position.y + yOffset); //Removed the +150 from the y position
-// 			sprite.setScale(scale.x, scale.y);
-// 			window_.draw(sprite);
-
-// 			if (Editor::kState == Editor::State::Testing) {
-// 				animationComponent->update();
-// 			}
-// 		}
-// 	}
-// }
-
 void GameEngine::sBackground() {
 	// Find first component of type CBackground and draw it
 	auto entityList = EntityManager::GetInstance().getEntities();
@@ -421,17 +413,17 @@ void GameEngine::sBackground() {
 
 void GameEngine::sRender()
 {
-	auto &entityManager = EntityManager::GetInstance();
+	auto& entityManager = EntityManager::GetInstance();
 
-	std::vector<std::shared_ptr<Entity>> &entityList = entityManager.getEntitiesRenderingList();
+	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getEntitiesRenderingList();
 
-	for (auto &entity : entityList)
+	for (auto& entity : entityList)
 	{ // Looping through entity list and drawing the sprites to the render window.
 		if (entity->hasComponent<CSprite>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>();
 			Vec2 scale = transformComponent->scale;
-			Vec2 position = Editor::kState == Editor::State::Testing ? transformComponent->position : transformComponent->origin; // getting the scale and positioning from the transform component in order to render sprite at proper spot
+			Vec2 position = transformComponent->position; // getting the scale and positioning from the transform component in order to render sprite at proper spot
 			auto spriteComponent = entity->getComponent<CSprite>();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
@@ -440,13 +432,11 @@ void GameEngine::sRender()
 			spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);
 			spriteComponent->sprite.setPosition(position.x, position.y + yOffset);
 			spriteComponent->sprite.setScale(scale.x, scale.y);
-      
 			//Rotation
 			float angle = transformComponent->angle * -1;
 			spriteComponent->sprite.setRotation(angle);
-			
 			if (spriteComponent->draw_sprite)
-				window_.draw(spriteComponent->sprite);
+				GameEngine::GetInstance().window().draw(spriteComponent->sprite);
 		}
 
 		if (entity->hasComponent<CAnimation>() && !entity->isDisabled())
@@ -458,6 +448,7 @@ void GameEngine::sRender()
 			animationComponent->changeSpeed();
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			sf::Sprite sprite(animationComponent->animation.sprite);
+
 			// Set the origin of the sprite to its center
 			sf::FloatRect bounds = sprite.getLocalBounds();
 			sprite.setOrigin(bounds.width / 2, bounds.height / 2);
@@ -467,26 +458,26 @@ void GameEngine::sRender()
 			sprite.setScale(scale.x, scale.y);
 			float angle = transformComponent->angle * -1;
 			sprite.setRotation(angle);
-			window_.draw(sprite);
-			if (Editor::kState == Editor::State::Testing) {
+			GameEngine::GetInstance().window().draw(sprite);
+
+
+			if (animationComponent->play_animation || Editor::state == Editor::Testing)
 				animationComponent->update();
-			}
 		}
 	}
 }
 
-void GameEngine::sUI()
-{
+void GameEngine::sUI() {
 	auto& entityManager = EntityManager::GetInstance();
 
 	std::vector<std::shared_ptr<Entity>>& entityList = entityManager.getUIRenderingList(); // We only iterate through the UI rendering list 
 
 	for (auto& entity : entityList) {
 
-		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->draw_health && !entity->isDisabled()) 
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->draw_health && !entity->isDisabled())
 		{ // Health Bar 
 			auto healthComponent = entity->getComponent<CHealth>();
-			
+
 			sf::Sprite backHealth(healthComponent->back_health_bar);
 			sf::Sprite frontHealth(healthComponent->front_health_bar);
 
@@ -523,13 +514,13 @@ void GameEngine::sUI()
 				frontHealth.setPosition(position.x, position.y + yOffset);
 				frontHealth.setScale(scale.x, scale.y);
 			}
-			
+
 			GameEngine::GetInstance().window().draw(backHealth);
 			GameEngine::GetInstance().window().draw(frontHealth);
-			
+
 		}
 
-		if (entity->hasComponent<CText>() && !entity->isDisabled()) 
+		if (entity->hasComponent<CText>() && !entity->isDisabled())
 		{
 			auto transformComponent = entity->getComponent<CTransform>(); // Transform related 
 			Vec2 scale = transformComponent->scale;
@@ -538,12 +529,18 @@ void GameEngine::sUI()
 
 			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
 
+			std::string outputString = textComponent->message;
+			if (textComponent->is_counter) {
+				int numberToAdd = textComponent->counter;
+				outputString += std::to_string(numberToAdd);
+			}
+
 			textComponent->text.setFont(textComponent->font);
-			textComponent->text.setString(textComponent->message);
+			textComponent->text.setString(outputString);
 			textComponent->text.setCharacterSize(textComponent->character_size);
 			textComponent->text.setFillColor(textComponent->text_color);
 			textComponent->text.setStyle(textComponent->style);
-			
+
 			sf::FloatRect bounds = textComponent->text.getLocalBounds();
 			textComponent->text.setScale(scale.x, scale.y);
 			textComponent->text.setPosition(position.x, position.y + yOffset);
@@ -551,7 +548,7 @@ void GameEngine::sUI()
 
 			GameEngine::GetInstance().window().draw(textComponent->text);
 		}
-	} 
+	}
 }
 
 bool GameEngine::isRunning()
@@ -581,18 +578,11 @@ void GameEngine::sRenderColliders() {
 			float yScale = entity->getComponent<CTransform>()->scale.y;
 			float entityWidth = size.x * 2  * GatorPhysics::GetInstance().getScale();
 			float entityHeight = size.y * 2 * GatorPhysics::GetInstance().getScale();
-			auto spriteComponent = sf::RectangleShape();
-			spriteComponent.setOrigin(entityWidth / 2, entityHeight / 2);
-			spriteComponent.setFillColor(sf::Color::White);
+			
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 			float worldY = GameEngine::GetInstance().window().getSize().y;
 			float entityY = ((position.y * GatorPhysics::GetInstance().getScale()) - worldY) * -1;
 			float entityX = position.x * GatorPhysics::GetInstance().getScale();
-			spriteComponent.setPosition(entityX, entityY + yOffset); // Removed the +150 from the y position
-			//spriteComponent.setPosition(400, 400);
-			spriteComponent.setSize(sf::Vector2f(entityWidth, entityHeight));
-			//spriteComponent.setSize(sf::Vector2f(1000, 1000));
-			window_.draw(spriteComponent);
 		}
 	}
 }
@@ -636,3 +626,32 @@ void GameEngine::sRenderColliders() {
 	//	}
 	//}
 // }
+
+void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_ptr<Entity> entityPair)
+{
+
+	auto collectibleComponent = collectibleEnity->getComponent<CCollectable>();
+	if (collectibleComponent->is_health && entityPair->hasComponent<CHealth>())
+	{ // If its health we are going to add points to the CHealth component of the entityPair
+		entityPair->updateHealth(collectibleComponent->points_to_add);
+
+		collectibleComponent->touched = true;
+
+		if (collectibleComponent->disappear_on_touch)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	}
+	else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->is_counter)
+	{ // We are going to add score to the text comp
+
+		entityPair->getComponent<CText>()->counter += collectibleComponent->points_to_add;
+
+		if (collectibleComponent->disappear_on_touch)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	}
+
+}
+

@@ -22,6 +22,7 @@ public:
 	b2World* getWorld();
 	float getScale();
 	std::map<Entity*, b2Body*>& GetEntityToBodies();
+	void clearBodies();
 	void update();
 	void setGravity(Vec2 gravity);
 	void createBody(Entity* entity, bool isStatic);

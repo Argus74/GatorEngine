@@ -9,7 +9,7 @@ public:
 	sf::Sprite sprite;
 	std::string name = "DefaultAnimation";
 	//std::string jumpAnimationName_ = "";           Later on if we decide we can make it easy to switch to a jump animation based off the characters state. Up to y'all
-	float animation_speed;
+	float animation_speed = 1;
 	bool play_animation = false; // If in the editor they want to play test their animation
 	bool disappear;
 	//bool jumpAnimation;

@@ -24,13 +24,12 @@ typedef std::tuple< //as we add more components, we add them here
 	std::shared_ptr<CText>,
 	std::shared_ptr<CTouchTrigger>,
 	std::shared_ptr<CCharacter>,
-	std::shared_ptr<CScript>
-
+	std::shared_ptr<CScript>,
+	std::shared_ptr<CCollectable>
 > ComponentTuple;
 
 class Entity : public Serializable {
 	size_t id_;
-
 	bool is_alive_;
 	friend class EntityManager;
 	bool disabled_ = false;
@@ -50,13 +49,15 @@ public:
 	bool isAlive();
 	bool isDisabled();
 	void setDisabled(bool disable);
-	bool updateHealth(float dmg);
-
+	void updateHealth(float dmg);
+	
 	// Helper to get the entity's sf::Rect (a "bounding box"), based on the components it has
 	sf::FloatRect& GetRect(float margin = 0.0f);
 
 	std::string tag;
 	int layer = 1; //Don't need this here to be honest
+
+	bool initialized = false; // True once added to the entity manager list from to_add
 
 	// Component Accessors and Modifiers 
 
@@ -64,7 +65,7 @@ public:
 	template <typename T>
 	bool hasComponent() const {
 		auto ptr = std::get<std::shared_ptr<T>>(components);
-		return ptr != nullptr && ptr->has;
+		return ptr && ptr->has; // Check for ptr being non-null before accessing ->has
 	}
 
 	//Used for compatability with lua
@@ -116,6 +117,10 @@ public:
 		else if (componentName == "CText")
 		{
 			return hasComponent<CText>();
+		}
+		else if (componentName == "CCollectable")
+		{
+			return hasComponent<CCollectable>();
 		}
 		else
 		{
@@ -180,6 +185,10 @@ public:
 		else if (componentName == "CText")
 		{
 			addComponent<CText>();
+		}
+		else if (componentName == "CCollectable")
+		{
+			addComponent<CCollectable>();
 		}
 		else
 		{
@@ -330,6 +339,12 @@ public:
 				continue;
 			}
 
+			auto userinput = createComponentByName<CUserInput>(it->name.GetString());
+			if (userinput != nullptr) {
+				addComponent(userinput);
+				getComponent<CUserInput>()->deserialize(it->value);
+			}
+
 			auto touchTrigger = createComponentByName<CTouchTrigger>(it->name.GetString());
 			if (touchTrigger != nullptr) {
 				addComponent(touchTrigger);
@@ -369,6 +384,12 @@ public:
 			if (health != nullptr) {
 				addComponent(health);
 				getComponent<CHealth>()->deserialize(it->value);
+			}
+
+			auto collectable = createComponentByName<CCollectable>(it->name.GetString());
+			if (collectable != nullptr) {
+				addComponent(collectable);
+				getComponent<CCollectable>()->deserialize(it->value);
 			}
         }	
 	}

@@ -25,6 +25,19 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 	return newEntity;
 }
 
+std::shared_ptr<Entity> EntityManager::addEntityStart(const std::string& tag)
+{
+	std::cout << "Adding entity with tag: " << tag << std::endl;
+	auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
+	newEntity->addComponent<CName>();
+	newEntity->addComponent<CInformation>();
+	newEntity->addComponent<CTransform>();
+	entities_.push_back(newEntity);
+	sortEntitiesForRendering();
+	UpdateUIRenderingList();
+	return newEntity;
+}
+
 void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
 {
 	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity); // Call cpy ctr
@@ -38,10 +51,12 @@ void EntityManager::update()
 	// Add new entities to the main vector and map
 	for (auto& entity : to_add_) {
 		entities_.push_back(entity);
+		entity->initialized = true;
 		sortEntitiesForRendering(); //Sorting render list
 		UpdateUIRenderingList();
 	}
 	to_add_.clear();
+	
 
 	// Remove dead entities from the main vector
 	entities_.erase(
@@ -50,9 +65,6 @@ void EntityManager::update()
 		entities_.end()
 	);
 
-	if (Editor::kState != Editor::State::Testing) {
-		resetPositions();
-	}
 }
 
 // Get all entities
@@ -83,8 +95,23 @@ void EntityManager::resetPositions() {
 			auto transform = entity->getComponent<CTransform>();
 			transform->resetPosition();	
 		}
+		if (entity->hasComponent<CHealth>()) { 
+			auto health = entity->getComponent<CHealth>();
+			if (health->reset()) // If the entity was killed then we Enable it 
+				entity->setDisabled(false);
+		}
+		if (entity->hasComponent<CCollectable>()) {
+			auto collectable = entity->getComponent<CCollectable>();
+			if (collectable->reset())
+				entity->setDisabled(false);
+		} 
+		if (entity->hasComponent<CText>()) {
+			auto text = entity->getComponent<CText>();
+			text->reset();
+		}
 	}
 }
+
 //Clear our entity list
 void EntityManager::reset()
 {
@@ -128,4 +155,16 @@ void EntityManager::UpdateUIRenderingList() {
 	}
 
 	entities_UI_list_ = newList;
+}
+
+std::shared_ptr<Entity> EntityManager::getEntityByName(const std::string& name) {
+	for (const auto& entity : entities_) {
+		if (entity->hasComponent<CName>()) {
+			auto& nameComponent = entity->getComponent<CName>();
+			if (nameComponent->name == name) {
+				return entity;
+			}
+		}
+	}
+	return nullptr; // Return nullptr if no entity with the given name is found
 }

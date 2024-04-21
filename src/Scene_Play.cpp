@@ -132,15 +132,15 @@ void Scene_Play::sUserInput()
 		}
 
 		// Editor-specific hotkeys
-		if (Editor::kActiveEntity && Editor::kState != Editor::State::Testing) {
+		if (Editor::active_entity_ && Editor::state != Editor::State::Testing) {
 			// Ctrl+D to copy active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::D) {
-				EntityManager::GetInstance().cloneEntity(Editor::kActiveEntity);
+				EntityManager::GetInstance().cloneEntity(Editor::active_entity_);
 			}
 
 			// Ctrl+X to delete active entity
 			if (event.type == sf::Event::KeyPressed && event.key.control && event.key.code == sf::Keyboard::X) {
-				EntityManager::GetInstance().removeEntity(Editor::kActiveEntity);
+				EntityManager::GetInstance().removeEntity(Editor::active_entity_);
 			}
 
 			// Ctrl+Z hotkey does not exist. Good luck o7
@@ -195,7 +195,7 @@ void Scene_Play::sUserInput()
 		}
 	}
 
-	if (Editor::kState == Editor::State::Testing)
+	if (Editor::state == Editor::State::Testing)
 	{
 		EntityManager::GetInstance().update();
 		// other systems here
@@ -252,21 +252,40 @@ void Scene_Play::sTouchTrigger()
 {
 	auto& entities = EntityManager::GetInstance().getEntities();
 	for (auto& entity : entities) {
-		// Skip entities without a touch trigger component
-		if (!entity->hasComponent<CTouchTrigger>()) continue;
+		// Skip entities without a touch trigger component, or that are disabled
+		if (!entity->hasComponent<CTouchTrigger>() || entity->isDisabled()) continue;
 		auto touchTrigger = entity->getComponent<CTouchTrigger>();
 		auto triggerRect = entity->GetRect();
 
 		// If has touch trigger, check if it is touching any other entity
-		for (auto& actionTags : touchTrigger->tagMap) {
-			for (auto& entityTouched : entities) {
-				// Skip entities without the tag we're caring about
-				if (actionTags.first != entityTouched->getComponent<CInformation>()->tag) continue;
+		for (auto& entityTouched : entities) {
+			// Skip entities without the tag we're caring about
+			if (touchTrigger->tag != entityTouched->getComponent<CInformation>()->tag) continue;
 
-				// Check if the entity is touching the entity with the touch trigger
-				auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
-				if (triggerRect.intersects(entityTouchedRect)) {
-					ActionBus::GetInstance().Dispatch(entityTouched, actionTags.second);
+			// Check if the entity is touching the entity with the touch trigger
+			auto entityTouchedRect = entityTouched->GetRect(5); // Add leeway to the entity touched rect
+			if (triggerRect.intersects(entityTouchedRect)) {
+
+				if (touchTrigger->action == UpdateCollectible)
+				{  // Only proceeding with an action if their is an collectable component attached, and its nots a health
+					if (entity->hasComponent<CCollectable>() && !entity->getComponent<CCollectable>()->is_health)
+					{
+						// We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
+						auto collectableEnityText = EntityManager::GetInstance().getEntityByName(entity->getComponent<CCollectable>()->text_entity_name);
+						if (collectableEnityText != nullptr && collectableEnityText->hasComponent<CText>())
+							Interact(entity, collectableEnityText);
+					}
+				}
+				else if (touchTrigger->action == UpdateHealth)
+				{
+					if (entity->hasComponent<CCollectable>() && entity->getComponent<CCollectable>()->is_health)
+					{
+						Interact(entity, entityTouched);
+					}
+				}
+				else if (touchTrigger->action == GiveJump)
+				{
+					ActionBus::GetInstance().Dispatch(entityTouched, Jump);
 				}
 			}
 		}
@@ -369,7 +388,7 @@ void Scene_Play::sRender()
 			GameEngine::GetInstance().window().draw(sprite);
 			
 
-			if (animationComponent->playAnimation || Editor::state == 3)
+			if (animationComponent->play_animation || Editor::state == 3)
 				animationComponent->update();
 		}
 	}
@@ -382,12 +401,12 @@ void Scene_Play::sUI() {
 
 	for (auto& entity : entityList) {
 
-		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->drawHealth_ && !entity->isDisabled()) 
+		if (entity->hasComponent<CHealth>() && entity->getComponent<CHealth>()->draw_health && !entity->isDisabled()) 
 		{ // Health Bar 
 			auto healthComponent = entity->getComponent<CHealth>();
 			
-			sf::Sprite backHealth(healthComponent->backHealthBar_);
-			sf::Sprite frontHealth(healthComponent->frontHealthBar_);
+			sf::Sprite backHealth(healthComponent->back_health_bar);
+			sf::Sprite frontHealth(healthComponent->front_health_bar);
 
 			//Making the sprite for the front Health bar
 			healthComponent->Update();
@@ -402,11 +421,11 @@ void Scene_Play::sUI() {
 			// Set the position of the sprite to the center position
 			float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
-			Vec2 scale = healthComponent->healthBarScale_;
+			Vec2 scale = healthComponent->health_bar_scale;
 
-			if (healthComponent->followEntity) {
+			if (healthComponent->follow_entity) {
 				// The position is above
-				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->healthBarOffset_;
+				Vec2 position = entity->getComponent<CTransform>()->position + healthComponent->health_bar_offset;
 				backHealth.setPosition(position.x, position.y + yOffset);
 				backHealth.setScale(scale.x, scale.y);
 
@@ -414,7 +433,7 @@ void Scene_Play::sUI() {
 				frontHealth.setScale(scale.x, scale.y);
 			}
 			else {
-				Vec2 position = healthComponent->healthBarPosition_;
+				Vec2 position = healthComponent->health_bar_position;
 				backHealth.setPosition(position.x, position.y + yOffset);
 				backHealth.setScale(scale.x, scale.y);
 
@@ -437,18 +456,23 @@ void Scene_Play::sUI() {
 
 			auto textComponent = entity->getComponent<CText>(); // Setting the properties of the text
 
-			textComponent->text_.setFont(textComponent->font_);
-			textComponent->text_.setString(textComponent->message_);
-			textComponent->text_.setCharacterSize(textComponent->characterSize_);
-			textComponent->text_.setFillColor(textComponent->textColor_);
-			textComponent->text_.setStyle(textComponent->style_);
-			
-			sf::FloatRect bounds = textComponent->text_.getLocalBounds();
-			textComponent->text_.setScale(scale.x, scale.y);
-			textComponent->text_.setPosition(position.x, position.y + yOffset);
-			textComponent->text_.setOrigin(bounds.width / 2, bounds.height / 2);
+			std::string outputString = textComponent->message;
+			if (textComponent->is_counter) {
+				outputString += std::to_string(textComponent->counter);
+			}
 
-			GameEngine::GetInstance().window().draw(textComponent->text_);
+			textComponent->text.setFont(textComponent->font);
+			textComponent->text.setString(outputString);
+			textComponent->text.setCharacterSize(textComponent->character_size);
+			textComponent->text.setFillColor(textComponent->text_color);
+			textComponent->text.setStyle(textComponent->style);
+			
+			sf::FloatRect bounds = textComponent->text.getLocalBounds();
+			textComponent->text.setScale(scale.x, scale.y);
+			textComponent->text.setPosition(position.x, position.y + yOffset);
+			textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
+
+			GameEngine::GetInstance().window().draw(textComponent->text);
 		}
 	} 
 }
@@ -498,8 +522,6 @@ void Scene_Play::sMovement()
 			jump_force = entity->getComponent<CCharacter>()->jump_force;
 		}
 
-
-
 		//Vec2 finalVelocity = entity->getComponent<CTransform>()->velocity;
 		//Vec2 finalAcceleration = Vec2(0, 0);
 		b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
@@ -543,5 +565,31 @@ void Scene_Play::sBackground() {
 
 	// Otherwise, default to a black background
 	GameEngine::GetInstance().window().clear(sf::Color(0, 0, 0));
+}
+
+
+void Scene_Play::Interact(std::shared_ptr<Entity> collectibleEnity, std::shared_ptr<Entity> entityPair)
+{
+	auto collectibleComponent = collectibleEnity->getComponent<CCollectable>(); 
+	if (collectibleComponent->is_health && entityPair->hasComponent<CHealth>())
+	{ // If its health we are going to add points to the CHealth component of the entityPair
+		entityPair->updateHealth(collectibleComponent->points_to_add);
+
+		if (collectibleComponent->disappear_on_touch)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	}
+	else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->counter) 
+	{ // We are going to add score to the text comp
+		
+		entityPair->getComponent<CText>()->counter += collectibleComponent->points_to_add;
+
+		if (collectibleComponent->disappear_on_touch)
+		{
+			collectibleEnity->setDisabled(true);
+		}
+	} 
+
 }
 

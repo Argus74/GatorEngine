@@ -1,7 +1,9 @@
 #pragma once
+
 #include "Component.h"
 #include "../Vec2.h"
 #include <string>
+
 class LuaState;
 class CScript : public Component {
 public:

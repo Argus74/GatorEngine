@@ -18,6 +18,7 @@
 #include "util/Scene.h"
 #include "lua_interpreter/LuaManager.h"
 #include "lua_interpreter/LuaState.h"
+
 // ---- SERIALIZATION WITH CLASSES EXAMPLE
 // class MyClass2 : public Serializable {
 // public:
@@ -62,15 +63,15 @@
 int main()
 {
     GameEngine& newGame = GameEngine::GetInstance();
-    // newGame.addEntitiesForTest();
+    newGame.addEntitiesForTest();
     sf::Clock deltaClock;
     sf::RenderWindow& window = newGame.window();
     ImGui::SFML::Init(window);
     Editor editor;
     //std::shared_ptr<Scene_Old> scene = std::make_shared<Scene_Play>();
-    newGame.changeScene(newGame.currentScenePath());
+    //newGame.changeScene("scenes/Default.scene");
     //LuaState newLuaState("script.lua");
-    
+
     while (window.isOpen())
     {
         newGame.update();

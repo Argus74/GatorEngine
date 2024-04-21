@@ -14,6 +14,10 @@ float GetGridPositionX(int index)
     return ImGui::GetMainViewport()->Size.x / 20 + index * (tileSize + 40);
 }
 
+float GetGridPositionY(float width)
+{
+    return (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - width / 2;
+}
 
 TabBarWindow::TabBarWindow()
 {
@@ -36,10 +40,16 @@ void TabBarWindow::DrawFrames()
         float imageSize = ImGui::GetMainViewport()->Size.y * 0.075;
         float imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
 
-        if (Editor::kState != Editor::State::Testing) // only available for use when user isn't testing the game
+        if (Editor::state != Editor::State::Testing) // only available for use when user isn't testing the game
         {
             if (ImGui::BeginTabItem("Sprites"))
             {
+
+                // Hardcode text above buttons
+
+                short x = GetGridPositionX(1);
+                short y = GetGridPositionY(imageSize);
+
                 // Text
                 ImGui::PushItemWidth(ImGui::GetMainViewport()->Size.x / 5);
                 ImGui::SetCursorPos(ImVec2(GetGridPositionX(1), (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2));
@@ -48,34 +58,53 @@ void TabBarWindow::DrawFrames()
 
                 // Select button
                 auto selectButton = [&]() {
-                    Editor::kState = (Editor::kState == Editor::State::Selecting) ? 
+                    Editor::state = (Editor::state == Editor::State::Selecting) ? 
                         Editor::State::None : 
                         Editor::State::Selecting;
 				};
                 DrawButton("Select", AssetManager::GetInstance().GetTexturePrivate("SelectIcon"), 
-                    0, selectButton, (Editor::kState == Editor::State::Selecting));
+                    0, selectButton, (Editor::state == Editor::State::Selecting));
 
                 // Move button
                 auto moveButton = [&]() {
-                    Editor::kState = (Editor::kState == Editor::State::Moving) ?
+                    Editor::state = (Editor::state == Editor::State::Moving) ?
                         Editor::State::None :
                         Editor::State::Moving;
                 };
                 DrawButton("Move", AssetManager::GetInstance().GetTexturePrivate("MoveIcon"), 
-                    1, moveButton, (Editor::kState == Editor::State::Moving));
+                    1, moveButton, (Editor::state == Editor::State::Moving));
 
                 // Scale button
                 auto scaleButton = [&]() {
-                    Editor::kState = (Editor::kState == Editor::State::Resizing) ?
+                    Editor::state = (Editor::state == Editor::State::Resizing) ?
                         Editor::State::None :
                         Editor::State::Resizing;
                 };
                 DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 
-                    2, scaleButton, (Editor::kState == Editor::State::Resizing));
+                    2, scaleButton, (Editor::state == Editor::State::Resizing));
+
+                static const char* kShowGrid = "Show Grid";
+                static const char* kSnapToGrid = "Snap to Grid";
+                static const char* kGridSize = "Grid Size";
+                static short textHeight = ImGui::GetTextLineHeight();
+                ImGui::SetCursorPosX(GetGridPositionX(3));
+                ImGui::SetCursorPosY(GetGridPositionY(imageSize));
+                ImGui::Checkbox("Show Grid", &Editor::show_grid_);
+                ImGui::SetCursorPosX(GetGridPositionX(3));
+                ImGui::Checkbox("Snap to Grid", &Editor::snap_to_grid_);
+                ImGui::SetCursorPosX(GetGridPositionX(3));
+                ImGui::SetNextItemWidth(ImGui::CalcTextSize(kGridSize).x + 20);
+                ImGui::InputFloat("##GridSize", &Editor::grid_size_);
+                // Clamp grid size to a reasonable range
+                if (Editor::grid_size_ < 1) {
+                    Editor::grid_size_ = 1;
+                } else if (Editor::grid_size_ > 500) {
+					Editor::grid_size_ = 500;
+				}
 
                 //// TODO: Rotate button
                 //auto rotateButton = [&]() {
-                //    /*Editor::kState = Editor::State::;*/
+                //    /*Editor::state = Editor::State::;*/
                 //};
                 //DrawButton("Rotate", icons_[0], 3, rotateButton);
 
@@ -166,15 +195,15 @@ void TabBarWindow::DrawFrames()
         {
             // Start Button
             static auto startButton = [&]() {
-                Editor::kState = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
+                Editor::state = Editor::State::Testing; // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
             };
             DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 
-                4, startButton, (Editor::kState == Editor::State::Testing));
+                4, startButton, (Editor::state == Editor::State::Testing));
 
             // Stop Button
             static auto stopButton = [&]() {
-                Editor::kState = Editor::State::None; // Testing stopped: Reset kState to none
+                Editor::state = Editor::State::None; // Testing stopped: Reset state to none
                 EntityManager::GetInstance().resetPositions();
                 // TODO: end game: unload content/reset entity pos?
             };
@@ -195,8 +224,7 @@ void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index,
     // Math to resize icons_ and maintain their relative position
     auto mv = ImGui::GetMainViewport();
     static short imageSize = TAB_BUTTON_SIZE(mv);
-    static short imageY = (50 + (ImGui::GetMainViewport()->Size.y * 0.185 - 30)) / 2 - imageSize / 2;
-    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), imageY);
+    ImVec2 buttonPos = ImVec2(GetGridPositionX(index), GetGridPositionY(imageSize));
 
     // Use bold colors for an active button
     if (highlighted) {
@@ -214,18 +242,17 @@ void TabBarWindow::DrawButton(const char* name, sf::Texture& texture, int index,
 
     // Draw text underneath button
     if (std::string(name) != "Sprite") {
-
         // Center text underneath based on its size
         short textWidth = ImGui::CalcTextSize(name).x - 8; // CalcTextSize seems to consistently be ~8 pixels off?
         float x = buttonPos.x + ((imageSize - textWidth) / 2);
-        ImVec2 buttonTextPos = ImVec2(x, imageY + imageSize + 10);
+        ImVec2 buttonTextPos = ImVec2(x, buttonPos.y + imageSize + 10);
 
         ImGui::SetCursorPos(buttonTextPos);
         ImGui::Text(name);
     // Special case for Sprite button // TODO: Refactor
     } else {
         // Center combo box underneath the button
-        ImVec2 comboPos = ImVec2(buttonPos.x, imageY + imageSize + 10);
+        ImVec2 comboPos = ImVec2(buttonPos.x, buttonPos.y + imageSize + 10);
         ImGui::SetCursorPos(comboPos);
 
         // Set the width of the combo box to match the text width

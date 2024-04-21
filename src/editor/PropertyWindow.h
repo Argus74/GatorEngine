@@ -34,12 +34,14 @@ private:
 	void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
 	void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
 	void DrawComponentProperties(std::shared_ptr<CBackgroundColor> background);
-	void DrawComponentProperties(std::shared_ptr <CInformation>& information);
-	void DrawComponentProperties(std::shared_ptr <CHealth>& health);
-	void DrawComponentProperties(std::shared_ptr <CText>& text);
+	void DrawComponentProperties(std::shared_ptr<CInformation>& information);
+	void DrawComponentProperties(std::shared_ptr<CHealth>& health);
+	void DrawComponentProperties(std::shared_ptr<CText>& text);
 	void DrawComponentProperties(std::shared_ptr<CTouchTrigger>& touchtrigger);
+	void DrawComponentProperties(std::shared_ptr<CCollectable>& collectable);
 	void DrawComponentProperties(std::shared_ptr<CCharacter> character);
 	void DrawComponentProperties(std::shared_ptr<CScript> script);
+
     // Draw one property row of a component
     template <typename T>
     void DrawProperty(const char *name, T &value);
@@ -57,9 +59,12 @@ private:
 	void DrawInputField(sf::Mouse::Button& val);
 	void DrawInputField(std::shared_ptr<CSprite>& val);
 	void DrawInputField(std::shared_ptr<CAnimation>& val);
-	void DrawInputField(std::shared_ptr <CInformation>& val);
-	void DrawInputField(std::shared_ptr <CText>& val);
+	void DrawInputField(std::shared_ptr<CInformation>& val);
+	void DrawInputField(std::shared_ptr<CText>& val);
 	void DrawInputField(unsigned int& val); // Used to processs textStyle
+	void DrawInputField(TriggerAction& val); // Used to list possible trigger actions
+	void DrawInputField(std::shared_ptr<CCollectable>& val); // Used to list all different Game Objects with CText
+	
 
 
 	//Button to play animation when in scene editor state

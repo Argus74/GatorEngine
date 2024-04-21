@@ -10,14 +10,21 @@ public:
 	unsigned int style = sf::Text::Regular;
 	int character_size = 24;
 	sf::Color text_color = sf::Color::Black;
+	float counter = 0;
+	bool is_counter = false;
 
 	sf::Text text;
+
+	void reset() {
+		counter = 0;
+	}
 
 	CText();
 	CText(const std::string& name);
 
 	bool loadFromAssetManager();
 	bool loadFromAssetManager(const std::string& textureName);
+
 
 	void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
 		writer.StartObject();
@@ -37,15 +44,47 @@ public:
 		writer.Uint(text_color.b);
 		writer.Key("textColorA");
 		writer.Uint(text_color.a);
+		writer.Key("counter");
+		writer.Double(counter);
+		writer.Key("isCounter");
+		writer.Bool(is_counter);
 		writer.EndObject();
 	}
 
 	void deserialize(const rapidjson::Value& value) override {
-		name = value["name"].GetString();
-		loadFromAssetManager();
-		message = value["message"].GetString();
-		style = value["style"].GetUint();
-		character_size = value["characterSize"].GetInt();
-		text_color = sf::Color(value["textColorR"].GetUint(), value["textColorG"].GetUint(), value["textColorB"].GetUint(), value["textColorA"].GetUint());
+		if (value.HasMember("name") && value["name"].IsString()) {
+			name = value["name"].GetString();
+			loadFromAssetManager();
+		}
+
+		if (value.HasMember("message") && value["message"].IsString()) {
+			message = value["message"].GetString();
+		}
+
+		if (value.HasMember("style") && value["style"].IsUint()) {
+			style = value["style"].GetUint();
+		}
+
+		if (value.HasMember("characterSize") && value["characterSize"].IsInt()) {
+			character_size = value["characterSize"].GetInt();
+		}
+
+		if (value.HasMember("textColorR") && value["textColorR"].IsUint() &&
+			value.HasMember("textColorG") && value["textColorG"].IsUint() &&
+			value.HasMember("textColorB") && value["textColorB"].IsUint() &&
+			value.HasMember("textColorA") && value["textColorA"].IsUint()) {
+			text_color = sf::Color(value["textColorR"].GetUint(),
+				value["textColorG"].GetUint(),
+				value["textColorB"].GetUint(),
+				value["textColorA"].GetUint());
+		}
+
+		if (value.HasMember("counter") && value["counter"].IsDouble()) {
+			counter = static_cast<float>(value["counter"].GetDouble());
+		}
+
+		if (value.HasMember("isCounter") && value["isCounter"].IsBool()) {
+			is_counter = value["isCounter"].GetBool();
+		}
 	}
 };
