@@ -124,7 +124,7 @@ void GameEngine::update()
 	sBackground();
 	sRender();
 	if (Editor::state == Editor::State::Testing) {
-		sRenderColliders();
+		//sRenderColliders();
 	}
 	sUI();
 	

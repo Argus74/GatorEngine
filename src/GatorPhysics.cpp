@@ -228,7 +228,7 @@ void GatorPhysics::BeginContact(b2Contact* contact)
 		b2Vec2 normal = contact->GetManifold()->localNormal;
 		if (normal.y < 0.5)
 		{
-			std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
+			//std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
 			entity->getComponent<CCharacter>()->is_grounded = true;
 		}
 		else
