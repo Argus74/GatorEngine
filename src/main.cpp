@@ -13,7 +13,6 @@
 #include "editor/Editor.h"
 #include "EntityManager.h"
 #include "GameEngine.h"
-#include "Scene_Play.h"
 #include "util/Serializable.h"
 #include "util/Scene.h"
 #include "lua_interpreter/LuaManager.h"

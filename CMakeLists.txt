@@ -97,8 +97,6 @@ add_executable(
     "src/editor/TabBarWindow.cpp"
     "src/editor/ExplorerWindow.cpp"
     "src/editor/PropertyWindow.cpp"
-    # "src/util/Scene.cpp"
-    # "src/Scene_Play.cpp"
     "src/GatorPhysics.cpp"
     "src/editor/SceneLayoutWindow.cpp"
     "src/ActionBus.cpp" 
