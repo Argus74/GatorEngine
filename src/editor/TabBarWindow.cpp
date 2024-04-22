@@ -303,9 +303,9 @@ void TabBarWindow::DrawFrames() {
             // Start Button
             static auto startButton = [&]() {
                 Editor::state = Editor::State::
-                    Testing;  // Button clicked: now testing, TODO: disable clicking on the explorer & property window
-                // TODO: start game: init?
+                    Testing; // editor is now testing
             };
+
             DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 0,
                        startButton);
 
