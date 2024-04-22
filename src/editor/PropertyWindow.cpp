@@ -41,8 +41,8 @@ void PropertyWindow::PreDraw() {
 }
 
 void PropertyWindow::DrawFrames() {
-    // Draw blank window if no active entity
-    if (!Editor::active_entity_ /*|| Editor::state == Editor::State::Testing*/) {
+    // Draw blank window if no active entity or testing
+    if (!Editor::active_entity_ || Editor::state == Editor::State::Testing) {
         name_ = " ";
         return;
     }

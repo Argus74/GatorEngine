@@ -40,7 +40,7 @@ void GameEngine::init() {
     AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
 
     if (!readFromJSONFile("last-scene.json")) {
-        current_scene_path_ = "scenes/Default.scene";
+        current_scene_path_ = "scenes/NewDefault.scene";
     }
 
     window_.setFramerateLimit(60);
@@ -82,6 +82,8 @@ void GameEngine::update() {
         //sRenderColliders();
     }
     sUI();
+
+    deltaClock.restart();
 }
 
 void GameEngine::sUserInput() {
@@ -233,7 +235,9 @@ void GameEngine::sMovement() {
         // Handle movement
         // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
         Vec2 speed = transform->velocity;
-        float charSpeed = character ? character->speed : 8.0;
+        float dt = deltaClock.getElapsedTime().asSeconds(); // delta time for more consistent movement
+        float charSpeed = character ? character->speed * dt : 75.0 * dt;
+
         if (ActionBus::GetInstance().Received(entity, MoveRight))
             speed.x += charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveLeft))

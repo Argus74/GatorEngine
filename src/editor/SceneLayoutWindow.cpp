@@ -207,7 +207,8 @@ void SceneLayoutWindow::DrawFrames() {
                 continue;
 
             static constexpr float margin = kSelectionBoxBorder * 3 / 2;
-            DrawSelectionBox(entity, entity->GetRect(margin));
+            auto dimensions = entity->GetRect(margin); // Don't remove, fixes box bug for mac
+            DrawSelectionBox(entity, dimensions);
             DrawTriggerBox(entity);
             HandleSelectInteraction(entity);
             if (Editor::state ==
