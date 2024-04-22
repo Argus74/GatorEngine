@@ -1,10 +1,12 @@
 #include "AssetManager.h"
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <iostream>
+
 #include <filesystem>
+#include <iostream>
+
+#include "SFML/Audio/Sound.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Texture.hpp"
 
 AssetManager& AssetManager::GetInstance() {
     static AssetManager instance;
@@ -27,9 +29,9 @@ AssetManager::~AssetManager() {
     for (auto& pair : textures_) {
         delete pair.second;
     }
-    textures_.clear(); //Removing all elements from the map
+    textures_.clear();  //Removing all elements from the map
 
-    for (auto& pair : sounds_) {    // Deleting sounds
+    for (auto& pair : sounds_) {  // Deleting sounds
 
         delete pair.second;
     }
@@ -46,7 +48,6 @@ AssetManager::~AssetManager() {
     }
     animations_.clear();
 
-
     for (auto& pair : game_engine_textures_) {
         delete pair.second;
     }
@@ -56,7 +57,10 @@ AssetManager::~AssetManager() {
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {
     sf::Texture* texture = new sf::Texture();
     if (!texture->loadFromFile(path)) {
-        std::cerr << "Failed to load texture: " << path << std::endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
+        std::cerr
+            << "Failed to load texture: " << path
+            << std::
+                   endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
         delete texture;
         return;
     }
@@ -68,7 +72,10 @@ void AssetManager::AddTexture(const std::string& name, const std::string& path) 
 void AssetManager::AddTexturePrivate(const std::string& name, const std::string& path) {
     sf::Texture* texture = new sf::Texture();
     if (!texture->loadFromFile(path)) {
-        std::cerr << "Failed to load texture: " << path << std::endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
+        std::cerr
+            << "Failed to load texture: " << path
+            << std::
+                   endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
         delete texture;
         return;
     }
@@ -113,21 +120,21 @@ void AssetManager::IntializeAssets(std::string path, bool makePrivate) {
             if (makePrivate) {
                 AddTexturePrivate(textureName, entry.path().string());
             } else {
-				AddTexture(textureName, entry.path().string());
-			}
-        }
-        else if (entry.is_regular_file() && entry.path().extension() == ".ttf") {
+                AddTexture(textureName, entry.path().string());
+            }
+        } else if (entry.is_regular_file() && entry.path().extension() == ".ttf") {
             // Extract the file name without extension to use as a font name
             std::string fontName = entry.path().stem().string();
             std::cout << fontName << std::endl;
-            
+
             // Add the font to the asset manager
             AddFont(fontName, entry.path().string());
         }
     }
 }
 
-sf::Sound AssetManager::PlaySound(const std::string& name) { //Function that plays sounds from our map of SoundBuffers
+sf::Sound AssetManager::PlaySound(
+    const std::string& name) {  //Function that plays sounds from our map of SoundBuffers
     if (sounds_.find(name) == sounds_.end()) {
         throw std::runtime_error("Sound buffer not found: " + name);
     }
@@ -178,10 +185,9 @@ Animation& AssetManager::GetAnimation(const std::string& name) {
 }
 
 sf::Color AssetManager::LerpColor(const sf::Color& start, const sf::Color& end, float t) {
-    return sf::Color(
-        static_cast<sf::Uint8>(start.r + t * (end.r - start.r)),
-        static_cast<sf::Uint8>(start.g + t * (end.g - start.g)),
-        static_cast<sf::Uint8>(start.b + t * (end.b - start.b)),
-        255 // Assuming full opacity
+    return sf::Color(static_cast<sf::Uint8>(start.r + t * (end.r - start.r)),
+                     static_cast<sf::Uint8>(start.g + t * (end.g - start.g)),
+                     static_cast<sf::Uint8>(start.b + t * (end.b - start.b)),
+                     255  // Assuming full opacity
     );
 }

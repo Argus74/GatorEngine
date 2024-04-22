@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Component.h"
 #include "CAnimation.h"
 #include "CName.h"
@@ -15,7 +16,3 @@
 #include "CCharacter.h"
 #include "CScript.h"
 #include "CCollectable.h"
-
-
-
-

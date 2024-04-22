@@ -199,22 +199,7 @@ if (WIN32)
 endif()
 
 
-# Copy lua scripts
-    #add_custom_command(TARGET GatorEngine POST_BUILD
-        #COMMAND ${CMAKE_COMMAND} -E copy_directory
-        #${CMAKE_SOURCE_DIR}/src/lua_scripts
-        #$<TARGET_FILE_DIR:GatorEngine>)
 
-# Watch for Lua script changes
-#file(GLOB_RECURSE LUA_SCRIPTS "${CMAKE_SOURCE_DIR}/src/lua_scripts/*.lua")
-
-# Copy Lua scripts on build
-#[[foreach(LuaFile ${LUA_SCRIPTS})
-    add_custom_command(
-        TARGET GatorEngine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LuaFile} $<TARGET_FILE_DIR:GatorEngine>
-    )
-endforeach()]]
 
 # Copy asset folder
 add_custom_command(TARGET GatorEngine POST_BUILD

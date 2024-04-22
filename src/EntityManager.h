@@ -3,74 +3,74 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
+
 #include "Entity.h"
 #include "GatorPhysics.h"
 
-class EntityManager
-{
-public:
-	// Factory function to get the singleton instance
-	static EntityManager& GetInstance();
+class EntityManager {
+ public:
+    // Factory function to get the singleton instance
+    static EntityManager& GetInstance();
 
-	// Update function called every frame
-	void update();
+    // Update function called every frame
+    void update();
 
-	// Add an entity with a given tag
-	std::shared_ptr<Entity> addEntity(const std::string& tag);
+    // Add an entity with a given tag
+    std::shared_ptr<Entity> addEntity(const std::string& tag);
 
-	// Adding entities through add entity puts it in a buffer thats added after update. Need to add entity immediatley
-	std::shared_ptr<Entity> addEntityStart(const std::string& tag);
+    // Adding entities through add entity puts it in a buffer thats added after update. Need to add entity immediatley
+    std::shared_ptr<Entity> addEntityStart(const std::string& tag);
 
-	// Get all entities
-	std::vector<std::shared_ptr<Entity>>& getEntities();
+    // Get all entities
+    std::vector<std::shared_ptr<Entity>>& getEntities();
 
-	void removeEntity(std::shared_ptr<Entity> entity);
+    void removeEntity(std::shared_ptr<Entity> entity);
 
-	void cloneEntity(const std::shared_ptr<Entity>& entity);
+    void cloneEntity(const std::shared_ptr<Entity>& entity);
 
-	// Reset all entities with CTransform component to their origin after testing
-	void resetPositions();
+    // Reset all entities with CTransform component to their origin after testing
+    void resetPositions();
 
-	void reset();
+    void reset();
 
-	//Sort Entities in rendering order
-	void sortEntitiesForRendering();
+    //Sort Entities in rendering order
+    void sortEntitiesForRendering();
 
-	//Get Entities rendering order
-	std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
-	
-	// Get list of rendering for UI rendering
-	std::vector<std::shared_ptr<Entity>>& getUIRenderingList();
+    //Get Entities rendering order
+    std::vector<std::shared_ptr<Entity>>& getEntitiesRenderingList();
 
-	// Updating are our UI rendering list
-	void UpdateUIRenderingList();
+    // Get list of rendering for UI rendering
+    std::vector<std::shared_ptr<Entity>>& getUIRenderingList();
 
-	std::shared_ptr<Entity> getEntityByName(const std::string& name);
+    // Updating our UI rendering list
+    void UpdateUIRenderingList();
 
-private:
-	// Constructor
-	EntityManager();
+    std::shared_ptr<Entity> getEntityByName(const std::string& name);
 
-	// Type aliases for cleaner code
-	using EntityVec = std::vector<std::shared_ptr<Entity>>;
-	using EntityMap = std::unordered_map<std::string, EntityVec>;
+ private:
+    // Constructor
+    EntityManager();
 
-	// Vector to store all entities
-	EntityVec entities_;
+    // Type aliases for cleaner code
+    using EntityVec = std::vector<std::shared_ptr<Entity>>;
+    using EntityMap = std::unordered_map<std::string, EntityVec>;
 
-	// Vector to store entities to be added in the next frame
-	EntityVec to_add_;
+    // Vector to store all entities
+    EntityVec entities_;
 
-	// Total number of entities ever created, for unique IDs
-	size_t total_entities_ = 0;
+    // Vector to store entities to be added in the next frame
+    EntityVec to_add_;
 
-	// Vector that stores the true rendering order of Entities  
-	EntityVec entities_rendering_list_;
+    // Total number of entities ever created, for unique IDs
+    size_t total_entities_ = 0;
 
-	// Vector that stores entities with UI or Health Components
-	EntityVec entities_UI_list_;
+    // Vector that stores the true rendering order of Entities
+    EntityVec entities_rendering_list_;
+
+    // Vector that stores entities with UI or Health Components
+    EntityVec entities_UI_list_;
 };
 
-#endif // ENTITYMANAGER_H
+#endif  // ENTITYMANAGER_H

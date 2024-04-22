@@ -6,6 +6,7 @@
 #include "../../extern/rapidjson/writer.h"
 #include "../../extern/rapidjson/stringbuffer.h"
 
+
 class Serializable {
 public:
     virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) = 0;

@@ -1,7 +1,10 @@
 #include "FileBarWindow.h"
-#include "nfd.h"
-#include "../GameEngine.h"
+
 #include <filesystem>
+
+#include "nfd.h"
+
+#include "../GameEngine.h"
 
 FileBarWindow::FileBarWindow() {
     name_ = "File Bar";
@@ -12,43 +15,36 @@ void FileBarWindow::SetPosition() {
 }
 
 void FileBarWindow::DrawFrames() {
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open")) {
                 nfdchar_t* outPath = NULL;
-                nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
+                nfdfilteritem_t filterItem[1] = {{"Scene files", "scene"}};
                 nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
 
-                
-                if (result == NFD_OKAY) { //If a file/path is selected in the dialog
-                    std::string pathString(outPath); 
+                if (result == NFD_OKAY) {  //If a file/path is selected in the dialog
+                    std::string pathString(outPath);
                     GameEngine::GetInstance().changeScene(pathString);
                     std::cout << "Selected file: " << outPath << std::endl;
                     NFD_FreePath(outPath);
-                }
-                else if (result == NFD_CANCEL) { //If no file or path is selecte
+                } else if (result == NFD_CANCEL) {  //If no file or path is selecte
                     std::cout << "Dialog canceled." << std::endl;
-                }
-                else {
+                } else {
                     std::cerr << "Error: " << NFD_GetError() << std::endl;
                 }
             }
             if (ImGui::MenuItem("Save")) {
                 nfdchar_t* outPath = NULL;
-                nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
+                nfdfilteritem_t filterItem[1] = {{"Scene files", "scene"}};
                 nfdresult_t result = NFD_SaveDialog(&outPath, filterItem, 1, NULL, NULL);
-                if (result == NFD_OKAY) { 
-                    std::string pathString(outPath); 
+                if (result == NFD_OKAY) {
+                    std::string pathString(outPath);
                     GameEngine::GetInstance().saveScene(outPath);
                     std::cout << "Selected file: " << outPath << std::endl;
                     NFD_FreePath(outPath);
-                }
-                else if (result == NFD_CANCEL) { //If no file or path is selecte
+                } else if (result == NFD_CANCEL) {  //If no file or path is selecte
                     std::cout << "Dialog canceled." << std::endl;
-                }
-                else {
+                } else {
                     std::cerr << "Error: " << NFD_GetError() << std::endl;
                 }
             }
@@ -56,18 +52,14 @@ void FileBarWindow::DrawFrames() {
         }
 
         //For now placing the Upload Sprite in the File Bar
-        if (ImGui::BeginMenu("Upload"))
-        {
-            if (ImGui::MenuItem("Upload Sprite")) { 
+        if (ImGui::BeginMenu("Upload")) {
+            if (ImGui::MenuItem("Upload Sprite")) {
                 auto& assetManager = AssetManager::GetInstance();
                 nfdchar_t* outPath = NULL;
-                nfdfilteritem_t filterItem[] = {
-                    { "PNG files", "png" },
-                    { "JPEG files", "jpg,jpeg" }
-                };
-                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL); 
-                
-                if (result == NFD_OKAY) { //If a file/path is selected in the dialog
+                nfdfilteritem_t filterItem[] = {{"PNG files", "png"}, {"JPEG files", "jpg,jpeg"}};
+                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 2, NULL);
+
+                if (result == NFD_OKAY) {  //If a file/path is selected in the dialog
                     std::string pathString(outPath);
                     std::filesystem::path sourcePath = pathString;
                     std::filesystem::path targetDirectory = "assets/UserAssets";
@@ -80,7 +72,8 @@ void FileBarWindow::DrawFrames() {
                     std::filesystem::path targetPath = targetDirectory / filename;
 
                     // Copy the file to the new directory
-                    std::filesystem::copy(sourcePath, targetPath, std::filesystem::copy_options::overwrite_existing);
+                    std::filesystem::copy(sourcePath, targetPath,
+                                          std::filesystem::copy_options::overwrite_existing);
 
                     // Use the new file path to add the texture
                     std::string newFilePath = targetPath.string();
@@ -90,26 +83,27 @@ void FileBarWindow::DrawFrames() {
 
                     std::cout << "Selected file: " << outPath << std::endl;
                     NFD_FreePath(outPath);
-                }
-                else if (result == NFD_CANCEL) { //If no file or path is selected
+                } else if (result == NFD_CANCEL) {  //If no file or path is selected
                     std::cout << "Dialog canceled." << std::endl;
-                }
-                else {
+                } else {
                     std::cerr << "Error: " << NFD_GetError() << std::endl;
                 }
-            } 
+            }
             if (ImGui::MenuItem("Upload Font")) {
                 auto& assetManager = AssetManager::GetInstance();
                 nfdchar_t* outPath = NULL;
                 nfdfilteritem_t filterItem[] = {
-                    { "TrueType fonts", "ttf" }, // Focus only on ttf for direct SFML support
+                    {"TrueType fonts", "ttf"},  // Focus only on ttf for direct SFML support
                 };
-                nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL); // Updated count to 1 as only one filter item is used
+                nfdresult_t result =
+                    NFD_OpenDialog(&outPath, filterItem, 1,
+                                   NULL);  // Updated count to 1 as only one filter item is used
 
-                if (result == NFD_OKAY) { //If a file/path is selected in the dialog
+                if (result == NFD_OKAY) {  //If a file/path is selected in the dialog
                     std::string pathString(outPath);
                     std::filesystem::path sourcePath = pathString;
-                    std::filesystem::path targetDirectory = "assets/UserAssets"; // Changed to a more specific directory for fonts
+                    std::filesystem::path targetDirectory =
+                        "assets/UserAssets";  // Changed to a more specific directory for fonts
                     if (!std::filesystem::exists(targetDirectory)) {
                         std::filesystem::create_directories(targetDirectory);
                     }
@@ -119,21 +113,21 @@ void FileBarWindow::DrawFrames() {
                     std::filesystem::path targetPath = targetDirectory / filename;
 
                     // Copy the file to the new directory
-                    std::filesystem::copy(sourcePath, targetPath, std::filesystem::copy_options::overwrite_existing);
+                    std::filesystem::copy(sourcePath, targetPath,
+                                          std::filesystem::copy_options::overwrite_existing);
 
                     // Use the new file path to add the font
                     std::string newFilePath = targetPath.string();
                     std::cout << "Location of new font file: " << newFilePath << std::endl;
                     std::string assetName = assetManager.ExtractFilename(newFilePath);
-                    assetManager.AddFont(assetName, newFilePath); // Using AddFont instead of AddTexture
+                    assetManager.AddFont(assetName,
+                                         newFilePath);  // Using AddFont instead of AddTexture
 
                     std::cout << "Selected file: " << outPath << std::endl;
                     NFD_FreePath(outPath);
-                }
-                else if (result == NFD_CANCEL) { //If no file or path is selected
+                } else if (result == NFD_CANCEL) {  //If no file or path is selected
                     std::cout << "Dialog canceled." << std::endl;
-                }
-                else {
+                } else {
                     std::cerr << "Error: " << NFD_GetError() << std::endl;
                 }
             }

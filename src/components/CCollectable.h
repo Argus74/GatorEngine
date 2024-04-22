@@ -4,24 +4,24 @@
 #include "Component.h"
 
 class CCollectable : public Component {
-public:
-	DECLARE_COMPONENT_NAME("Collectable");
+ public:
+    DECLARE_COMPONENT_NAME("Collectable");
 
-	bool is_health = false; // Determines if the collectable adds points or not
-	float points_to_add = 25.0;
-	bool disappear_on_touch = true;
+    bool is_health = false;  // Determines if the collectable adds points or not
+    float points_to_add = 25.0;
+    bool disappear_on_touch = true;
     std::string text_entity_name = "";
 
-    bool touched = false; // If the collectable is touched, this is the flag
+    bool touched = false;  // If the collectable is touched, this is the flag
 
     bool reset() {
         if (touched && disappear_on_touch)
-            return true; // Respawn the entity
+            return true;  // Respawn the entity
         else
             return false;
     }
 
-	CCollectable() {}
+    CCollectable() {}
 
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
@@ -57,9 +57,7 @@ public:
         if (value.HasMember("text_entity_name") && value["text_entity_name"].IsString()) {
             text_entity_name = value["text_entity_name"].GetString();
         }
-
-       
-    } 
+    }
 };
 
-#endif // COLLECTABLE_H
+#endif  // COLLECTABLE_H

@@ -4,14 +4,14 @@
 #include "UIWindow.h"
 
 class FileBarWindow : public UIWindow {
-public:
-	FileBarWindow();
-	~FileBarWindow() = default;
-	FileBarWindow(const FileBarWindow&) = delete;
-	FileBarWindow& operator=(const FileBarWindow&) = delete;
+ public:
+    FileBarWindow();
+    ~FileBarWindow() = default;
+    FileBarWindow(const FileBarWindow&) = delete;
+    FileBarWindow& operator=(const FileBarWindow&) = delete;
 
-	void SetPosition() override;
-	void DrawFrames() override;
+    void SetPosition() override;
+    void DrawFrames() override;
 };
 
-#endif // FILEBARWINDOW_H
+#endif  // FILEBARWINDOW_H

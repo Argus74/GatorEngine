@@ -1,9 +1,3 @@
-/*
-* File:  CTouchTrigger
-*
-* eeeeeeee
-*/
-
 #ifndef TOUCH_TRIGGER_H
 #define TOUCH_TRIGGER_H
 
@@ -11,14 +5,14 @@
 #include "Component.h"
 
 class CTouchTrigger : public Component {
-public:
-	DECLARE_COMPONENT_NAME("Touch Trigger");
+ public:
+    DECLARE_COMPONENT_NAME("Touch Trigger");
 
-	std::string tag = "";
-	TriggerAction action = TriggerAction::None;
-	Vec2 trigger_size = Vec2(50, 50);
+    std::string tag = "";
+    TriggerAction action = TriggerAction::None;
+    Vec2 trigger_size = Vec2(50, 50);
 
-	CTouchTrigger() {}
+    CTouchTrigger() {}
 
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
@@ -61,4 +55,4 @@ public:
     }
 };
 
-#endif // TOUCH_TRIGGER_H
+#endif  // TOUCH_TRIGGER_H

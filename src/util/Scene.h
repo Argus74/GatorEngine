@@ -27,7 +27,7 @@ public:
             }
         }
 
-        EntityManager::GetInstance().update(); // maybe remove
+        EntityManager::GetInstance().update();
     }
 
 };

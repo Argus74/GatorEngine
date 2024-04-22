@@ -25,67 +25,59 @@
 #ifndef ACTION_BUS_H
 #define ACTION_BUS_H
 
-#include <memory>
 #include <map>
+#include <memory>
 
-class Entity; // Forward declared to avoid a circular dependency
+class Entity;  // Forward declared to avoid a circular dependency
 
-static const char* kActionNames[] = {
-	"No Action",
-	"Move Up",
-	"Move Down",
-	"Move Left",
-	"Move Right",
-	"Jump"
-};
+static const char* kActionNames[] =
+    {"No Action", "Move Up", "Move Down", "Move Left", "Move Right", "Jump"};
 
-static const char* kTriggerActionNames[] = {
-	"No Action",
-	"Update Health",
-	"Update Collectible",
-	"Give Jump"
-};
+static const char* kTriggerActionNames[] = {"No Action",
+                                            "Update Health",
+                                            "Update Collectible",
+                                            "Give Jump"};
 
 static enum Action {
-	NoAction,
-	MoveUp,
-	MoveDown,
-	MoveLeft,
-	MoveRight,
-	Jump,
-	NUM_ACTIONS
+    NoAction,
+    MoveUp,
+    MoveDown,
+    MoveLeft,
+    MoveRight,
+    Jump,
+    NUM_ACTIONS
 };
 
 static enum TriggerAction {
-	None,
-	UpdateHealth,
-	UpdateCollectible,
-	GiveJump
+    None,
+    UpdateHealth,
+    UpdateCollectible,
+    GiveJump
 };
 
 class ActionBus {
  public:
-	static ActionBus& GetInstance();
-	~ActionBus() = default;
-	ActionBus(const ActionBus&) = delete;
-	ActionBus& operator=(const ActionBus&) = delete;
-	ActionBus(ActionBus&&) = delete;
-	ActionBus& operator=(ActionBus&&) = delete;
+    static ActionBus& GetInstance();
+    ~ActionBus() = default;
+    ActionBus(const ActionBus&) = delete;
+    ActionBus& operator=(const ActionBus&) = delete;
+    ActionBus(ActionBus&&) = delete;
+    ActionBus& operator=(ActionBus&&) = delete;
 
-	// Clear the map of all entities and their actions
-	void Clear();
+    // Clear the map of all entities and their actions
+    void Clear();
 
-	// Inform the bus that the entity triggered an action
-	void Dispatch(const std::shared_ptr<Entity>& entity, Action action);
+    // Inform the bus that the entity triggered an action
+    void Dispatch(const std::shared_ptr<Entity>& entity, Action action);
 
-	// Check to see if a certain entity has triggered a certain action
-	bool Received(const std::shared_ptr<Entity>& entity, Action action);
+    // Check to see if a certain entity has triggered a certain action
+    bool Received(const std::shared_ptr<Entity>& entity, Action action);
 
  private:
-	 ActionBus() = default;
+    ActionBus() = default;
 
-	 // Map of entities and the actions they triggered
-	 std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entity_actions_map_;
+    // Map of entities and the actions they triggered
+    std::map<std::shared_ptr<Entity>, bool[NUM_ACTIONS]> entity_actions_map_;
 };
 
-#endif // ACTION_BUS_H
+#endif  // ACTION_BUS_H
