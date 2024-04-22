@@ -231,7 +231,8 @@ void GameEngine::sMovement() {
         auto character = entity->getComponent<CCharacter>();
 
         // Handle movement
-        Vec2 speed = transform->velocity; // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
+        // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
+        Vec2 speed = transform->velocity;
         float charSpeed = character ? character->speed : 8.0;
         if (ActionBus::GetInstance().Received(entity, MoveRight))
             speed.x += charSpeed;
@@ -250,20 +251,20 @@ void GameEngine::sMovement() {
             continue;
         b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
 
-
         // Handle jumps 
-        if (ActionBus::GetInstance().Received(entity, Jump) && character && character->is_grounded) {
+        if (ActionBus::GetInstance().Received(entity, Jump) && character &&
+            character->is_grounded) {
             // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
             if (!character)
                 break;
-            body->ApplyLinearImpulseToCenter(b2Vec2(character->jump_force.x, character->jump_force.y), true);
+            body->ApplyLinearImpulseToCenter(
+                b2Vec2(character->jump_force.x, character->jump_force.y), true);
             character->is_grounded = false;
         }
     }
 }
 
-void GameEngine::sPhysics() {
-}
+void GameEngine::sPhysics() {}
 
 void GameEngine::sCollision() {
     //First check if any new entities have a new rigid body component and
@@ -280,13 +281,6 @@ void GameEngine::sCollision() {
             }
         }
     }
-
-    //// Also check the converse: if there are any rigidbody components that don't exist anymore
-    //// in the entity list, remove them from the physics world
-    //auto& entitiesToBodies = GatorPhysics::GetInstance().GetEntityToBodies();
-    //for (auto entityBody : entitiesToBodies) {
-    //    if (entityBody.first )
-    //}
 
     GatorPhysics::GetInstance().update();
 }
