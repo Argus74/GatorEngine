@@ -411,8 +411,7 @@ void GameEngine::sUI() {
             Vec2 position = transformComponent->position;
             float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
-            auto textComponent =
-                entity->getComponent<CText>();  // Setting the properties of the text
+            auto textComponent = entity->getComponent<CText>();  // Setting the properties of the text
 
             std::string outputString = textComponent->message;
             if (textComponent->is_counter) {
@@ -430,8 +429,9 @@ void GameEngine::sUI() {
             textComponent->text.setScale(scale.x, scale.y);
             textComponent->text.setPosition(position.x, position.y + yOffset);
             textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
-
+            
             GameEngine::GetInstance().window().draw(textComponent->text);
+            
         }
     }
 }

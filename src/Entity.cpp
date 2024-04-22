@@ -103,8 +103,8 @@ sf::FloatRect& Entity::GetRect(float margin) {
     }  else if (hasComponent<CText>()) {
 		auto& text = getComponent<CText>()->text;
 		sf::FloatRect bounds = text.getGlobalBounds();
-		rect.width = bounds.width;
-		rect.height = bounds.height;
+		rect.width = bounds.width + margin;
+		rect.height = bounds.height + margin;
 	} 
     else {  // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
         rect.width = 50 * transform.scale.x;
