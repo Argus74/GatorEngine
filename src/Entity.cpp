@@ -89,34 +89,32 @@ sf::FloatRect& Entity::GetRect(float margin) {
     auto& transform = *(getComponent<CTransform>());
     sf::FloatRect rect;
 
-    if (hasComponent<CSprite>()) {  // Set selection box size, depending on the entity's current sprite
+    // Set rect size, depending on the entity's sprite, animation, text, or transform
+    if (hasComponent<CSprite>()) {
         auto& sprite = getComponent<CSprite>()->sprite;
-        // Set selection box size, depending on the entity's current sprite
-        rect.width = sprite.getGlobalBounds().width + margin;
-        rect.height = sprite.getGlobalBounds().height + margin;
+        rect = sprite.getGlobalBounds();
     } else if (hasComponent<CAnimation>()) {
         auto& sprite = getComponent<CAnimation>()->animation.sprite;
-        sprite.setScale(transform.scale.x,
-                        transform.scale.y);  // Hacky fix to get sprite with correct scale
-        rect.width = sprite.getGlobalBounds().width + margin;
-        rect.height = sprite.getGlobalBounds().height + margin;
-    }  else if (hasComponent<CText>()) {
-		auto& text = getComponent<CText>()->text;
-		sf::FloatRect bounds = text.getGlobalBounds();
-		rect.width = bounds.width + margin;
-		rect.height = bounds.height + margin;
-	} 
-    else {  // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
+        sprite.setScale(transform.scale.x, transform.scale.y);  // Hacky fix for scaled animations
+        rect = sprite.getGlobalBounds();
+    } else if (hasComponent<CText>()) {
+        auto& text = getComponent<CText>()->text;
+        rect = text.getGlobalBounds(); // TODO: This doesn't work for all fonts
+    } else {  // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
         rect.width = 50 * transform.scale.x;
         rect.height = 50 * transform.scale.y;
     }
 
-    // TODO: Use collision boxes
-    // TODO: Take largest of all components
+    // Add margins to rect size
+    rect.width += margin;
+    rect.height += margin;
 
-    // Get top-left corner of the entity
+    // Set rect position to be the position of the entity
     rect.left = transform.position.y - (rect.height / 2);
     rect.top = transform.position.x - (rect.width / 2);
+
+    // TODO: Use collision boxes
+    // TODO: Take largest of all components
 
     return rect;
 }
