@@ -20,27 +20,35 @@ void DrawTriggerBox(const std::shared_ptr<Entity>& entity) {
     if (!entity->hasComponent<CTouchTrigger>())
         return;
 
+    float borderSize = entity == Editor::active_entity_ ? kSelectionBoxBorder : 0;
+
     auto touchTrigger = entity->getComponent<CTouchTrigger>();
     auto transform = entity->getComponent<CTransform>();
+    sf::FloatRect triggerRect;
 
-    ImVec2 rect_min = ImVec2(transform->position.x - touchTrigger->trigger_size.x / 2,
-                             transform->position.y - touchTrigger->trigger_size.y / 2);
-    ImVec2 rect_max = ImVec2(transform->position.x + touchTrigger->trigger_size.x / 2,
-                             transform->position.y + touchTrigger->trigger_size.y / 2);
+    triggerRect.width = touchTrigger->trigger_size.x;
+    triggerRect.height = touchTrigger->trigger_size.y;
+    // Adjust these lines:
+    triggerRect.left = transform->position.x - (triggerRect.width / 2);
+    triggerRect.top = transform->position.y - (triggerRect.height / 2);
+    
+    short offsetHeight = ImGui::GetMainViewport()->Size.y * .2 + 20;
+    ImVec2 rectMin = ImVec2(triggerRect.left, triggerRect.top + offsetHeight);
+    ImVec2 rectMax = ImVec2(rectMin.x + triggerRect.width, rectMin.y + triggerRect.height);
+
+    // Push style for border size
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    float line_thickness = entity == Editor::active_entity_ ? kSelectionBoxBorder : 0;
 
-    // Determine the color based on whether the entity is active
-    ImVec4 border_color =
-        (line_thickness > 0) ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(0.0f, 0.5f, 0.0f, 0.5f);
+    // Change border color if entity is active
+    if (borderSize > 0) {
+        // Push the color for the border
+        draw_list->AddRect(rectMin, rectMax, IM_COL32(0, 255, 0, 255), 0.0f, 0, borderSize);
+    }
 
-    // Add the rectangle to the draw list
-    ImGui::SetCursorPos(ImVec2(transform->position.x, transform->position.y));
-    ImVec2 centerScreenPos = ImGui::GetCursorScreenPos();
-    ImGui::SetCursorScreenPos(centerScreenPos);
-    draw_list->AddRect(rect_min, rect_max, ImGui::GetColorU32(border_color), 0.0f, 0,
-                       line_thickness);
+    // Pop style for border size
+    ImGui::PopStyleVar();
 }
 
 void DrawGridLines() {
