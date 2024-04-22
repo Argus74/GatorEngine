@@ -1,3 +1,12 @@
+/**
+ * File: CCollectable.h
+ *
+ * The CCollectable class manages the properties and behaviors of collectable items within the game.
+ *
+ * This component allows for the customization of various collectable properties such as health benefits, point values, and interaction effects
+ * like disappearing on touch. It is versatile for use in various game scenarios where items can be collected by players or other entities.
+ */
+
 #ifndef COLLECTABLE_H
 #define COLLECTABLE_H
 

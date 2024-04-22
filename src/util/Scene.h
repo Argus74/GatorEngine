@@ -1,3 +1,12 @@
+/**
+ * File: Scene.h
+ *
+ * This file contains the Scene class, which represents a collection of entities
+ * that make up a particular game scene. It includes functionality for serializing a scene
+ * into a structured format and deserializing it back, effectively allowing for scene state
+ * saving and loading.
+ */
+
 #pragma once
 #include "Serializable.h"
 #include "../EntityManager.h"

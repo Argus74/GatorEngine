@@ -1,3 +1,11 @@
+/*
+ * File: CTouchTrigger.h
+ * 
+ * This file defines the CTouchTrigger class, a component used within an
+ * entity-component system to manage interactive triggers in game scenes.
+ * Each instance of CTouchTrigger can be associated with an action and
+ * a specific size for the trigger area. 
+ */
 #ifndef TOUCH_TRIGGER_H
 #define TOUCH_TRIGGER_H
 

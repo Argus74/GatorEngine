@@ -21,7 +21,7 @@ int main() {
     sf::RenderWindow& window = newGame.window();
     ImGui::SFML::Init(window);
     Editor editor;
-    newGame.changeScene("scenes/Default.scene");
+    newGame.changeScene("scenes/NewDefault.scene");
     //LuaState newLuaState("script.lua");
 
     while (window.isOpen()) {

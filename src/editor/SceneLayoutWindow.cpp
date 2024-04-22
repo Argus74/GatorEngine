@@ -16,31 +16,39 @@ void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const sf::FloatRect
     ImGui::PopStyleVar();
 }
 
-void DrawTriggerBox(const std::shared_ptr<Entity>& entity, bool isActive) {
-    if (!entity->hasComponent<CTouchTrigger>()) return;
+void DrawTriggerBox(const std::shared_ptr<Entity>& entity) {
+    if (!entity->hasComponent<CTouchTrigger>())
+        return;
 
-	auto touchTrigger = entity->getComponent<CTouchTrigger>();
-	sf::FloatRect triggerRect;
-	triggerRect.width = touchTrigger->trigger_size.x;
-	triggerRect.height = touchTrigger->trigger_size.y;
+    float borderSize = entity == Editor::active_entity_ ? kSelectionBoxBorder : 0;
 
-    ImGui::SetCursorPos(ImVec2(triggerRect.left, triggerRect.top));  // Adjust cursor to desired position
-    ImGui::SetCursorPos(ImVec2(triggerRect.top, triggerRect.left));
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize,
-                        isActive ? kSelectionBoxBorder : 0);
-    // Temporarily override the button color to green and disable the button frame
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));  // RGBA for green
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);  // No border for the unselectable box
+    auto touchTrigger = entity->getComponent<CTouchTrigger>();
+    auto transform = entity->getComponent<CTransform>();
+    sf::FloatRect triggerRect;
 
-    // Create an inactive button that serves as a colored box
-    ImGui::Button(("##TriggerBox" + std::to_string(entity->id())).c_str(),
-                  ImVec2(triggerRect.width, triggerRect.height));
+    triggerRect.width = touchTrigger->trigger_size.x;
+    triggerRect.height = touchTrigger->trigger_size.y;
+    // Adjust these lines:
+    triggerRect.left = transform->position.x - (triggerRect.width / 2);
+    triggerRect.top = transform->position.y - (triggerRect.height / 2);
     
-    // Restore the previous style and color settings
-    ImGui::PopStyleVar();  // Pop frame border size
-    ImGui::PopStyleColor(3);  // Pop all color changes
+    short offsetHeight = ImGui::GetMainViewport()->Size.y * .2 + 20;
+    ImVec2 rectMin = ImVec2(triggerRect.left, triggerRect.top + offsetHeight);
+    ImVec2 rectMax = ImVec2(rectMin.x + triggerRect.width, rectMin.y + triggerRect.height);
+
+    // Push style for border size
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // Change border color if entity is active
+    if (borderSize > 0) {
+        // Push the color for the border
+        draw_list->AddRect(rectMin, rectMax, IM_COL32(0, 255, 0, 255), 0.0f, 0, borderSize);
+    }
+
+    // Pop style for border size
+    ImGui::PopStyleVar();
 }
 
 void DrawGridLines() {
@@ -200,6 +208,7 @@ void SceneLayoutWindow::DrawFrames() {
 
             static constexpr float margin = kSelectionBoxBorder * 3 / 2;
             DrawSelectionBox(entity, entity->GetRect(margin));
+            DrawTriggerBox(entity);
             HandleSelectInteraction(entity);
             if (Editor::state ==
                 Editor::State::Moving) {  // If moving, also handle moving interaction

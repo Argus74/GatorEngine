@@ -1,3 +1,9 @@
+/**
+ * File: CName.h
+ *
+ *  The CName class is a specialized component that stores the name of an entity within a game's entity-component-system (ECS).
+ */
+
 #pragma once
 
 #include "Component.h"

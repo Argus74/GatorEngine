@@ -146,7 +146,12 @@ void GameEngine::sTouchTrigger() {
         if (!entity->hasComponent<CTouchTrigger>() || entity->isDisabled())
             continue;
         auto touchTrigger = entity->getComponent<CTouchTrigger>();
-        auto triggerRect = entity->GetRect();
+        auto transform = entity->getComponent<CTransform>();
+        sf::FloatRect triggerRect;
+        triggerRect.width = touchTrigger->trigger_size.x;
+        triggerRect.height = touchTrigger->trigger_size.y;
+        triggerRect.left = transform->position.y - (triggerRect.height / 2);
+        triggerRect.top = transform->position.x - (triggerRect.width / 2);
 
         // If has touch trigger, check if it is touching any other entity
         for (auto& entityTouched : entities) {
@@ -165,8 +170,9 @@ void GameEngine::sTouchTrigger() {
                     if (entity->hasComponent<CCollectable>() &&
                         !entity->getComponent<CCollectable>()->is_health) {
                         // We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
-                        auto collectableEnityText = EntityManager::GetInstance().getEntityByName(
-                            entity->getComponent<CCollectable>()->text_entity_name);
+                        auto collectableEnityText =
+                            EntityManager::GetInstance().getEntityByName(
+                                entity->getComponent<CCollectable>()->text_entity_name);
                         if (collectableEnityText != nullptr &&
                             collectableEnityText->hasComponent<CText>())
                             Interact(entity, collectableEnityText);
@@ -183,6 +189,7 @@ void GameEngine::sTouchTrigger() {
         }
     }
 }
+
 
 void GameEngine::sScripts() {
     //First, check if there are any entities that have been given a script component. If so,
@@ -414,8 +421,7 @@ void GameEngine::sUI() {
             Vec2 position = transformComponent->position;
             float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
-            auto textComponent =
-                entity->getComponent<CText>();  // Setting the properties of the text
+            auto textComponent = entity->getComponent<CText>();  // Setting the properties of the text
 
             std::string outputString = textComponent->message;
             if (textComponent->is_counter) {
@@ -433,8 +439,9 @@ void GameEngine::sUI() {
             textComponent->text.setScale(scale.x, scale.y);
             textComponent->text.setPosition(position.x, position.y + yOffset);
             textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
-
+            
             GameEngine::GetInstance().window().draw(textComponent->text);
+            
         }
     }
 }

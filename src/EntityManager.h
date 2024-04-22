@@ -1,3 +1,19 @@
+/**
+ * File: EntityManager.h
+ *
+ * The EntityManager class is responsible for managing all entities in the game.
+ * It provides a centralized interface to update entities, add and remove entities,
+ * clone entities, and manage the rendering order. It also offers methods to reset entity
+ * positions and handle entity-related updates specific to the game's UI. The EntityManager
+ * uses a singleton pattern to ensure that there is a single, global point of access to the
+ * entity list.
+ *
+ * This class manages two primary lists of entities: one for all entities and one specifically
+ * for UI components. Entities are added to a buffer first and then to the main list after updates
+ * to prevent issues during iteration. Additionally, it provides utility functions for sorting
+ * entities based on rendering order and finding entities by name.
+ */
+
 #ifndef ENTITYMANAGER_H
 #define ENTITYMANAGER_H
 
