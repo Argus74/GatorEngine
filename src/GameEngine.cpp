@@ -235,8 +235,8 @@ void GameEngine::sMovement() {
         // Handle movement
         // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
         Vec2 speed = transform->velocity;
-        float dt = deltaClock.getElapsedTime().asSeconds(); // delta time for more consistent movement
-        float charSpeed = character ? character->speed * dt : 75.0 * dt;
+        float dt = deltaClock.getElapsedTime().asMilliseconds() / 9; // delta time for more consistent movement
+        float charSpeed = character ? character->speed * dt : 5.0 * dt;
 
         if (ActionBus::GetInstance().Received(entity, MoveRight))
             speed.x += charSpeed;
