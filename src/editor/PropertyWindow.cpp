@@ -121,13 +121,17 @@ void PropertyWindow::DrawComponent(T& component) {
         }
 
         if (!isOpen) {
+            // ANOTHER hacky solution... to remove the physics body when component is removed 
+            // TODO: Try (harder than I have) to put this maybe in the dtr of CRigidBody or somewhere else more fitting
+            if constexpr (std::is_same_v<T, std::shared_ptr<CRigidBody>>) {
+                GatorPhysics::GetInstance().destroyBody(Editor::active_entity_.get());
+			}
             Editor::active_entity_->removeComponent(component);
         }
     }
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CTransform> transform) {
-    // TODO: Update below. These are based on the placeholder components in Entity.h
     DrawProperty("Position", transform->position);
     DrawProperty("Scale", transform->scale);
     DrawProperty("Velocity", transform->velocity);
@@ -139,7 +143,6 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CName> name) {
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape) {
-    // TODO: Update below. These are based on the placeholder components in Entity.h
     DrawProperty("Type", shape->type);
     DrawProperty("Color", shape->color);
 }
