@@ -1,3 +1,16 @@
+/**
+ * File: AssetManager.h
+ * Asset Management for Gator Engine
+ * 
+ * The AssetManager class is a singleton that manages all the resources used by Gator Engine.
+ * It is responsible for loading, accessing, and managing assets such as textures, sounds,
+ * fonts, and animations. The AssetManager provides a centralized point for accessing these
+ * resources, ensuring that each asset is only loaded once and can be reused throughout the game.
+ * It also provides utility functions for name extraction from file paths, sound playback, and
+ * color interpolation. Private assets, such as icons and buttons specific to Gator Engine's 
+ * internal UI, are managed separately to distinguish between game assets and engine assets.
+ */
+
 #ifndef ASSETS_H_
 #define ASSETS_H_
 

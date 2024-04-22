@@ -1,3 +1,12 @@
+/**
+ * File: Serializable.h
+ *
+ * The Serializable class provides an interface for serialization and deserialization
+ * of data structures into and from JSON format using the RapidJSON library. Classes inheriting
+ * from Serializable must implement the serialize and deserialize methods, allowing them to
+ * be saved to or loaded from JSON files.
+ */
+
 #pragma once
 #include <iostream>
 #include <fstream>

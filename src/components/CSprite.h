@@ -1,3 +1,12 @@
+/**
+ * File CSprite.h
+ *
+ * The CSprite class manages the graphical representation of game entities using sprites.
+ *
+ * This component allows entities to have visual representations through textures and sprites drawn on the screen.
+ * It integrates with the AssetManager to manage texture resources, ensuring efficient memory and rendering performance.
+ * The CSprite component is essential for rendering static or animated images attached to game entities, handling their visibility and portion of the texture to be displayed.
+ */
 #pragma once
 
 #include "Component.h"
