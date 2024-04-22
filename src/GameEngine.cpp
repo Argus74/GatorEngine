@@ -217,38 +217,41 @@ void GameEngine::sScripts() {
 void GameEngine::sMovement() {
     for (auto entity : EntityManager::GetInstance().getEntities()) {
         // Skip unrelated entities
-        if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() ||
-            entity->isDisabled())
+        if (!entity->hasComponent<CTransform>() || entity->isDisabled())
             continue;
 
-        // Reset the velocity of the physics body
-        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
         auto transform = entity->getComponent<CTransform>();
-        //body->SetLinearVelocity(b2Vec2_zero);
+        auto character = entity->getComponent<CCharacter>();
 
-        // Get speed from character component, if available
-        float speed = 5.0;
-        Vec2 jumpForce = Vec2(0, 0);
-        if (entity->hasComponent<CCharacter>()) {
-			speed = entity->getComponent<CCharacter>()->speed;
-            jumpForce = entity->getComponent<CCharacter>()->jump_force;
-		}
-
-        // Update velocity of physics body depending on which actions were received
-        Vec2 step = transform->velocity; // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
+        // Handle movement
+        Vec2 speed = transform->velocity; // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
+        float charSpeed = character ? character->speed : 8.0;
         if (ActionBus::GetInstance().Received(entity, MoveRight))
-            step.x += speed;
+            speed.x += charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveLeft))
-            step.x -= speed;
+            speed.x -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveUp))
-            step.y + -speed;
+            speed.y + -charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveDown))
-            step.y += speed;
-        if (ActionBus::GetInstance().Received(entity, Jump))
-            body->ApplyLinearImpulseToCenter(b2Vec2(jumpForce.x, jumpForce.y), true);
+            speed.y += charSpeed;
 
         // Update the position based on the velocity
-        transform->position = transform->position + step;
+        transform->position = transform->position + speed;
+
+        // Use the RigidBody to process physics movements
+        if (!entity->hasComponent<CRigidBody>())
+            continue;
+        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+
+
+        // Handle jumps 
+        if (ActionBus::GetInstance().Received(entity, Jump) && character && character->is_grounded) {
+            // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
+            if (!character)
+                break;
+            body->ApplyLinearImpulseToCenter(b2Vec2(character->jump_force.x, character->jump_force.y), true);
+            character->is_grounded = false;
+        }
     }
 }
 
@@ -270,6 +273,13 @@ void GameEngine::sCollision() {
             }
         }
     }
+
+    //// Also check the converse: if there are any rigidbody components that don't exist anymore
+    //// in the entity list, remove them from the physics world
+    //auto& entitiesToBodies = GatorPhysics::GetInstance().GetEntityToBodies();
+    //for (auto entityBody : entitiesToBodies) {
+    //    if (entityBody.first )
+    //}
 
     GatorPhysics::GetInstance().update();
 }
