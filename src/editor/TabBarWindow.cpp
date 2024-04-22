@@ -202,6 +202,7 @@ void TabBarWindow::DrawFrames() {
                     const Vec2 pos = Vec2(sceneWidth / 2, sceneHeight / 2);
 
                     entity->getComponent<CTransform>()->position = pos;
+                    entity->getComponent<CTransform>()->origin = pos;
 
                     auto sprite = entity->getComponent<CSprite>()->sprite;
                     const Vec2 scl =
@@ -254,10 +255,11 @@ void TabBarWindow::DrawFrames() {
                     auto hazard = EntityManager::GetInstance().addEntity("Hazard");
                     hazard->addComponent<CName>("Hazard");
                     hazard->addComponent<CTransform>(Vec2(50, 50));
-                    hazard->addComponent<CSprite>("Hazard");
+                    hazard->addComponent<CSprite>("Spikes");
                     auto trigger = hazard->addComponent<CTouchTrigger>();
                     trigger->action = TriggerAction::UpdateHealth;
                     trigger->tag = "Player";
+                    trigger->trigger_size = Vec2(20, 20);
                     auto collectable = hazard->addComponent<CCollectable>();
                     collectable->disappear_on_touch = false;
                     collectable->is_health = true;
