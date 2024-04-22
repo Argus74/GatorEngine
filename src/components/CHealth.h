@@ -1,3 +1,13 @@
+/**
+ * File: CHealth.h
+ *
+ * The CHealth class is a component for managing health attributes for entities within a game engine.
+ *
+ * This class provides a structure for health management including attributes like total health, current health,
+ * and mechanisms for updating health in response to game events. It supports visual representation of health
+ * through health bars that can be configured to follow the entity or remain static at a designated position.
+ */
+
 #pragma once
 
 #include "Component.h"

@@ -1,3 +1,16 @@
+/**
+ * Entity.h
+ *
+ * This file contains the Entity class which serves as a fundamental building block
+ * for all game objects within the engine. It holds a tuple of components that define the 
+ * properties and behaviors of the game object.
+ *
+ * The Entity class allows dynamic composition of components at runtime, facilitating a 
+ * flexible and modular approach to game object construction. It supports serialization and 
+ * deserialization for saving and loading game states, and provides a unified interface for
+ * accessing and manipulating its components.
+ */
+
 #pragma once
 
 #include <SFML/Graphics.hpp>

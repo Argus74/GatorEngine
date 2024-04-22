@@ -1,3 +1,14 @@
+/**
+ * File: CCharacter.h
+ *
+ * The CCharacter class is a component that encapsulates character-specific behaviors and attributes,
+ * such as movement speed and jump force, within a game engine.
+ *
+ * This class provides a straightforward way to manage and apply dynamic character behaviors such as running and jumping.
+ * It includes attributes like speed and jump force which can be easily adjusted to customize character movement.
+ * Additionally, it manages a grounded state to assist in determining if the character can jump or needs to fall.
+ */
+
 #pragma once
 
 #include "../Vec2.h"

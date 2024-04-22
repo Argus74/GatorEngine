@@ -1,3 +1,13 @@
+/**
+ * File: CRigidBody.h
+ *
+ * The CRigidBody class is a component for adding physical properties to entities in a game engine.
+ *
+ * This class allows entities to interact physically with other entities in the game world by providing them with a physical body
+ * and fixtures that can be managed by a physics engine, specifically Box2D. It supports dynamic adjustment of physical properties
+ * such as density, friction, and whether the body is static or dynamic. 
+ */
+
 #pragma once
 
 #include <Box2D/Box2D.h>

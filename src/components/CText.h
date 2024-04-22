@@ -1,3 +1,12 @@
+/**
+ * File: CText.h
+ *
+ * Manages the text rendering capabilities for entities within the game engine.
+ *
+ * This component class provides the functionality to attach textual display features to game entities. It allows
+ * for setting text properties such as font, message content, styling (e.g., bold, italic), character size, and color.
+ * The `CText` component utilizes SFML's Text and Font classes to manage and render text.
+ */
 #pragma once
 
 #include "Component.h"

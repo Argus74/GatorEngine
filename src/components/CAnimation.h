@@ -1,3 +1,12 @@
+/* File: CAnimation.h
+ *
+ * The CAnimation class is a component used to manage and control animations for entities in a game engine.
+ *
+ * This class handles the animation states and properties such as animation speed and active animation frames. It allows
+ * entities to display complex animations with multiple frames, supporting both playback and on-the-fly adjustments such as speed changes.
+ * The component can be extended to include various animation states (like jumping or running) based on the entity's current actions or conditions.
+ */
+
 #pragma once
 
 #include "Component.h"

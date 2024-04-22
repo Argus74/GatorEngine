@@ -1,3 +1,16 @@
+/**
+ * Animation.h
+ * Defines the Animation class for animating sprites in Gator Engine.
+ *
+ * The Animation class is responsible for handling sprite-based animations. It
+ * provides functionality to update animation frames based on the speed of the
+ * animation and the number of frames. An instance of Animation contains a sprite,
+ * texture, and properties to control the frame rate and track the current frame.
+ * This class can be used to animate any sprite, from characters to environment
+ * elements, by updating the sprite's texture rectangle to the correct frame during
+ * each update cycle.
+ */
+
 #include <cmath>
 #include <iostream>
 #include <vector>

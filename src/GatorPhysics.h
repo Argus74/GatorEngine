@@ -1,3 +1,12 @@
+/*
+ * File: GatorPhysics.h
+ *
+ * This file defines the GatorPhysics class, which encapsulates the physics 
+ * engine functionality for a game using the Box2D library. GatorPhysics is
+ * responsible for managing physical interactions between game entities, 
+ * applying gravity, handling collisions, and integrating physical responses.
+ */
+
 #pragma once
 #include <map>
 #include <vector>
@@ -32,4 +41,5 @@ class GatorPhysics : b2ContactListener {
     void EndContact(b2Contact* contact) override;
     void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
+    void ResetWorld();
 };

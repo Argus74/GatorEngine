@@ -1,3 +1,11 @@
+/*
+ * File: CTransform.h
+ *
+ * This file defines the CTransform class, which is a core component in a
+ * game engine's entity-component system architecture. It primarily manages
+ * spatial properties of game entities, including position, scale, orientation,
+ * and velocity.
+ */
 #pragma once
 
 #include "SFML/Graphics/Transform.hpp"
