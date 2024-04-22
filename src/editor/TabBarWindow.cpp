@@ -237,7 +237,11 @@ void TabBarWindow::DrawFrames() {
 
                 // Collectible button
                 auto collectibleButton = [&]() {
-                    // TODO:
+                    auto collectable = EntityManager::GetInstance().addEntity("Collectable");
+                    collectable->addComponent<CName>("Collectable");
+                    collectable->addComponent<CInformation>();
+                    collectable->addComponent<CCollectable>();
+                    collectable->addComponent<CTouchTrigger>();
                 };
                 DrawButton("Collectible",
                            AssetManager::GetInstance().GetTexturePrivate("CollectibleIcon"), 10,
@@ -262,7 +266,7 @@ void TabBarWindow::DrawFrames() {
             static auto stopButton = [&]() {
                 Editor::state = Editor::State::None;  // Testing stopped: Reset state to none
                 EntityManager::GetInstance().resetPositions();
-                // TODO: end game: unload content/reset entity pos?
+                GatorPhysics::GetInstance().ResetWorld();
             };
             DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 5,
                        stopButton);
