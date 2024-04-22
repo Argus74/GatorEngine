@@ -152,7 +152,7 @@ void TabBarWindow::DrawFrames() {
                 DrawGridButtons(3);
 
                 /// === Insert =================
-                DrawSectionLabel("Insert", 6, 10);
+                DrawSectionLabel("Insert", 5, 12);
 
                 // Sprite button
                 spriteNameList_ = AssetManager::GetInstance().GenerateAssetNameList("textures");
@@ -169,7 +169,7 @@ void TabBarWindow::DrawFrames() {
                 DrawButton(
                     "Sprite",
                     AssetManager::GetInstance().GetTexture(spriteNameList_[selectedSpriteIndex_]),
-                    6, spriteButton);
+                    5, spriteButton);
 
                 // Game Object button
                 auto gameObjectButton = [&]() {
@@ -181,7 +181,7 @@ void TabBarWindow::DrawFrames() {
                     EntityManager::GetInstance().UpdateUIRenderingList();
                 };
                 DrawButton("Game Object",
-                           AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 7,
+                           AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6,
                            gameObjectButton);
 
                 // Background button
@@ -192,7 +192,7 @@ void TabBarWindow::DrawFrames() {
                     entity->getComponent<CName>()->name = "Background";
                     entity->getComponent<CInformation>()->layer = 0;
                     entity->getComponent<CInformation>()->selectable =
-                        false;  // Disable selection to avoid accidental moving of background
+                        false;  // Prevent moving background
 
                     // Calculate transform parameters that will make that default sprite^ fit window
                     const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
@@ -202,7 +202,6 @@ void TabBarWindow::DrawFrames() {
                     const Vec2 pos = Vec2(sceneWidth / 2, sceneHeight / 2);
 
                     entity->getComponent<CTransform>()->position = pos;
-                    entity->getComponent<CTransform>()->resetPosition();
 
                     auto sprite = entity->getComponent<CSprite>()->sprite;
                     const Vec2 scl =
@@ -212,16 +211,17 @@ void TabBarWindow::DrawFrames() {
                     entity->getComponent<CTransform>()->scale = scl;
                 };
                 DrawButton("Background",
-                           AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 8,
+                           AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 7,
                            backgroundButton);
 
                 // Player button
                 auto playerButton = [&]() {
                     auto player = EntityManager::GetInstance().addEntity("Player");
                     player->addComponent<CName>("Player");
-                    player->addComponent<CInformation>();
+                    auto info = player->addComponent<CInformation>();
+                    info->tag = "Player";
                     player->addComponent<CTransform>(Vec2(50, 50));
-                    player->addComponent<CHealth>();
+                    auto health = player->addComponent<CHealth>();
                     player->addComponent<CCharacter>();
                     auto anim = player->addComponent<CAnimation>();
                     anim->animation = AssetManager::GetInstance().GetAnimation("DefaultAnimation");
@@ -232,24 +232,69 @@ void TabBarWindow::DrawFrames() {
                                       {sf::Keyboard::D, Action::MoveRight}};
                     GatorPhysics::GetInstance().createBody(player.get(), false);
                 };
-                DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 9,
+                DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 8,
                            playerButton);
 
-                // Collectible button
-                auto collectibleButton = [&]() {
-                    auto collectable = EntityManager::GetInstance().addEntity("Collectable");
-                    collectable->addComponent<CName>("Collectable");
-                    collectable->addComponent<CTransform>(Vec2(50, 50));
-                    collectable->addComponent<CInformation>();
-                    collectable->addComponent<CCollectable>();
-                    collectable->addComponent<CTouchTrigger>();
-                };
-
-                DrawButton("Collectible",
-                           AssetManager::GetInstance().GetTexturePrivate("CollectibleIcon"), 10,
-                           collectibleButton);
 
                 ImGui::EndTabItem();
+
+                // Text button
+                auto textButton = [&]() {
+                    auto text = EntityManager::GetInstance().addEntity("Text");
+                    text->addComponent<CName>("Text");
+                    text->addComponent<CTransform>(Vec2(50, 50));
+                    auto txt = text->addComponent<CText>("LoveDays");
+                    txt->message = "Text";
+                };
+                DrawButton("Text", AssetManager::GetInstance().GetTexturePrivate("TextIcon"),
+                           9, textButton);
+
+                // Hazard collectable button
+                auto hazardButton = [&]() {
+                    auto hazard = EntityManager::GetInstance().addEntity("Hazard");
+                    hazard->addComponent<CName>("Hazard");
+                    hazard->addComponent<CTransform>(Vec2(50, 50));
+                    hazard->addComponent<CSprite>("Hazard");
+                    auto trigger = hazard->addComponent<CTouchTrigger>();
+                    trigger->action = TriggerAction::UpdateHealth;
+                    trigger->tag = "Player";
+                    auto collectable = hazard->addComponent<CCollectable>();
+                    collectable->disappear_on_touch = false;
+                    collectable->is_health = true;
+                    collectable->points_to_add = -1; // Negative points for hazards
+
+                };
+                DrawButton("Hazard", AssetManager::GetInstance().GetTexturePrivate("HazardIcon"),
+                           10, hazardButton);
+
+                // Coin collectable button
+                auto coinButton = [&]() {
+                    auto coin = EntityManager::GetInstance().addEntity("Coin");
+                    coin->addComponent<CName>("Coin");
+                    coin->addComponent<CTransform>(Vec2(50, 50));
+                    coin->addComponent<CSprite>("Coin");
+                    auto collectable = coin->addComponent<CCollectable>();
+                    collectable->points_to_add = 1;
+                    auto trigger = coin->addComponent<CTouchTrigger>();
+                    trigger->action = TriggerAction::UpdateCollectible;
+                    trigger->tag = "Player";
+                };
+                DrawButton("Coin",
+                           AssetManager::GetInstance().GetTexturePrivate("CollectibleIcon"), 11, coinButton);
+
+                // Jump pad button
+                auto jumpPadButton = [&]() {
+                    auto jumpPad = EntityManager::GetInstance().addEntity("JumpPad");
+                    jumpPad->addComponent<CName>("Jump Pad");
+                    jumpPad->addComponent<CTransform>(Vec2(50, 50));
+                    jumpPad->addComponent<CSprite>("JumpPad");
+                    auto trigger = jumpPad->addComponent<CTouchTrigger>();
+                    trigger->action = TriggerAction::GiveJump;
+                    trigger->tag = "Player";
+                };
+                DrawButton("Jump Pad",
+                           AssetManager::GetInstance().GetTexturePrivate("JumpPadIcon"), 12,
+                           jumpPadButton);
             }
         }
 
@@ -261,8 +306,8 @@ void TabBarWindow::DrawFrames() {
                     Testing;  // Button clicked: now testing, TODO: disable clicking on the explorer & property window
                 // TODO: start game: init?
             };
-            DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 4,
-                       startButton, (Editor::state == Editor::State::Testing));
+            DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 0,
+                       startButton);
 
             // Stop Button
             static auto stopButton = [&]() {
@@ -270,7 +315,7 @@ void TabBarWindow::DrawFrames() {
                 EntityManager::GetInstance().resetPositions();
                 GatorPhysics::GetInstance().ResetWorld();
             };
-            DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 5,
+            DrawButton("Stop", AssetManager::GetInstance().GetTexturePrivate("StopIcon"), 1,
                        stopButton);
 
             // TODO: add pause button?
