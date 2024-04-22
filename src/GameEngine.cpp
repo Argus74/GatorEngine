@@ -476,6 +476,7 @@ void GameEngine::sRenderColliders() {
 void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity,
                           std::shared_ptr<Entity> entityPair) {
     auto collectibleComponent = collectibleEnity->getComponent<CCollectable>();
+    collectibleComponent->touched = true;
     if (collectibleComponent->is_health &&
         entityPair->hasComponent<
             CHealth>()) {  // If its health we are going to add points to the CHealth component of the entityPair
