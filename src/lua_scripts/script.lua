@@ -1,10 +1,17 @@
--- script.lua
--- Receives a table, returns the sum of its components.
-io.write("The table the script received has:\n");
-x = 0
-for i = 1, #foo do
-  print(i, foo[i])
-  x = x + foo[i]
+
+
+function Update()
+	print("Before for loop")
+	local Entities = EntityManager:GetEntities()
+	print(Entities)
+	for i=1, #Entities do
+		print(Entities[i])
+	end
+	print("After for loop")
+	local NewEntity = EntityManager:AddEntity("Test")
+	print("After creating the entity")
+	print(NewEntity)
+	print(#Entities)
+	print("Testing chang")
+	
 end
-io.write("Returning data back to C\n");
-return x

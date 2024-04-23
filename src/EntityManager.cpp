@@ -1,102 +1,159 @@
 #include "EntityManager.h"
+
 #include <algorithm>
+
+#include "editor/Editor.h"
 
 // Factory function to get the singleton instance
 EntityManager& EntityManager::GetInstance() {
-	static EntityManager instance;
-	return instance;
+    static EntityManager instance;
+    return instance;
 }
 
 // Constructor
 EntityManager::EntityManager() {}
 
 // Add an entity with a given tag
-std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
-{
-	auto newEntity = std::make_shared<Entity>(tag, m_totalEntities++);
-	m_toAdd.push_back(newEntity);
-	return newEntity;
+std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag) {
+    std::cout << "Adding entity with tag: " << tag << std::endl;
+    auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
+    newEntity->addComponent<CName>();
+    newEntity->addComponent<CInformation>();
+    newEntity->addComponent<CTransform>();
+    to_add_.push_back(newEntity);
+    sortEntitiesForRendering();
+    UpdateUIRenderingList();
+    return newEntity;
 }
 
-void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity)
-{
-	std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity); // Call cpy ctr
-	m_totalEntities++; // Increment total entities out here too
-	m_toAdd.push_back(newEntity);
+std::shared_ptr<Entity> EntityManager::addEntityStart(const std::string& tag) {
+    std::cout << "Adding entity with tag: " << tag << std::endl;
+    auto newEntity = std::make_shared<Entity>(tag, total_entities_++);
+    newEntity->addComponent<CName>();
+    newEntity->addComponent<CInformation>();
+    newEntity->addComponent<CTransform>();
+    entities_.push_back(newEntity);
+    sortEntitiesForRendering();
+    UpdateUIRenderingList();
+    return newEntity;
+}
+
+void EntityManager::cloneEntity(const std::shared_ptr<Entity>& entity) {
+    std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(*entity);  // Call cpy ctr
+    newEntity->id_ = total_entities_++;
+    to_add_.push_back(newEntity);
 }
 
 // Update function called every frame
-void EntityManager::update()
-{
-	// Add new entities to the main vector and map
-	for (auto& entity : m_toAdd) {
-		m_entities.push_back(entity);
-		m_entityMap[entity->tag()].push_back(entity);
-	}
-	m_toAdd.clear();
+void EntityManager::update() {
+    // Add new entities to the main vector and map
+    for (auto& entity : to_add_) {
+        entities_.push_back(entity);
+        entity->initialized = true;
+        sortEntitiesForRendering();  //Sorting render list
+        UpdateUIRenderingList();
+    }
+    to_add_.clear();
 
-	// Remove dead entities from the main vector
-	m_entities.erase(
-		std::remove_if(m_entities.begin(), m_entities.end(),
-			[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
-		m_entities.end()
-	);
-
-	// Remove dead entities from the map
-	for (auto& pair : m_entityMap) {
-		pair.second.erase(
-			std::remove_if(pair.second.begin(), pair.second.end(),
-				[](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
-			pair.second.end()
-		);
-	}
-
-	// Additional logic to remove empty vectors from the map, if necessary.
-	// Used to ensure iterator remains valid through the loop.
-	for (auto it = m_entityMap.begin(); it != m_entityMap.end();) {
-		if (it->second.empty()) {
-			it = m_entityMap.erase(it); // erase returns the next iterator
-		}
-		else {
-			++it; // only increment if we didn't erase
-		}
-	}
+    // Remove dead entities from the main vector
+    entities_.erase(
+        std::remove_if(entities_.begin(), entities_.end(),
+                       [](const std::shared_ptr<Entity>& entity) { return !entity->isAlive(); }),
+        entities_.end());
 }
 
 // Get all entities
-std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities()
-{
-	return m_entities;
+std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities() {
+    return entities_;
 }
 
-// Get entities with a specific tag
-std::vector<std::shared_ptr<Entity>>& EntityManager::getEntities(const std::string& tag)
-{
-	return m_entityMap[tag];
+//Remove entity from our entity list, rendering list, and physics world
+void EntityManager::removeEntity(std::shared_ptr<Entity> entity) {
+    for (int i = 0; i < entities_.size(); i++) {
+        if (entities_[i] != entity)
+            continue;
+
+        if (entity->hasComponent<CRigidBody>()) {
+            GatorPhysics::GetInstance().destroyBody(entity.get());
+        }
+
+        entities_.erase(entities_.begin() + i);
+        sortEntitiesForRendering();  //Resorting our Render List
+        UpdateUIRenderingList();
+    }
 }
 
-void EntityManager::removeEntity(std::shared_ptr<Entity> entity)
-{
-	for (int i  = 0; i < m_entities.size(); i++) {
-		if (m_entities[i] == entity) {
-			m_entities.erase(m_entities.begin() + i);
-			break;
-		}
-	}
-	for (auto& pair : m_entityMap) {
-		for (int i = 0; i < pair.second.size(); i++) {
-			if (pair.second[i] == entity) {
-				pair.second.erase(pair.second.begin() + i);
-				break;
-			}
-		}
-	}
+void EntityManager::resetPositions() {
+    for (auto entity : entities_) {
+        if (entity->hasComponent<CTransform>()) {
+            auto transform = entity->getComponent<CTransform>();
+            transform->resetPosition();
+        }
+        if (entity->hasComponent<CHealth>()) {
+            auto health = entity->getComponent<CHealth>();
+            if (health->reset())  // If the entity was killed then we Enable it
+                entity->setDisabled(false);
+        }
+        if (entity->hasComponent<CCollectable>()) {
+            auto collectable = entity->getComponent<CCollectable>();
+            if (collectable->reset()) {
+                entity->setDisabled(false);
+                collectable->touched = false;
+            }
+        }
+        if (entity->hasComponent<CText>()) {
+            auto text = entity->getComponent<CText>();
+            text->reset();
+        }
+    }
 }
 
-void EntityManager::reset()
-{
-	m_entities.clear();
-	m_entityMap.clear();
-	m_toAdd.clear();
-	m_totalEntities = 0;
+//Clear our entity list
+void EntityManager::reset() {
+    entities_.clear();
+    to_add_.clear();
+
+    total_entities_ = 0;
+}
+
+//Return Entity Manager's RenderingList
+std::vector<std::shared_ptr<Entity>>& EntityManager::getEntitiesRenderingList() {
+    return entities_rendering_list_;
+}
+
+std::vector<std::shared_ptr<Entity>>& EntityManager::getUIRenderingList() {
+    return entities_UI_list_;
+}
+
+//Sorts entities based off layer and order in the explorer window
+void EntityManager::sortEntitiesForRendering() {
+    entities_rendering_list_ = entities_;
+    std::stable_sort(entities_rendering_list_.begin(), entities_rendering_list_.end(),
+                     [](const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b) {
+                         return a->getComponent<CInformation>()->layer <
+                                b->getComponent<CInformation>()->layer;  // Primary sort by layer
+                     });
+}
+
+void EntityManager::UpdateUIRenderingList() {
+    EntityVec newList;
+    for (auto& entity : entities_) {
+        if (entity->hasComponent<CHealth>() || entity->hasComponent<CText>()) {
+            newList.push_back(entity);
+        }
+    }
+
+    entities_UI_list_ = newList;
+}
+
+std::shared_ptr<Entity> EntityManager::getEntityByName(const std::string& name) {
+    for (const auto& entity : entities_) {
+        if (entity->hasComponent<CName>()) {
+            auto& nameComponent = entity->getComponent<CName>();
+            if (nameComponent->name == name) {
+                return entity;
+            }
+        }
+    }
+    return nullptr;  // Return nullptr if no entity with the given name is found
 }

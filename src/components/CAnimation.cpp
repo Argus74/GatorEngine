@@ -1,21 +1,23 @@
 #include "CAnimation.h"
+
 #include "../AssetManager.h"
 
-CAnimation::CAnimation() { 
-	auto& assetManager = AssetManager::GetInstance();
-	animation_ = assetManager.GetAnimation(name_);
-	animationSpeed_ = animation_.speed_;
+CAnimation::CAnimation() {}
+
+CAnimation::CAnimation(std::string name) : name(name) {
+    auto& assetManager = AssetManager::GetInstance();
+    animation = assetManager.GetAnimation(name);
+    animation_speed = 1;
 }
 
 void CAnimation::setAnimation(const Animation& newAnimation) {
-	animation_ = newAnimation;
+    animation = newAnimation;
 }
 
 void CAnimation::changeSpeed() {
-	animation_.speed_ = animationSpeed_;
+    animation.speed = animation_speed;
 }
 
 void CAnimation::update() {
-	animation_.Update();
-
+    animation.Update();
 }

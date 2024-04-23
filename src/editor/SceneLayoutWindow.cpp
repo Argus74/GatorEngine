@@ -1,122 +1,229 @@
 #include "SceneLayoutWindow.h"
 
-static const short kBORDER_SIZE = 5;
+#include <imgui_internal.h>
+
+#include "Config.h"
+
+static constexpr short kSelectionBoxBorder = 5;  // Border thickness around selected entities
+static constexpr float kResizeDampen = 0.03f;
+
+void DrawSelectionBox(const std::shared_ptr<Entity>& entity, const sf::FloatRect& dimensions) {
+    float borderSize = entity == Editor::active_entity_ ? kSelectionBoxBorder : 0;
+    ImGui::SetCursorPos(ImVec2(dimensions.top, dimensions.left));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);  // Show border only if active
+    ImGui::Button(("##DraggableBox" + std::to_string(entity->id())).c_str(),
+                  ImVec2(dimensions.width, dimensions.height));
+    ImGui::PopStyleVar();
+}
+
+void DrawTriggerBox(const std::shared_ptr<Entity>& entity) {
+    if (!entity->hasComponent<CTouchTrigger>())
+        return;
+
+    float borderSize = entity == Editor::active_entity_ ? kSelectionBoxBorder : 0;
+
+    auto touchTrigger = entity->getComponent<CTouchTrigger>();
+    auto transform = entity->getComponent<CTransform>();
+    sf::FloatRect triggerRect;
+
+    triggerRect.width = touchTrigger->trigger_size.x;
+    triggerRect.height = touchTrigger->trigger_size.y;
+    // Adjust these lines:
+    triggerRect.left = transform->position.x - (triggerRect.width / 2);
+    triggerRect.top = transform->position.y - (triggerRect.height / 2);
+    
+    short offsetHeight = ImGui::GetMainViewport()->Size.y * .2 + 20;
+    ImVec2 rectMin = ImVec2(triggerRect.left, triggerRect.top + offsetHeight);
+    ImVec2 rectMax = ImVec2(rectMin.x + triggerRect.width, rectMin.y + triggerRect.height);
+
+    // Push style for border size
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // Change border color if entity is active
+    if (borderSize > 0) {
+        // Push the color for the border
+        draw_list->AddRect(rectMin, rectMax, IM_COL32(0, 255, 0, 255), 0.0f, 0, borderSize);
+    }
+
+    // Pop style for border size
+    ImGui::PopStyleVar();
+}
+
+void DrawGridLines() {
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImU32 color = IM_COL32(255, 255, 255, 20);  // Add some transparency
+    for (float x = Editor::grid_size_ / 2; x < windowSize.x; x += Editor::grid_size_) {
+        drawList->AddLine(ImVec2(windowPos.x + x, windowPos.y),
+                          ImVec2(windowPos.x + x, windowPos.y + windowSize.y), color);
+    }
+    for (float y = Editor::grid_size_ / 2; y < windowSize.y; y += Editor::grid_size_) {
+        drawList->AddLine(ImVec2(windowPos.x, windowPos.y + y),
+                          ImVec2(windowPos.x + windowSize.x, windowPos.y + y), color);
+    }
+}
+
+// Calculate snap position based on the grid
+Vec2 SnapToGrid(const Vec2& position) {
+    float x = round(position.x / Editor::grid_size_) * Editor::grid_size_;
+    float y = round(position.y / Editor::grid_size_) * Editor::grid_size_;
+    return Vec2(x, y);
+}
+
+void HandleSelectInteraction(const std::shared_ptr<Entity>& entity) {
+    if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+        Editor::active_entity_ = entity;  // Set as active entity on click
+    }
+}
+
+void HandleMoveInteraction(const std::shared_ptr<Entity>& entity) {
+    auto& transform = *(entity->getComponent<CTransform>());
+
+    if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+        // Get the mouse position relative to the current window to match CTransform coordinates
+        ImVec2 globalMousePos = ImGui::GetIO().MousePos;
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        Vec2 localMousePos;
+        localMousePos.x = globalMousePos.x - windowPos.x;
+        localMousePos.y = globalMousePos.y - windowPos.y;
+
+        // Move the entity to the snap position
+        transform.position = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
+        transform.origin = (Editor::snap_to_grid_) ? SnapToGrid(localMousePos) : localMousePos;
+    }
+}
+
+void DrawResizeHandle(const ImVec2& center, float radius, bool xAxis) {
+    // Draw an invisible button over the handle that is slightly larger than the handle itself
+    float buttonSize = radius * 4.0f;
+    ImGui::SetCursorPos(ImVec2(center.x - (buttonSize / 2.0f), center.y - (buttonSize / 2.0f)));
+    ImGui::PushID(xAxis);
+    ImGui::InvisibleButton("##ResizeHandle", ImVec2(buttonSize, buttonSize));
+    ImGui::PopID();
+
+    // Convert relative center coords to screen space so we can use ImGui's internal drawing functions
+    // TODO: Wonder if whole editor should be refactored to use screen space coords
+    ImGui::SetCursorPos(center);
+    ImVec2 centerScreenPos = ImGui::GetCursorScreenPos();
+    ImGui::SetCursorScreenPos(centerScreenPos);
+
+    // Represent X axis handles with red, Y axis handles with blue
+    ImU32 color = ImU32(xAxis ? IM_COL32(255, 0, 0, 255) : IM_COL32(0, 0, 255, 255));
+
+    // Draw the handle
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddCircleFilled(centerScreenPos, radius, color, 32);
+    if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+        draw_list->AddCircle(centerScreenPos, radius * 1.7f, color, 32);
+    }
+}
+
+void HandleResizeInteraction(const std::shared_ptr<Entity>& entity, bool onX) {
+    if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+        auto transform = entity->getComponent<CTransform>();
+        ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
+        if (onX) {
+            transform->scale.x -= mouseDelta.x * kResizeDampen;
+        } else {
+            transform->scale.y -= mouseDelta.y * kResizeDampen;
+        }
+    }
+}
 
 SceneLayoutWindow::SceneLayoutWindow() {
-	name_ = "Scene Layout";
+    name_ = "Scene Layout";
 
-	window_flags_ |= ImGuiWindowFlags_NoBackground;
-	window_flags_ |= ImGuiWindowFlags_NoTitleBar;
-	window_flags_ |= ImGuiWindowFlags_NoScrollbar;
+    window_flags_ |= ImGuiWindowFlags_NoBackground;
+    window_flags_ |= ImGuiWindowFlags_NoTitleBar;
+    window_flags_ |= ImGuiWindowFlags_NoScrollbar;
 }
 
 void SceneLayoutWindow::SetPosition() {
-	// 80% of viewport's width, (almost) 80% of its height
-	const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	short windowWidth = mainViewport->Size.x * 0.80;
-	short windowHeight = mainViewport->Size.y * 0.80 - 20;
-
-	short windowXPos = 0;// Right side of window
-	short windowYPos = mainViewport->Size.y * .20 + 20; // RIght under tab bar
-
-	ImGui::SetNextWindowPos(ImVec2(windowXPos, windowYPos));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+    const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(SCENE_XOFFSET, SCENE_YOFFSET(mainViewport)));
+    ImGui::SetNextWindowSize(ImVec2(SCENE_WIDTH(mainViewport), SCENE_HEIGHT(mainViewport)));
 }
 
 void SceneLayoutWindow::PreDraw() {
-	// Make selection box invisible by default
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.45f, 0.78f, 0.98f, 0.10f));
-	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.25f, 0.58f, 0.98f, 0.50f));
+    // Make selection box invisible by default
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.45f, 0.78f, 0.98f, 0.10f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.25f, 0.58f, 0.98f, 0.50f));
 }
 
 void SceneLayoutWindow::DrawFrames() {
-	// TODO: Add logic here to prevent drawing buttons when not in moving or selecting state;
-	// Draw a draggable selection box for each entity with a transform component
-	auto entityList = EntityManager::GetInstance().getEntities();
-	for (int i = 0; i < entityList.size(); i++) {
-		if (!entityList[i]->hasComponent<CTransform>()) continue;
-		auto& transform = *(entityList[i]->getComponent<CTransform>());
-		std::vector<float> dimensions = GetSelectionBoxDimensions(entityList[i]);
-		if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving) {
-			// Make border non-zero if this is the active entity
-			short borderSize = (Editor::active_entity_ == entityList[i]) ? kBORDER_SIZE : 0;
-			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize);
+    // If resizing, draw resize handles over active entity
+    if (Editor::active_entity_ && Editor::state == Editor::State::Resizing) {
+        auto transform = Editor::active_entity_->getComponent<CTransform>();
+        auto rect = Editor::active_entity_->GetRect();
 
-			// Calculate selection box dimensions and draw it
-			ImGui::SetCursorPos(ImVec2(dimensions[0], dimensions[1]));
+        // Draw a resize handle for each X and Y axis on sides of entity, depending on its orientation
+        // TODO: This math may be simplified, but I'm too tired to think about it right now
+        auto mv = ImGui::GetMainViewport();
+        short handleRadius = WINDOW_WIDTH(mv) * 0.006f;
+        float xCenter = transform->position.x;
+        float yCenter = transform->position.y;
+        float halfEdgeX = rect.width / 2;
+        float halfEdgeY = rect.height / 2;
+        float offset = (handleRadius * 2);
+        bool xAxis = true;
 
-			std::string label = "##DraggableBox" + std::to_string(i);
-			if (ImGui::Button(label.c_str(), ImVec2(dimensions[2], dimensions[3]))) {
-				// On click, set this entity as the active entity
-				Editor::active_entity_ = entityList[i];
-			}
+        // Left handle
+        if (transform->scale.x > 0) {
+            DrawResizeHandle(ImVec2(xCenter - halfEdgeX - offset, yCenter), handleRadius, xAxis);
+            // Right handle
+        } else {
+            DrawResizeHandle(ImVec2(xCenter + halfEdgeX + offset, yCenter), handleRadius, xAxis);
+        }
+        HandleResizeInteraction(Editor::active_entity_, xAxis);
 
-			// If this selection box is being dragged, move the entity
-			// TODO: Add logic here to prevent moving when not in moving state
-			// TODO: Investigate why button drags behind sprite a bit
-			auto& transform = *(entityList[i]->getComponent<CTransform>());
-			if (ImGui::IsItemActive() &&
-				ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-				transform.position.x += ImGui::GetIO().MouseDelta.x;
-				transform.position.y += ImGui::GetIO().MouseDelta.y;
-				Editor::state = Editor::State::Moving;
-			}
+        // Top handle
+        if (transform->scale.y > 0) {
+            DrawResizeHandle(ImVec2(xCenter, yCenter - halfEdgeY - offset), handleRadius, !xAxis);
+            // Bottom handle
+        } else {
+            DrawResizeHandle(ImVec2(xCenter, yCenter + halfEdgeY + offset), handleRadius, !xAxis);
+        }
+        HandleResizeInteraction(Editor::active_entity_, !xAxis);
+    }
 
+    // If selecting, moving, or resizing, draw a selection box over each entity
+    if (Editor::state == Editor::State::Selecting || Editor::state == Editor::State::Moving ||
+        Editor::state == Editor::State::Resizing) {
 
-			ImGui::PopStyleVar();
-		}
-		// If out-of-bounds, snap back to bounds
-		// TODO: This may break once we start camera stuff... if we ever do?
-		// TODO: Do you want to clamp more since we're using a center origin for sprites?
-		short centerToEdgeX = dimensions[2] / 2;
-		short centerToEdgeY = dimensions[3] / 2;
-		if (transform.position.x - centerToEdgeX < 0) {
-			transform.position.x = centerToEdgeX;
-		}
-		if (transform.position.y - centerToEdgeY < 0) {
-			transform.position.y = centerToEdgeY;
-		}
-		if (transform.position.x + centerToEdgeX > (ImGui::GetMainViewport()->Size.x * .80)) {
-			transform.position.x = ImGui::GetMainViewport()->Size.x * .80 - centerToEdgeX;
-		}
-		if (transform.position.y + centerToEdgeY > (ImGui::GetMainViewport()->Size.y * .80 - 20)) {
-			transform.position.y = (ImGui::GetMainViewport()->Size.y * .80 - 20) - centerToEdgeY;
-		}
+        auto entityList = EntityManager::GetInstance().getEntitiesRenderingList();
+        for (const auto& entity : entityList) {
+            // Skip unselectable entities
+            if (entity->hasComponent<CInformation>() &&
+                !entity->getComponent<CInformation>()->selectable)
+                continue;
 
-	}
+            // Skip entities without a transform component
+            if (!entity->hasComponent<CTransform>())
+                continue;
+
+            static constexpr float margin = kSelectionBoxBorder * 3 / 2;
+            auto dimensions = entity->GetRect(margin); // Don't remove, fixes box bug for mac
+            DrawSelectionBox(entity, dimensions);
+            DrawTriggerBox(entity);
+            HandleSelectInteraction(entity);
+            if (Editor::state ==
+                Editor::State::Moving) {  // If moving, also handle moving interaction
+                HandleMoveInteraction(entity);
+            }
+        }
+    }
+
+    // If showing grid lines, draw them
+    if (Editor::show_grid_) {
+        DrawGridLines();
+    }
 }
 
 void SceneLayoutWindow::PostDraw() {
-	ImGui::PopStyleColor(4);
-}
-
-std::vector<float> SceneLayoutWindow::GetSelectionBoxDimensions(const std::shared_ptr<Entity> entity) {
-	auto& transform = *(entity->getComponent<CTransform>());
-	std::vector<float> dimensions = { 0, 0, 0, 0 };
-
-	// Set selection box size, depending on the entity's current sprite
-	if (entity->hasComponent<CSprite>()) {
-		auto& sprite = entity->getComponent<CSprite>()->sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2); // to make border line up correctly
-		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
-	}
-	else if (entity->hasComponent<CAnimation>()) {
-		auto& sprite = entity->getComponent<CAnimation>()->animation_.sprite_;
-		dimensions[2] = sprite.getGlobalBounds().width + (kBORDER_SIZE * 3 / 2);
-		dimensions[3] = sprite.getGlobalBounds().height + (kBORDER_SIZE * 3 / 2);
-	}
-	else {
-		// If no sprite or animation, I guess just use the transform's scale?
-		dimensions[2] = transform.scale.x;
-		dimensions[3] = transform.scale.y;
-	}
-
-	// Set selection box position (shift left and up by 1/2 its size because sprites are using center origin)
-	dimensions[0] = transform.position.x - (dimensions[2] / 2);
-	dimensions[1] = transform.position.y - (dimensions[3] / 2);
-
-
-	return dimensions;
+    ImGui::PopStyleColor(4);
 }
