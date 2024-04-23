@@ -261,6 +261,7 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CScript> script) {
     std::string val_after = script->script_name;
 
     if (val_after != val_before) {
+        val_after = "scripts/" + val_after;
         //Ask the operating system to open Visual Studio Code with the name of the file
         std::string command = "code " + val_after;
         if (std::filesystem::exists(std::filesystem::path(val_after))) {

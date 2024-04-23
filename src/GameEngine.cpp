@@ -199,7 +199,7 @@ void GameEngine::sScripts() {
     for (auto entity : EntityManager::GetInstance().getEntities()) {
         if (entity->hasComponent<CScript>() && !lua_states[entity]) {
             //Verify that the script name that the user typed in the editor is valid
-            std::string script_name = entity->getComponent<CScript>()->script_name;
+            std::string script_name = "scripts/" + entity->getComponent<CScript>()->script_name;
             std::ifstream file(script_name);
             if (!file.good()) {
                 std::cout << "Invalid script name: " << script_name << std::endl;
@@ -208,7 +208,7 @@ void GameEngine::sScripts() {
             //Attach a script to the player instance
 
             std::shared_ptr<LuaState> new_lua_state =
-                std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
+                std::make_shared<LuaState>(script_name, entity);
             lua_states[entity] = new_lua_state;
             entity->getComponent<CScript>()->lua_state = new_lua_state.get();
         }

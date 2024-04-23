@@ -154,6 +154,11 @@ add_custom_command(TARGET GatorEngine POST_BUILD
 	${CMAKE_SOURCE_DIR}/scenes
 	$<TARGET_FILE_DIR:GatorEngine>/scenes)
 
+# Copy scripts folder
+add_custom_command(TARGET GatorEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/scripts
+    $<TARGET_FILE_DIR:GatorEngine>/scripts)
 
 if (WIN32)
         # Copy SFML DLLs
