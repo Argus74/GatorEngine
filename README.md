@@ -9,6 +9,12 @@ Gator Engine is a 2D game engine that offers a simple, but flexible, environment
 TODO
 
 # Building
+
+## Requirements
+- CMake
+- Visual Studio
+
+## Cloning
 First, clone the GitHub repository by running the following command in Command Prompt:
 
 `git clone https://github.com/Argus74/GatorEngine.git`
@@ -21,12 +27,10 @@ From here, you must build the project using CMake. There are several ways to do 
 
 ## 1. Visual Studio
 Visual Studio conveniently has CMake tools available that can automate the build process for you.
-To use them, simply open the project with Visual Studio:
+To use them, simply open the project with Visual Studio with the following command:
 
 `start devenv . `
 
 Visual Studio will then begin to build the project. See the 'Output' window of Visual Studio for build details.
 
-## 2. Command Line 
-
-TODO
+*NOTE: While we have no official support for Visual Studio 2019 or below, the build process should be the same regardless of VS release.*
