@@ -212,9 +212,17 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
         }
     }
     b2Fixture* otherFixture = sensorFixture == fixtureA ? fixtureB : fixtureA;
-    Entity* otherEntity = reinterpret_cast<Entity*>(otherFixture->GetBody()->GetUserData().pointer);
-    sol::state& sol_state = GameEngine::GetInstance().lua_states[std::make_shared<Entity>(entity)]->GetSolState();
-    sol_state["OnTouched"](otherEntity);
+    Entity* otherEntity =  reinterpret_cast<Entity*>(
+        otherFixture->GetBody()->GetUserData().pointer);
+
+    //For each node in the lua_states map, we will call the OnTouched function if the raw pointer in 
+//the map is equal to the enitity that was touched
+    for each (auto node in GameEngine::GetInstance().lua_states) {
+    	if (node.first.get() == entity) {
+			sol::state& sol_state = node.second->GetSolState();
+			sol_state["OnTouched"](otherEntity);
+		}
+    }   
 }
 
 void GatorPhysics::EndContact(b2Contact* contact) {}
