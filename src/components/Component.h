@@ -1,3 +1,11 @@
+/**
+ * File: Component.h
+ *
+ * The Component class serves as the base class for all components in the entity-component-system (ECS) architecture.
+ * It provides an interface for serialization and deserialization of component data into and from JSON format, facilitating
+ * easy data handling and storage for game entities.
+ */
+
 #pragma once
 
 #include <SFML/Graphics.hpp>

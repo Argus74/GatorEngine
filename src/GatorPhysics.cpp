@@ -238,3 +238,19 @@ void GatorPhysics::clearBodies() {
     entity_to_bodies_.clear();
 }
 
+void GatorPhysics::ResetWorld() {
+    // First, clear all existing bodies from the world
+    for (auto entity : entity_to_bodies_) {
+        world_.DestroyBody(entity.second);
+    }
+
+    // Optionally re-add bodies if entities are supposed to persist across resets
+    for (auto& pair : entity_to_bodies_) {
+        Entity* entity = pair.first;
+        // Ensure the entity is correctly setup to recreate its body
+        if (entity->hasComponent<CRigidBody>()) {
+            bool isStatic = entity->getComponent<CRigidBody>()->static_body;
+            createBody(entity, isStatic);  // Recreate the body for the entity
+        }
+    }
+}

@@ -40,7 +40,7 @@ void GameEngine::init() {
     AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
 
     if (!readFromJSONFile("last-scene.json")) {
-        current_scene_path_ = "scenes/Default.scene";
+        current_scene_path_ = "scenes/NewDefault.scene";
     }
 
     window_.setFramerateLimit(60);
@@ -82,6 +82,8 @@ void GameEngine::update() {
         //sRenderColliders();
     }
     sUI();
+
+    deltaClock.restart();
 }
 
 void GameEngine::sUserInput() {
@@ -146,7 +148,12 @@ void GameEngine::sTouchTrigger() {
         if (!entity->hasComponent<CTouchTrigger>() || entity->isDisabled())
             continue;
         auto touchTrigger = entity->getComponent<CTouchTrigger>();
-        auto triggerRect = entity->GetRect();
+        auto transform = entity->getComponent<CTransform>();
+        sf::FloatRect triggerRect;
+        triggerRect.width = touchTrigger->trigger_size.x;
+        triggerRect.height = touchTrigger->trigger_size.y;
+        triggerRect.left = transform->position.y - (triggerRect.height / 2);
+        triggerRect.top = transform->position.x - (triggerRect.width / 2);
 
         // If has touch trigger, check if it is touching any other entity
         for (auto& entityTouched : entities) {
@@ -165,8 +172,9 @@ void GameEngine::sTouchTrigger() {
                     if (entity->hasComponent<CCollectable>() &&
                         !entity->getComponent<CCollectable>()->is_health) {
                         // We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
-                        auto collectableEnityText = EntityManager::GetInstance().getEntityByName(
-                            entity->getComponent<CCollectable>()->text_entity_name);
+                        auto collectableEnityText =
+                            EntityManager::GetInstance().getEntityByName(
+                                entity->getComponent<CCollectable>()->text_entity_name);
                         if (collectableEnityText != nullptr &&
                             collectableEnityText->hasComponent<CText>())
                             Interact(entity, collectableEnityText);
@@ -183,6 +191,7 @@ void GameEngine::sTouchTrigger() {
         }
     }
 }
+
 
 void GameEngine::sScripts() {
     //First, check if there are any entities that have been given a script component. If so,
@@ -217,43 +226,49 @@ void GameEngine::sScripts() {
 void GameEngine::sMovement() {
     for (auto entity : EntityManager::GetInstance().getEntities()) {
         // Skip unrelated entities
-        if (!entity->hasComponent<CTransform>() || !entity->hasComponent<CRigidBody>() ||
-            entity->isDisabled())
+        if (!entity->hasComponent<CTransform>() || entity->isDisabled())
             continue;
 
-        // Reset the velocity of the physics body
-        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
         auto transform = entity->getComponent<CTransform>();
-        //body->SetLinearVelocity(b2Vec2_zero);
+        auto character = entity->getComponent<CCharacter>();
 
-        // Get speed from character component, if available
-        float speed = 5.0;
-        Vec2 jumpForce = Vec2(0, 0);
-        if (entity->hasComponent<CCharacter>()) {
-			speed = entity->getComponent<CCharacter>()->speed;
-            jumpForce = entity->getComponent<CCharacter>()->jump_force;
-		}
+        // Handle movement
+        // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
+        Vec2 speed = transform->velocity;
+        float dt = deltaClock.getElapsedTime().asMilliseconds() / 9; // delta time for more consistent movement
+        float charSpeed = character ? character->speed * dt : 5.0 * dt;
 
-        // Update velocity of physics body depending on which actions were received
-        Vec2 step = transform->velocity; // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
         if (ActionBus::GetInstance().Received(entity, MoveRight))
-            step.x += speed;
+            speed.x += charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveLeft))
-            step.x -= speed;
+            speed.x -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveUp))
-            step.y + -speed;
+            speed.y + -charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveDown))
-            step.y += speed;
-        if (ActionBus::GetInstance().Received(entity, Jump))
-            body->ApplyLinearImpulseToCenter(b2Vec2(jumpForce.x, jumpForce.y), true);
+            speed.y += charSpeed;
 
         // Update the position based on the velocity
-        transform->position = transform->position + step;
+        transform->position = transform->position + speed;
+
+        // Use the RigidBody to process physics movements
+        if (!entity->hasComponent<CRigidBody>())
+            continue;
+        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+
+        // Handle jumps 
+        if (ActionBus::GetInstance().Received(entity, Jump) && character &&
+            character->is_grounded) {
+            // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
+            if (!character)
+                break;
+            body->ApplyLinearImpulseToCenter(
+                b2Vec2(character->jump_force.x, character->jump_force.y), true);
+            character->is_grounded = false;
+        }
     }
 }
 
-void GameEngine::sPhysics() {
-}
+void GameEngine::sPhysics() {}
 
 void GameEngine::sCollision() {
     //First check if any new entities have a new rigid body component and
@@ -404,8 +419,7 @@ void GameEngine::sUI() {
             Vec2 position = transformComponent->position;
             float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
-            auto textComponent =
-                entity->getComponent<CText>();  // Setting the properties of the text
+            auto textComponent = entity->getComponent<CText>();  // Setting the properties of the text
 
             std::string outputString = textComponent->message;
             if (textComponent->is_counter) {
@@ -423,8 +437,9 @@ void GameEngine::sUI() {
             textComponent->text.setScale(scale.x, scale.y);
             textComponent->text.setPosition(position.x, position.y + yOffset);
             textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
-
+            
             GameEngine::GetInstance().window().draw(textComponent->text);
+            
         }
     }
 }
@@ -461,6 +476,7 @@ void GameEngine::sRenderColliders() {
 void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity,
                           std::shared_ptr<Entity> entityPair) {
     auto collectibleComponent = collectibleEnity->getComponent<CCollectable>();
+    collectibleComponent->touched = true;
     if (collectibleComponent->is_health &&
         entityPair->hasComponent<
             CHealth>()) {  // If its health we are going to add points to the CHealth component of the entityPair

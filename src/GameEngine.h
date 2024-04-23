@@ -52,8 +52,7 @@ class GameEngine : public Serializable {
 
  public:
     std::map<std::shared_ptr<Entity>, std::shared_ptr<LuaState>> lua_states;
-    sf::Clock* deltaClock;
-    void addEntitiesForTest();
+    sf::Clock deltaClock;
     void changeScene(const std::string& path);
     void saveScene(const std::string& path);
     void update();

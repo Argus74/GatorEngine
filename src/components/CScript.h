@@ -1,3 +1,11 @@
+/**
+ * File: CScript.h
+ *
+ * The CScript class manages the scripting components that can be attached to game entities.
+ *
+ * This component is designed to link entities with specific scripts, allowing for complex behaviors defined in Lua or similar scripting languages.
+ * It facilitates dynamic interactions within the game world by embedding Lua scripts that handle game logic, event responses, and other functionalities.
+ */
 
 
 #pragma once
