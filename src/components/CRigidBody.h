@@ -32,12 +32,9 @@ class CRigidBody : public Component {
         writer.StartObject();
         writer.Key("staticBody");
         writer.Bool(static_body);
-        writer.Key("isGrounded");
-        writer.Bool(is_grounded);
         writer.EndObject();
     }
     void deserialize(const rapidjson::Value& value) override {
         static_body = value["staticBody"].GetBool();
-        is_grounded = value["isGrounded"].GetBool();
     }
 };
