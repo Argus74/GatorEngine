@@ -20,8 +20,10 @@ class CRigidBody : public Component {
     bool static_body;
     float density = 1.0f;
     float friction = 0.3f;
+    bool is_grounded = true;
     b2Body* body;
     b2Fixture* fixture;
+    bool is_grounded = true;
     b2Fixture* sensor_fixture;
     CRigidBody() : static_body(true) {}
     CRigidBody(bool flag, b2Body* b, b2Fixture* f, b2Fixture* sensorF)
@@ -31,9 +33,11 @@ class CRigidBody : public Component {
         writer.StartObject();
         writer.Key("staticBody");
         writer.Bool(static_body);
+        writer.Bool(is_grounded);
         writer.EndObject();
     }
     void deserialize(const rapidjson::Value& value) override {
         static_body = value["staticBody"].GetBool();
+        is_grounded = value["isGrounded"].GetBool();
     }
 };

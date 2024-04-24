@@ -229,7 +229,7 @@ void GameEngine::sMovement() {
 
         auto transform = entity->getComponent<CTransform>();
         auto character = entity->getComponent<CCharacter>();
-
+        auto rigidBody = entity->getComponent<CRigidBody>();
         // Handle movement
         // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
         Vec2 speed = transform->velocity;
@@ -254,14 +254,14 @@ void GameEngine::sMovement() {
         b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
 
         // Handle jumps 
-        if (ActionBus::GetInstance().Received(entity, Jump) && character &&
-            character->is_grounded) {
+        if (ActionBus::GetInstance().Received(entity, Jump)&&
+            rigidBody->is_grounded) {
             // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
             if (!character)
                 break;
             body->ApplyLinearImpulseToCenter(
                 b2Vec2(character->jump_force.x, character->jump_force.y), true);
-            character->is_grounded = false;
+            rigidBody->is_grounded = false;
         }
     }
 }

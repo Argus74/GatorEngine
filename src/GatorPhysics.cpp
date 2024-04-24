@@ -206,9 +206,9 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
         b2Vec2 normal = contact->GetManifold()->localNormal;
         if (normal.y < 0.5) {
             //std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
-            entity->getComponent<CCharacter>()->is_grounded = true;
+            entity->getComponent<CRigidBody>()->is_grounded = true;
         } else {
-            entity->getComponent<CCharacter>()->is_grounded = false;
+            entity->getComponent<CRigidBody>()->is_grounded = false;
         }
     }
     b2Fixture* otherFixture = sensorFixture == fixtureA ? fixtureB : fixtureA;
