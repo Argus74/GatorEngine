@@ -256,27 +256,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CCharacter> charact
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CScript> script) {
-    std::string val_before = script->script_name;
     DrawProperty("Script Name", script->script_name);
-    std::string val_after = script->script_name;
-
-    //if (val_after != val_before) {
-    //    //Ask the operating system to open Visual Studio Code with the name of the file
-    //    std::string command = "code " + val_after;
-    //    if (std::filesystem::exists(std::filesystem::path(val_after))) {
-    //        std::system(command.c_str());
-    //    } else {
-    //        //Verify that the script name ends with lua
-    //        if (val_after.substr(val_after.find_last_of(".") + 1) != "lua") {
-    //            std::cerr << "Invalid file type: " << val_after << std::endl;
-    //        } else {
-    //            std::ofstream file(val_after);
-    //            file << "--Insert your code here" << std::endl;
-    //            file.close();
-    //            std::system(command.c_str());
-    //        }
-    //    }
-    //}
+    DrawButton(script);
 }
 
 // TODO: Add new overloads for future components here
