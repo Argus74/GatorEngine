@@ -1,17 +1,13 @@
 
 
 function Update()
-	print("Before for loop")
-	local Entities = EntityManager:GetEntities()
-	print(Entities)
-	for i=1, #Entities do
-		print(Entities[i])
-	end
-	print("After for loop")
-	local NewEntity = EntityManager:AddEntity("Test")
-	print("After creating the entity")
-	print(NewEntity)
-	print(#Entities)
-	print("Testing chang")
 	
+end
+
+
+function OnTouched(OtherEntity)
+    if OtherEntity.Name == "Hazard" then
+        local Health = AttachedEntity:GetCHealth()
+        Health.CurrentHealth = Health.CurrentHealth - 1
+    end
 end
