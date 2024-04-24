@@ -241,7 +241,7 @@ void GameEngine::sMovement() {
         if (ActionBus::GetInstance().Received(entity, MoveLeft))
             speed.x -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveUp))
-            speed.y + -charSpeed;
+            speed.y -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveDown))
             speed.y += charSpeed;
 
@@ -254,13 +254,10 @@ void GameEngine::sMovement() {
         b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
 
         // Handle jumps 
-        if (ActionBus::GetInstance().Received(entity, Jump)&&
+        Vec2 jumpPower = character ? character->jump_force : Vec2(0, 10);
+        if (ActionBus::GetInstance().Received(entity, Jump) &&
             rigidBody->is_grounded) {
-            // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
-            if (!character)
-                break;
-            body->ApplyLinearImpulseToCenter(
-                b2Vec2(character->jump_force.x, character->jump_force.y), true);
+            body->ApplyLinearImpulseToCenter(b2Vec2(jumpPower.x, jumpPower.y), true);
             rigidBody->is_grounded = false;
         }
     }
