@@ -97,10 +97,7 @@ sf::FloatRect& Entity::GetRect(float margin) {
         auto& sprite = getComponent<CAnimation>()->animation.sprite;
         sprite.setScale(transform.scale.x, transform.scale.y);  // Hacky fix for scaled animations
         rect = sprite.getGlobalBounds();
-    } else if (hasComponent<CText>()) {
-        auto& text = getComponent<CText>()->text;
-        rect = text.getGlobalBounds(); // TODO: This doesn't work for all fonts
-    } else {  // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
+    }  else {  // Changed to 50 rather than to base off transform scale, as transform scale caused the selection box to be too small
         rect.width = 50 * transform.scale.x;
         rect.height = 50 * transform.scale.y;
     }
