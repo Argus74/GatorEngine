@@ -142,11 +142,6 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CName> name) {
     DrawProperty("Name", name->name);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape) {
-    DrawProperty("Type", shape->type);
-    DrawProperty("Color", shape->color);
-}
-
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput) {
     for (auto& entry : userinput->mouse_map) {
         DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);

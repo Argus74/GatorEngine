@@ -28,7 +28,6 @@ class PropertyWindow : public UIWindow {
     void DrawComponentProperties(std::shared_ptr<CUserInput> userinput);
     void DrawComponentProperties(std::shared_ptr<CTransform> transform);
     void DrawComponentProperties(std::shared_ptr<CName> name);
-    void DrawComponentProperties(std::shared_ptr<CShape> shape);
     void DrawComponentProperties(std::shared_ptr<CSprite> sprite);
     void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
     void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
