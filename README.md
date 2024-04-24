@@ -49,7 +49,7 @@ First, generate the CMake for SFML by running the following commands:
 ```
 cd extern/sfml
 cmake .
-cd ..
+cd ../..
 ```
 
 Next, back in the project directory, create and move into a new folder to store the build output with:
