@@ -20,8 +20,9 @@
 #include "SFML/Graphics/Texture.hpp"
 
 #include "Vec2.h"
+#include "util/Serializable.h"
 
-class Animation {
+class Animation : public Serializable {
  public:
     Animation();
     Animation(const std::string& name, const sf::Texture& texture);
@@ -41,4 +42,21 @@ class Animation {
     const std::string& GetName() const;
     const Vec2& GetSize() const;
     sf::Sprite& GetSprite();
+
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+        writer.StartObject();
+        writer.Key("name");
+        writer.String(name.c_str());
+        writer.Key("speed");
+        writer.Double(speed);
+        writer.Key("frameCount");
+        writer.Uint64(frame_count);
+        writer.EndObject();
+    }
+
+    void deserialize(const rapidjson::Value& value) override {
+        name = value["name"].GetString();
+        speed = value["speed"].GetDouble();
+        frame_count = value["frameCount"].GetUint64();
+    }
 };

@@ -25,8 +25,9 @@
 #include "SFML/Graphics/Texture.hpp"
 
 #include "Animation.h"
+#include "util/Serializable.h"
 
-class AssetManager {
+class AssetManager : public Serializable {
  public:
     static AssetManager& GetInstance();
     ~AssetManager();
@@ -119,6 +120,26 @@ class AssetManager {
 
     //Misc function for managing Lerp Colors (Interpolating)
     static sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t);
+
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+        writer.StartObject();
+        writer.Key("animations");
+        writer.StartObject();
+        for (auto animation : animations_) {
+            writer.Key(animation.first.c_str());
+            animation.second->serialize(writer);
+        }
+        writer.EndObject();
+        writer.EndObject();
+    }
+
+    void deserialize(const rapidjson::Value& value) override {
+        for (auto it = value["animations"].MemberBegin(); it != value["animations"].MemberEnd(); it++) {
+            Animation animation;
+            animation.deserialize(value);
+            AddAnimation(it->name.GetString(), Animation(animation.GetName(), GetTexture(animation.GetName()), animation.frame_count, animation.speed));
+        }
+    }
 
  private:
     AssetManager();
