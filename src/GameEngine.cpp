@@ -205,8 +205,6 @@ void GameEngine::sScripts() {
                 std::cout << "Invalid script name: " << script_name << std::endl;
                 continue;
             }
-            //Attach a script to the player instance
-
             std::shared_ptr<LuaState> new_lua_state =
                 std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
             lua_states[entity] = new_lua_state;
