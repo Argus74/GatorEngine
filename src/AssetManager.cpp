@@ -176,7 +176,7 @@ sf::Font& AssetManager::GetFont(const std::string& name) {
 Animation& AssetManager::GetAnimation(const std::string& name) {
     if (animations_.find(name) == animations_.end()) {
         std::cout << "Animation not found: " << name << std::endl;
-        throw std::runtime_error("Animation not found");
+        return *animations_["DefaultAnimation"];
     }
     return *animations_[name];
 }
