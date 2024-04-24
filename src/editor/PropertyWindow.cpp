@@ -260,39 +260,22 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CScript> script) {
     DrawProperty("Script Name", script->script_name);
     std::string val_after = script->script_name;
 
-    if (val_after != val_before) {
-        //Ask the operating system to open Visual Studio Code with the name of the file
-        std::string command = "code " + val_after;
-        if (std::filesystem::exists(std::filesystem::path(val_after))) {
-            std::system(command.c_str());
-        } else {
-            //Verify that the script name ends with lua
-            if (val_after.substr(val_after.find_last_of(".") + 1) != "lua") {
-                std::cerr << "Invalid file type: " << val_after << std::endl;
-            } else {
-                std::ofstream file(val_after);
-                file << "--Insert your code here" << std::endl;
-                file.close();
-                std::system(command.c_str());
-            }
-        }
-    }
-
-    //nfdchar_t* outPath = NULL;
-    //nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
-    //nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
-
-    //if (result == NFD_OKAY) { //If a file/path is selected in the dialog
-    //    std::string pathString(outPath);
-    //    GameEngine::GetInstance().changeScene(pathString);
-    //    std::cout << "Selected file: " << outPath << std::endl;
-    //    NFD_FreePath(outPath);
-    //}
-    //else if (result == NFD_CANCEL) { //If no file or path is selecte
-    //    std::cout << "Dialog canceled." << std::endl;
-    //}
-    //else {
-    //    std::cerr << "Error: " << NFD_GetError() << std::endl;
+    //if (val_after != val_before) {
+    //    //Ask the operating system to open Visual Studio Code with the name of the file
+    //    std::string command = "code " + val_after;
+    //    if (std::filesystem::exists(std::filesystem::path(val_after))) {
+    //        std::system(command.c_str());
+    //    } else {
+    //        //Verify that the script name ends with lua
+    //        if (val_after.substr(val_after.find_last_of(".") + 1) != "lua") {
+    //            std::cerr << "Invalid file type: " << val_after << std::endl;
+    //        } else {
+    //            std::ofstream file(val_after);
+    //            file << "--Insert your code here" << std::endl;
+    //            file.close();
+    //            std::system(command.c_str());
+    //        }
+    //    }
     //}
 }
 
@@ -630,6 +613,42 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>& val) {
     if (ImGui::Button(buttonLabel)) {
         val->play_animation = !val->play_animation;
     }
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));  // Spacing at the bottom
+
+    ImGui::BeginTable("EmptyTemp", 2,
+                      table_flags_);  // Don't want to disrupt the draw component function
+}
+
+
+void PropertyWindow::DrawButton(std::shared_ptr<CScript>& val) {
+    ImGui::EndTable();  // Don't want to disrupt the draw component function
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));  //Spacing up top
+
+    float contentWidth = ImGui::GetContentRegionAvail().x;
+    float buttonWidth =
+        ImGui::CalcTextSize("Open Script").x + 20.0f;  // Extra padding for the button
+    float centerPos = (contentWidth - buttonWidth) * 0.5f;
+    ImGui::SetCursorPosX(centerPos);
+
+    const char* buttonLabel = "Open Script";
+
+    if (ImGui::Button(buttonLabel)) {
+        std::string command = "code " + val->script_name;
+        if (std::filesystem::exists(std::filesystem::path(val->script_name))) {
+            std::system(command.c_str());
+        } else {
+            //Verify that the script name ends with lua
+            if (val->script_name.substr(val->script_name.find_last_of(".") + 1) != "lua") {
+                std::cerr << "Invalid file type: " << val->script_name << std::endl;
+            } else {
+                std::ofstream file(val->script_name);
+                file << "--Insert your code here" << std::endl;
+                file.close();
+                std::system(command.c_str());
+            }
+        }
+	}
 
     ImGui::Dummy(ImVec2(0.0f, 10.0f));  // Spacing at the bottom
 

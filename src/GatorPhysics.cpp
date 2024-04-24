@@ -206,9 +206,9 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
         b2Vec2 normal = contact->GetManifold()->localNormal;
         if (normal.y < 0.5) {
             //std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
-            entity->getComponent<CCharacter>()->is_grounded = true;
+            entity->getComponent<CRigidBody>()->is_grounded = true;
         } else {
-            entity->getComponent<CCharacter>()->is_grounded = false;
+            entity->getComponent<CRigidBody>()->is_grounded = false;
         }
     }
     b2Fixture* otherFixture = sensorFixture == fixtureA ? fixtureB : fixtureA;
@@ -217,7 +217,7 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
 
     //For each node in the lua_states map, we will call the OnTouched function if the raw pointer in 
 //the map is equal to the enitity that was touched
-    for each (auto node in GameEngine::GetInstance().lua_states) {
+    for (auto node : GameEngine::GetInstance().lua_states) {
     	if (node.first.get() == entity) {
 			sol::state& sol_state = node.second->GetSolState();
 			sol_state["OnTouched"](otherEntity);

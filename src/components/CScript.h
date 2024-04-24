@@ -19,7 +19,7 @@ class LuaState;
 class CScript : public Component {
  public:
     DECLARE_COMPONENT_NAME("Script");
-    std::string script_name;
+    std::string script_name = "default.lua";
     LuaState* lua_state;
     CScript() {}
     CScript(std::string input_script_name, LuaState* input_lua_state)
