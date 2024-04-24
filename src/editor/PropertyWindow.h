@@ -67,6 +67,9 @@ class PropertyWindow : public UIWindow {
 
     //Button to play animation when in scene editor state
     void DrawButton(std::shared_ptr<CAnimation>& val);
+    
+    //Button to allow a user to open a script using vs code
+    void DrawButton(std::shared_ptr<CScript>& val);
 
     //Button to allow a user to choose a script to attach to an entity
     //void DrawButton(std::shared_ptr<CScript>& val);

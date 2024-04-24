@@ -23,7 +23,6 @@ class CRigidBody : public Component {
     bool is_grounded = true;
     b2Body* body;
     b2Fixture* fixture;
-    bool is_grounded = true;
     b2Fixture* sensor_fixture;
     CRigidBody() : static_body(true) {}
     CRigidBody(bool flag, b2Body* b, b2Fixture* f, b2Fixture* sensorF)
