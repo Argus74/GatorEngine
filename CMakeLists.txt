@@ -143,17 +143,23 @@ set_property(
     TARGET GatorEngine
     PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${APP_SOURCE_DIR}"
 )
-# Copy asset folder
+# Copy asset folder (contains starter assets)
 add_custom_command(TARGET GatorEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/assets
     $<TARGET_FILE_DIR:GatorEngine>/assets)
 
+# Copy scenes folder (contains starter scenes)
 add_custom_command(TARGET GatorEngine POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/scenes
 	$<TARGET_FILE_DIR:GatorEngine>/scenes)
 
+# Copy scripts folder (contains starter scripts)
+add_custom_command(TARGET GatorEngine POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${CMAKE_SOURCE_DIR}/scripts
+	$<TARGET_FILE_DIR:GatorEngine>/scripts)
 
 if (WIN32)
         # Copy SFML DLLs

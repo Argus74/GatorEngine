@@ -615,15 +615,16 @@ void PropertyWindow::DrawButton(std::shared_ptr<CScript>& val) {
     const char* buttonLabel = "Open Script";
 
     if (ImGui::Button(buttonLabel)) {
-        std::string command = "code " + val->script_name;
-        if (std::filesystem::exists(std::filesystem::path(val->script_name))) {
+        std::string scriptPath = "scripts/" + val->script_name;
+        std::string command = "code " + scriptPath;
+        if (std::filesystem::exists(std::filesystem::path(scriptPath))) {
             std::system(command.c_str());
         } else {
             //Verify that the script name ends with lua
             if (val->script_name.substr(val->script_name.find_last_of(".") + 1) != "lua") {
                 std::cerr << "Invalid file type: " << val->script_name << std::endl;
             } else {
-                std::ofstream file(val->script_name);
+                std::ofstream file(scriptPath);
                 file << "--Insert your code here" << std::endl;
                 file.close();
                 std::system(command.c_str());
