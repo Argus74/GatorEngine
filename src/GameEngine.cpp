@@ -119,9 +119,25 @@ void GameEngine::sUserInput() {
 
             // Ctrl+Z hotkey does not exist. Good luck o7
         }
+
+        // Detect mouse clicks
+        if (event.type == sf::Event::MouseButtonPressed) {
+            for (auto& entity : EntityManager::GetInstance().getEntities()) {
+				if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
+					continue;
+
+				auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
+				for (auto& actionKeys : mouseMap) {
+                    auto button = event.mouseButton.button;
+					if (actionKeys.first == button) {
+						ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
+					}
+				}
+			}
+		}
     }
 
-    // Use IsKeyPressed API to detect registered keyMap/mouseMap inputs for faster responses
+    // Detect keypresses using IsKeyPressed API for continuous responses
     for (auto& entity : EntityManager::GetInstance().getEntities()) {
         if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
 			continue;
@@ -129,12 +145,6 @@ void GameEngine::sUserInput() {
 		auto& inputMap = entity->getComponent<CUserInput>()->key_map;
         for (auto& actionKeys : inputMap) {
             if (sf::Keyboard::isKeyPressed(actionKeys.first)) {
-                ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
-            }
-        }
-        auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
-        for (auto& actionKeys : mouseMap) {
-            if (sf::Mouse::isButtonPressed(actionKeys.first)) {
                 ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
             }
         }
