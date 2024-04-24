@@ -32,6 +32,7 @@ class CRigidBody : public Component {
         writer.StartObject();
         writer.Key("staticBody");
         writer.Bool(static_body);
+        writer.Key("isGrounded");
         writer.Bool(is_grounded);
         writer.EndObject();
     }

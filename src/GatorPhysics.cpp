@@ -217,7 +217,7 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
 
     //For each node in the lua_states map, we will call the OnTouched function if the raw pointer in 
 //the map is equal to the enitity that was touched
-    for each (auto node in GameEngine::GetInstance().lua_states) {
+    for (auto node : GameEngine::GetInstance().lua_states) {
     	if (node.first.get() == entity) {
 			sol::state& sol_state = node.second->GetSolState();
 			sol_state["OnTouched"](otherEntity);

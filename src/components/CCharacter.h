@@ -31,7 +31,6 @@ class CCharacter : public Component {
         writer.Double(jump_force.x);
         writer.Key("jumpForceY");
         writer.Double(jump_force.y);
-        writer.Key("isGrounded");
         writer.EndObject();
     }
 
