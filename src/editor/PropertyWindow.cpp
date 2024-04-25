@@ -572,6 +572,12 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity) {
             if (!component && selection == index) {
                 Editor::active_entity_->addComponent(component);
                 EntityManager::GetInstance().UpdateUIRenderingList();
+
+                // Another hacky sln for physics bodies, just like for its addComponent counterpart here
+                // TODO: Try (harder than I have) to put this maybe in the ctr of CRigidBody or somewhere else more fitting
+                if (auto rigid = std::dynamic_pointer_cast<CRigidBody>(component)) {
+					GatorPhysics::GetInstance().createBody(Editor::active_entity_.get(), rigid->static_body);
+				}
             }
         });
         ImGui::CloseCurrentPopup();
