@@ -365,6 +365,12 @@ void GameEngine::sRender() {
             auto spriteComponent = entity->getComponent<CSprite>();
             float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
 
+            // Replacing loadFromAssetManager() functionality thats supposed to be in CSprite constructor
+            // but it breaks serialization so moved here.
+            if (spriteComponent->sprite.getTexture() == nullptr) {
+                spriteComponent->loadFromAssetManager();
+            }
+
             // Set the origin of the sprite to its center
             sf::FloatRect bounds = spriteComponent->sprite.getLocalBounds();
             spriteComponent->sprite.setOrigin(bounds.width / 2, bounds.height / 2);

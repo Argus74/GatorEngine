@@ -2,7 +2,9 @@
 
 #include "../AssetManager.h"
 
-CSprite::CSprite() {}
+CSprite::CSprite() {
+    
+}
 
 CSprite::CSprite(const std::string& name) : name(name) {
     loadFromAssetManager();
