@@ -67,25 +67,12 @@ void GatorPhysics::update() {
         b2PolygonShape* shape = dynamic_cast<b2PolygonShape*>(firstFixture->GetShape());
         b2PolygonShape* sensorShape = dynamic_cast<b2PolygonShape*>(secondFixture->GetShape());
         //Update the size of the physics body to match the size of the entity
-        float xScale = entity->getComponent<CTransform>()->scale.x;
-        float yScale = entity->getComponent<CTransform>()->scale.y;
-        float newWidth;
-        float newHeight;
-        if (entity->hasComponent<CAnimation>()) {
-            newWidth =
-                entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().x /
-                2 * xScale / scale_;
-            newHeight =
-                entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().y /
-                2 * yScale / scale_;
-        } else if (entity->hasComponent<CSprite>()) {
-            newWidth = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().x / 2 *
-                       xScale / scale_;
-            newHeight = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().y / 2 *
-                        yScale / scale_;
-        }
-        shape->SetAsBox(newWidth, newHeight);
-        sensorShape->SetAsBox(newWidth, newHeight);
+        auto entityRect = entity->GetRect();
+        entityRect.width = entityRect.width / (scale_ * 2);
+        entityRect.height = entityRect.height / (scale_ * 2);
+        shape->SetAsBox(entityRect.width, entityRect.height);
+        sensorShape->SetAsBox(entityRect.width, entityRect.height);
+
         //Update the densities and friction of the physics bodies
         b2Fixture* fixture = body->GetFixtureList();
         fixture->SetDensity(entity->getComponent<CRigidBody>()->density);
@@ -151,11 +138,10 @@ void GatorPhysics::createBody(Entity* entity, bool isStatic) {
         return;
     }
 
-    sf::Sprite& sprite = hasSprite ? entity->getComponent<CSprite>()->sprite
-                                   : entity->getComponent<CAnimation>()->animation.sprite;
-    float boxWidth = sprite.getLocalBounds().getSize().x * (1 / scale_) / 2;
-    float boxHeight = sprite.getLocalBounds().getSize().y * (1 / scale_) / 2;
-    newBox.SetAsBox(boxWidth, boxHeight);
+    auto entityRect = entity->GetRect();
+    entityRect.width = entityRect.width / (scale_ * 2);
+    entityRect.height = entityRect.height / (scale_ * 2);
+    newBox.SetAsBox(entityRect.width, entityRect.height);
     newBodyDef.userData.pointer = reinterpret_cast<uintptr_t>(entity);
 
     //Create a fixtuure to represent the physical body that will collide with other bodies
