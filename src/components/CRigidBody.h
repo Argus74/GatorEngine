@@ -20,7 +20,7 @@ class CRigidBody : public Component {
     bool static_body;
     float density = 1.0f;
     float friction = 0.3f;
-    bool is_grounded = true;
+    bool is_grounded = false;
     b2Body* body;
     b2Fixture* fixture;
     b2Fixture* sensor_fixture;
