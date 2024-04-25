@@ -121,27 +121,21 @@ void TabBarWindow::DrawFrames() {
 
                 // Select button
                 auto selectButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Selecting)
-                                        ? Editor::State::None
-                                        : Editor::State::Selecting;
+                    Editor::state = Editor::State::Selecting;
                 };
                 DrawButton("Select", AssetManager::GetInstance().GetTexturePrivate("SelectIcon"), 0,
                            selectButton, (Editor::state == Editor::State::Selecting));
 
                 // Move button
                 auto moveButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Moving)
-                                        ? Editor::State::None
-                                        : Editor::State::Moving;
+                    Editor::state = Editor::State::Moving;
                 };
                 DrawButton("Move", AssetManager::GetInstance().GetTexturePrivate("MoveIcon"), 1,
                            moveButton, (Editor::state == Editor::State::Moving));
 
                 // Scale button
                 auto scaleButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Resizing)
-                                        ? Editor::State::None
-                                        : Editor::State::Resizing;
+                    Editor::state = Editor::State::Resizing;
                 };
                 DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 2,
                            scaleButton, (Editor::state == Editor::State::Resizing));
@@ -313,7 +307,7 @@ void TabBarWindow::DrawFrames() {
 
             // Stop Button
             static auto stopButton = [&]() {
-                Editor::state = Editor::State::None;  // Testing stopped: Reset state to none
+                Editor::state = Editor::State::Selecting;  // Testing stopped: Reset state to selecting by default
                 EntityManager::GetInstance().resetPositions();
                 GatorPhysics::GetInstance().ResetWorld();
             };

@@ -531,7 +531,7 @@ void PropertyWindow::DrawPopup(
     DrawProperty("Animation Speed", animationSpeed);
 
     if (ImGui::Button("Create")) {
-        Animation animation = Animation(animationName, assetManager.GetTexture(spriteName),
+        Animation animation = Animation(animationName, spriteName, assetManager.GetTexture(spriteName),
                                         frameCount, animationSpeed);
         assetManager.AddAnimation(animationName, animation);
         ImGui::CloseCurrentPopup();
