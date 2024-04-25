@@ -2,6 +2,7 @@
 
 #include "imgui-SFML.h"
 
+#include "../GameEngine.h"
 #include "../AssetManager.h"
 #include "../EntityManager.h"
 #include "Config.h"
@@ -305,8 +306,8 @@ void TabBarWindow::DrawFrames() {
         if (ImGui::BeginTabItem("Testing")) {
             // Start Button
             static auto startButton = [&]() {
-                Editor::state = Editor::State::
-                    Testing; // editor is now testing
+                GameEngine::GetInstance().ReloadScripts(); // To catch changed script names
+                Editor::state = Editor::State::Testing; // editor is now testing
             };
 
             DrawButton("Start", AssetManager::GetInstance().GetTexturePrivate("StartIcon"), 0,

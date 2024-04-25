@@ -64,6 +64,9 @@ class GameEngine : public Serializable {
     AssetManager& assets();
     bool isRunning();
 
+    // Reloads all scripts in the game to apply changes when testing
+    void ReloadScripts();
+
     const std::string& currentScenePath() const { return current_scene_path_; };
 
     //Delete copy and move constructors

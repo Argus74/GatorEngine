@@ -197,6 +197,42 @@ void GameEngine::sTouchTrigger() {
     }
 }
 
+void GameEngine::ReloadScripts() {
+    for (auto entity : EntityManager::GetInstance().getEntities()) {
+        if (entity->hasComponent<CScript>() && lua_states[entity]) {
+            // Clear the entity's lua state, if applicable
+            if (lua_states[entity]) {
+				lua_states[entity].reset();
+				entity->getComponent<CScript>()->lua_state = nullptr;
+			}
+
+            // Verify that the script name is valid (editor should catch most other invalid names)
+			std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
+            if (scriptPath.substr(scriptPath.find_last_of(".") + 1) != "lua") {
+                std::cerr << "Invalid script name: " << scriptPath << std::endl;
+                continue;
+            }
+
+            // If script not found (usually because the user deleted it, its a saved scene, and this is the first time the engine is running),
+            // then we'll create a default script for the user
+            if (!std::filesystem::exists(std::filesystem::path(scriptPath))) {
+                std::ofstream default_script(scriptPath);
+                default_script << "-- Default script for "
+                               << entity->getComponent<CScript>()->script_name << std::endl;
+                default_script << "function Update()\n";
+                default_script << "end\n";
+                default_script.close();
+            }
+
+            // Finally, create a new lua state for the entity
+			std::shared_ptr<LuaState> new_lua_state =
+				std::make_shared<LuaState>(scriptPath, entity);
+			lua_states[entity] = new_lua_state;
+			entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+		}
+	}
+}
+
 void GameEngine::sScripts() {
     //First, check if there are any entities that have been given a script component. If so,
     //add them to map of entities to lua states
