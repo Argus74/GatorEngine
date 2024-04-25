@@ -210,15 +210,52 @@ void GameEngine::sScripts() {
         if (entity->hasComponent<CScript>() && !lua_states[entity]) { // TODO: Check if script name was changed?
             //Verify that the script name that the user typed in the editor is valid
             std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
-            std::ifstream file(scriptPath);
-            if (!file.good()) {
-                std::cout << "Invalid script name: " << entity->getComponent<CScript>()->script_name << std::endl;
-                continue;
+
+            if (scriptPath.substr(scriptPath.find_last_of(".") + 1) == "lua") {
+                std::ofstream default_script(scriptPath);
+                default_script << "-- Default script for "
+                               << entity->getComponent<CScript>()->script_name << std::endl;
+                default_script << "function update()\n";
+                default_script << "end\n";
+                default_script.close();
+            } else {
+			    std::cerr << "Invalid script name: " << scriptPath << std::endl;
+				continue;
             }
+
             std::shared_ptr<LuaState> new_lua_state =
                 std::make_shared<LuaState>(scriptPath, entity);
             lua_states[entity] = new_lua_state;
             entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+        }
+        else
+        {
+            //If the entity already has a script component, check if the name has been changed
+            if (entity->hasComponent<CScript>() && lua_states[entity] &&
+				entity->getComponent<CScript>()->script_name !=
+					lua_states[entity]->name) {
+				//If the name has been changed, remove the old lua state and create a new one
+				lua_states[entity].reset();
+				std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
+
+                if (scriptPath.substr(scriptPath.find_last_of(".") + 1) == "lua") {
+                    std::ofstream default_script(scriptPath);
+                    default_script << "-- Default script for "
+                                   << entity->getComponent<CScript>()->script_name << std::endl;
+                    default_script << "function update()\n";
+                    default_script << "end\n";
+                    default_script.close();
+                } else {
+                    std::cerr << "Invalid script name: " << scriptPath << std::endl;
+                    continue;
+                }
+
+				std::shared_ptr<LuaState> new_lua_state =
+					std::make_shared<LuaState>(scriptPath, entity);
+				lua_states[entity] = new_lua_state;
+				entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+			}
+
         }
     }
 

@@ -45,6 +45,7 @@ LuaState::LuaState(std::string lua_state_file, std::shared_ptr<Entity> attached_
 
     lua_.set_exception_handler(&my_exception_handler);
     lua_.set_function("will_throw", &will_throw);
+    name = lua_state_file;
     lua_.unsafe_script_file(lua_state_file);
 
     sol::usertype<CName> name = lua_.new_usertype<CName>("CName");

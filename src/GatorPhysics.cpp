@@ -220,7 +220,10 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
     for (auto node : GameEngine::GetInstance().lua_states) {
     	if (node.first.get() == entity) {
 			sol::state& sol_state = node.second->GetSolState();
-			sol_state["OnTouched"](otherEntity);
+            if (sol_state["OnTouched"] != sol::nil) {
+				sol_state["OnTouched"](otherEntity);
+			}
+			
 		}
     }   
 }
