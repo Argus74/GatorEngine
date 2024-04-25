@@ -33,17 +33,10 @@ AssetManager& GameEngine::assets() {
 }
 
 void GameEngine::init() {
-    //Intializing all png files as textures in Start Assets folder
-    Animation ani = Animation("DefaultAnimation", "DefaultAnimation",
-                              AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
-    AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
-    Animation ani2 = Animation("RunningAnimation", "RunningAnimation",
-                               AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
-    AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
+    // Call the AssetManager singleton for the first time to initialize all starting assets
+    AssetManager::GetInstance();
 
-    AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
-
-
+    // Load the last scene from the last-scene.json file, if it exists
     if (!readFromJSONFile("last-scene.json")) {
         current_scene_path_ = "scenes/City.scene";
     }

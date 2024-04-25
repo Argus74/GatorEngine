@@ -14,10 +14,17 @@ AssetManager& AssetManager::GetInstance() {
 }
 
 AssetManager::AssetManager() {
-    //Intializing all png files as textures in Start & Internal Assets folder
+    // Intializing all png files as textures in Start & Internal Assets folder
     IntializeAssets("assets/StartAssets", false);
     IntializeAssets("assets/InternalAssets", true);
 
+    // Then intialize starter animations
+    Animation ani = Animation("None", "None", GetTexture("None"), 1, 1); // Arbitrary frame count/speed
+    AddAnimation("None", ani);
+    Animation ani3 = Animation("DefaultAnimation", "DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
+    AddAnimation("DefaultAnimation", ani3);
+    // Removed RunningAnimation because it was unused and being serialized for no reason 
+    // and I'm too tired to clean up the entire serialization of animations
 }
 
 AssetManager::~AssetManager() {
@@ -172,7 +179,7 @@ sf::Font& AssetManager::GetFont(const std::string& name) {
 Animation& AssetManager::GetAnimation(const std::string& name) {
     if (animations_.find(name) == animations_.end()) {
         std::cout << "Animation not found: " << name << std::endl;
-        return *animations_["DefaultAnimation"];
+        return *animations_["None"];
     }
     return *animations_[name];
 }

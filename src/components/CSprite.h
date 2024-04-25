@@ -14,7 +14,7 @@
 class CSprite : public Component {
  public:
     DECLARE_COMPONENT_NAME("Sprite");
-    std::string name = "DefaultSprite";
+    std::string name = "None";
     sf::Texture texture;
     bool draw_sprite = true;
     sf::Sprite sprite;
