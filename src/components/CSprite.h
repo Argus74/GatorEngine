@@ -18,7 +18,6 @@ class CSprite : public Component {
     sf::Texture texture;
     bool draw_sprite = true;
     sf::Sprite sprite;
-    sf::Rect<int> portion;
     CSprite();
     CSprite(const std::string& name);
 
