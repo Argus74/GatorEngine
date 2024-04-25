@@ -302,7 +302,7 @@ void GameEngine::sMovement() {
         transform->position = transform->position + speed;
 
         // Use the RigidBody to process physics movements
-        auto& it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
+        auto it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
 
         if (!entity->hasComponent<CRigidBody>() ||
             it == GatorPhysics::GetInstance().GetEntityToBodies().end())
