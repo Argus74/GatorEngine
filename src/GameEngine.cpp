@@ -74,6 +74,7 @@ void GameEngine::update() {
 
     sUserInput();
     if (Editor::state == Editor::State::Testing) {
+        auto& entities_to_bodies = GatorPhysics::GetInstance().GetEntityToBodies();
         sTouchTrigger();
         sScripts();
         sMovement();
@@ -301,9 +302,12 @@ void GameEngine::sMovement() {
         transform->position = transform->position + speed;
 
         // Use the RigidBody to process physics movements
-        if (!entity->hasComponent<CRigidBody>())
+        auto& it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
+
+        if (!entity->hasComponent<CRigidBody>() ||
+            it == GatorPhysics::GetInstance().GetEntityToBodies().end())
             continue;
-        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+        b2Body* body = it->second;
 
         // Handle jumps
         Vec2 jumpPower = character ? character->jump_force : Vec2(0, 10);
@@ -319,13 +323,15 @@ void GameEngine::sPhysics() {}
 void GameEngine::sCollision() {
     //First check if any new entities have a new rigid body component and
     // have not been added to the physics world
+    auto listOfEntities = EntityManager::GetInstance().getEntities();
     for (auto entity : EntityManager::GetInstance().getEntities()) {
         if (entity->hasComponent<CRigidBody>() && !entity->isDisabled()) {
             auto rigidBodyComponent = entity->getComponent<CRigidBody>();
             std::map<Entity*, b2Body*>& entity_to_bodies_ =
                 GatorPhysics::GetInstance().GetEntityToBodies();
             //If the entity is not in the physics world, add it
-            if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end()) {
+            auto result = entity_to_bodies_.find(entity.get());
+            if (result == entity_to_bodies_.end()) {
                 GatorPhysics::GetInstance().createBody(entity.get(),
                                                        rigidBodyComponent->static_body);
             }
