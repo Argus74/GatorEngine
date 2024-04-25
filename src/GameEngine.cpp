@@ -45,7 +45,7 @@ void GameEngine::init() {
 
 
     if (!readFromJSONFile("last-scene.json")) {
-        current_scene_path_ = "scenes/NewDefault.scene";
+        current_scene_path_ = "scenes/City.scene";
     }
 
     window_.setFramerateLimit(60);
