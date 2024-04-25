@@ -26,6 +26,7 @@ class CAnimation : public Component {
 
     CAnimation();
     CAnimation(std::string name);
+    void loadFromAssetManager();
     void changeSpeed();
     void update();
 

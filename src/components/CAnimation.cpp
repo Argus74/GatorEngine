@@ -2,12 +2,18 @@
 
 #include "../AssetManager.h"
 
-CAnimation::CAnimation() {}
+CAnimation::CAnimation() {
+    loadFromAssetManager();
+}
 
 CAnimation::CAnimation(std::string name) : name(name) {
-    auto& assetManager = AssetManager::GetInstance();
-    animation = assetManager.GetAnimation(name);
-    animation_speed = 1;
+    loadFromAssetManager();
+}
+
+void CAnimation::loadFromAssetManager() {
+	auto& assetManager = AssetManager::GetInstance();
+	animation = assetManager.GetAnimation(name);
+	animation_speed = 1;
 }
 
 void CAnimation::setAnimation(const Animation& newAnimation) {
