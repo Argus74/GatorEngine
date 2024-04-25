@@ -23,10 +23,10 @@
 
 typedef std::tuple<  //as we add more components, we add them here
     std::shared_ptr<CName>, std::shared_ptr<CInformation>, std::shared_ptr<CTransform>,
-    std::shared_ptr<CShape>, std::shared_ptr<CUserInput>, std::shared_ptr<CAnimation>,
-    std::shared_ptr<CSprite>, std::shared_ptr<CRigidBody>, std::shared_ptr<CBackgroundColor>,
-    std::shared_ptr<CHealth>, std::shared_ptr<CText>, std::shared_ptr<CTouchTrigger>,
-    std::shared_ptr<CCharacter>, std::shared_ptr<CScript>, std::shared_ptr<CCollectable>>
+    std::shared_ptr<CUserInput>, std::shared_ptr<CAnimation>, std::shared_ptr<CSprite>,
+    std::shared_ptr<CRigidBody>, std::shared_ptr<CBackgroundColor>, std::shared_ptr<CHealth>,
+    std::shared_ptr<CText>, std::shared_ptr<CTouchTrigger>, std::shared_ptr<CCharacter>,
+    std::shared_ptr<CScript>, std::shared_ptr<CCollectable>>
     ComponentTuple;
 
 class Entity : public Serializable {
@@ -78,8 +78,6 @@ class Entity : public Serializable {
             return hasComponent<CInformation>();
         } else if (componentName == "CTransform") {
             return hasComponent<CTransform>();
-        } else if (componentName == "CShape") {
-            return hasComponent<CShape>();
         } else if (componentName == "CUserInput") {
             return hasComponent<CUserInput>();
         } else if (componentName == "CAnimation") {
@@ -120,8 +118,6 @@ class Entity : public Serializable {
             addComponent<CInformation>();
         } else if (componentName == "CTransform") {
             addComponent<CTransform>();
-        } else if (componentName == "CShape") {
-            addComponent<CShape>();
         } else if (componentName == "CUserInput") {
             addComponent<CUserInput>();
         } else if (componentName == "CAnimation") {
@@ -253,13 +249,6 @@ class Entity : public Serializable {
             if (transform != nullptr) {
                 addComponent(transform);
                 getComponent<CTransform>()->deserialize(it->value);
-                continue;
-            }
-
-            auto shape = createComponentByName<CShape>(it->name.GetString());
-            if (shape != nullptr) {
-                addComponent(shape);
-                getComponent<CShape>()->deserialize(it->value);
                 continue;
             }
 

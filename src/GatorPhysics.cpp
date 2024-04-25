@@ -201,7 +201,7 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
     b2Fixture* fixtureB = contact->GetFixtureB();
     b2Fixture* sensorFixture = fixtureA->IsSensor() ? fixtureA : fixtureB;
     Entity* entity = reinterpret_cast<Entity*>(sensorFixture->GetBody()->GetUserData().pointer);
-    if (sensorFixture && entity->hasComponent<CCharacter>()) {
+    if (sensorFixture) {
         //Check if the sensor is below the entity
         b2Vec2 normal = contact->GetManifold()->localNormal;
         if (normal.y < 0.5) {

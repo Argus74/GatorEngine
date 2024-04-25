@@ -113,9 +113,25 @@ void GameEngine::sUserInput() {
 
             // Ctrl+Z hotkey does not exist. Good luck o7
         }
+
+        // Detect mouse clicks
+        if (event.type == sf::Event::MouseButtonPressed) {
+            for (auto& entity : EntityManager::GetInstance().getEntities()) {
+				if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
+					continue;
+
+				auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
+				for (auto& actionKeys : mouseMap) {
+                    auto button = event.mouseButton.button;
+					if (actionKeys.first == button) {
+						ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
+					}
+				}
+			}
+		}
     }
 
-    // Use IsKeyPressed API to detect registered keyMap/mouseMap inputs for faster responses
+    // Detect keypresses using IsKeyPressed API for continuous responses
     for (auto& entity : EntityManager::GetInstance().getEntities()) {
         if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
 			continue;
@@ -123,12 +139,6 @@ void GameEngine::sUserInput() {
 		auto& inputMap = entity->getComponent<CUserInput>()->key_map;
         for (auto& actionKeys : inputMap) {
             if (sf::Keyboard::isKeyPressed(actionKeys.first)) {
-                ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
-            }
-        }
-        auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
-        for (auto& actionKeys : mouseMap) {
-            if (sf::Mouse::isButtonPressed(actionKeys.first)) {
                 ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
             }
         }
@@ -191,16 +201,16 @@ void GameEngine::sScripts() {
     //First, check if there are any entities that have been given a script component. If so,
     //add them to map of entities to lua states
     for (auto entity : EntityManager::GetInstance().getEntities()) {
-        if (entity->hasComponent<CScript>() && !lua_states[entity]) {
+        if (entity->hasComponent<CScript>() && !lua_states[entity]) { // TODO: Check if script name was changed?
             //Verify that the script name that the user typed in the editor is valid
-            std::string script_name = entity->getComponent<CScript>()->script_name;
-            std::ifstream file(script_name);
+            std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
+            std::ifstream file(scriptPath);
             if (!file.good()) {
-                std::cout << "Invalid script name: " << script_name << std::endl;
+                std::cout << "Invalid script name: " << entity->getComponent<CScript>()->script_name << std::endl;
                 continue;
             }
             std::shared_ptr<LuaState> new_lua_state =
-                std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
+                std::make_shared<LuaState>(scriptPath, entity);
             lua_states[entity] = new_lua_state;
             entity->getComponent<CScript>()->lua_state = new_lua_state.get();
         }
@@ -235,7 +245,7 @@ void GameEngine::sMovement() {
         if (ActionBus::GetInstance().Received(entity, MoveLeft))
             speed.x -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveUp))
-            speed.y + -charSpeed;
+            speed.y -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveDown))
             speed.y += charSpeed;
 
@@ -248,13 +258,10 @@ void GameEngine::sMovement() {
         b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
 
         // Handle jumps 
-        if (ActionBus::GetInstance().Received(entity, Jump)&&
+        Vec2 jumpPower = character ? character->jump_force : Vec2(0, 10);
+        if (ActionBus::GetInstance().Received(entity, Jump) &&
             rigidBody->is_grounded) {
-            // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
-            if (!character)
-                break;
-            body->ApplyLinearImpulseToCenter(
-                b2Vec2(character->jump_force.x, character->jump_force.y), true);
+            body->ApplyLinearImpulseToCenter(b2Vec2(jumpPower.x, jumpPower.y), true);
             rigidBody->is_grounded = false;
         }
     }
