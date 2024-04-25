@@ -130,13 +130,6 @@ void GatorPhysics::setGravity(Vec2 gravity) {
 void GatorPhysics::createBody(Entity* entity, bool isStatic) {
     b2BodyDef newBodyDef;
     b2PolygonShape newBox;
-    bool hasSprite = entity->hasComponent<CSprite>();
-    bool hasAnimations = entity->hasComponent<CAnimation>();
-
-    if (!hasSprite && !hasAnimations) {
-        std::cout << "Entity does not have a sprite or animation" << std::endl;
-        return;
-    }
 
     auto entityRect = entity->GetRect();
     entityRect.width = entityRect.width / (scale_ * 2);
