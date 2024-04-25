@@ -11,6 +11,12 @@
 #include "Config.h"
 #include "Editor.h"
 
+#ifdef _WIN32
+#define OPEN_COMMAND "code "
+#elif __APPLE__
+#define OPEN_COMMAND "open -a 'Visual Studio Code' "
+#endif
+
 PropertyWindow::PropertyWindow() {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
@@ -611,7 +617,7 @@ void PropertyWindow::DrawButton(std::shared_ptr<CScript>& val) {
     if (ImGui::Button(buttonLabel)) {
 
         std::string scriptPath = "scripts/" + val->script_name;
-        std::string command = "code " + scriptPath;
+        std::string command = OPEN_COMMAND + scriptPath;
         if (std::filesystem::exists(std::filesystem::path(scriptPath))) {
             std::system(command.c_str());
         } else {
