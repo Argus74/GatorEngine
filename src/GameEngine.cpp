@@ -224,7 +224,7 @@ void GameEngine::sScripts() {
                 std::ofstream default_script(scriptPath);
                 default_script << "-- Default script for "
                                << entity->getComponent<CScript>()->script_name << std::endl;
-                default_script << "function update()\n";
+                default_script << "function Update()\n";
                 default_script << "end\n";
                 default_script.close();
             }
