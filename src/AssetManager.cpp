@@ -14,14 +14,17 @@ AssetManager& AssetManager::GetInstance() {
 }
 
 AssetManager::AssetManager() {
-    //Intializing all png files as textures in Start & Internal Assets folder
+    // Intializing all png files as textures in Start & Internal Assets folder
     IntializeAssets("assets/StartAssets", false);
     IntializeAssets("assets/InternalAssets", true);
 
-    Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
-    AddAnimation("DefaultAnimation", ani);
-    Animation ani2 = Animation("RunningAnimation", GetTexture("RunningAnimation"), 12, 1);
-    AddAnimation("RunningAnimation", ani2);
+    // Then intialize starter animations
+    Animation ani = Animation("None", "None", GetTexture("None"), 1, 1); // Arbitrary frame count/speed
+    AddAnimation("None", ani);
+    Animation ani3 = Animation("DefaultAnimation", "DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
+    AddAnimation("DefaultAnimation", ani3);
+    // Removed RunningAnimation because it was unused and being serialized for no reason 
+    // and I'm too tired to clean up the entire serialization of animations
 }
 
 AssetManager::~AssetManager() {
@@ -57,12 +60,11 @@ AssetManager::~AssetManager() {
 void AssetManager::AddTexture(const std::string& name, const std::string& path) {
     sf::Texture* texture = new sf::Texture();
     if (!texture->loadFromFile(path)) {
-        std::cerr
+        std::cout
             << "Failed to load texture: " << path
             << std::
                    endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
-        delete texture;
-        return;
+        
     }
 
     textures_[name] = texture;
@@ -72,10 +74,8 @@ void AssetManager::AddTexture(const std::string& name, const std::string& path) 
 void AssetManager::AddTexturePrivate(const std::string& name, const std::string& path) {
     sf::Texture* texture = new sf::Texture();
     if (!texture->loadFromFile(path)) {
-        std::cerr
-            << "Failed to load texture: " << path
-            << std::
-                   endl;  // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
+        // For now just using the standard error stream to display the errors, Later on we should change this to output to our error console we create
+        std::cout << "Failed to load texture: " << path << std::endl;  
         delete texture;
         return;
     }
@@ -146,8 +146,8 @@ sf::Sound AssetManager::PlaySound(
 
 sf::Texture& AssetManager::GetTexture(const std::string& name) {
     if (textures_.find(name) == textures_.end()) {
-        std::cerr << "Texture not found: " << name << std::endl;
-        throw std::runtime_error("Texture not found");
+        std::cout << "Texture not found: " << name << std::endl;
+        return *game_engine_textures_["ErrorOut"];
     }
     return *textures_[name];
 }
@@ -170,16 +170,16 @@ sf::SoundBuffer& AssetManager::GetSound(const std::string& name) {
 
 sf::Font& AssetManager::GetFont(const std::string& name) {
     if (fonts_.find(name) == fonts_.end()) {
-        std::cerr << "Font not found: " << name << std::endl;
-        throw std::runtime_error("Font not found");
+        std::cout << "Font not found: " << name << std::endl;
+        return *fonts_["MontserratBlack"];
     }
     return *fonts_[name];
 }
 
 Animation& AssetManager::GetAnimation(const std::string& name) {
     if (animations_.find(name) == animations_.end()) {
-        std::cerr << "Animation not found: " << name << std::endl;
-        throw std::runtime_error("Animation not found");
+        std::cout << "Animation not found: " << name << std::endl;
+        return *animations_["None"];
     }
     return *animations_[name];
 }

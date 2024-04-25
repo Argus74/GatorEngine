@@ -1,5 +1,7 @@
 #include "GameEngine.h"
 
+#include <filesystem>
+
 GameEngine::GameEngine() {}
 
 GameEngine& GameEngine::GetInstance() {
@@ -7,6 +9,7 @@ GameEngine& GameEngine::GetInstance() {
     static GameEngine instance_;
 
     if (!instance_.initialized_) {
+
         instance_.init();
         instance_.initialized_ = true;
     }
@@ -30,17 +33,12 @@ AssetManager& GameEngine::assets() {
 }
 
 void GameEngine::init() {
-    //Intializing all png files as textures in Start Assets folder
-    AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
-    Animation ani = Animation("DefaultAnimation",
-                              AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
-    AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
-    Animation ani2 = Animation("RunningAnimation",
-                               AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
-    AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
+    // Call the AssetManager singleton for the first time to initialize all starting assets
+    AssetManager::GetInstance();
 
+    // Load the last scene from the last-scene.json file, if it exists
     if (!readFromJSONFile("last-scene.json")) {
-        current_scene_path_ = "scenes/NewDefault.scene";
+        current_scene_path_ = "scenes/City.scene";
     }
 
     window_.setFramerateLimit(60);
@@ -48,7 +46,7 @@ void GameEngine::init() {
 
 void GameEngine::changeScene(const std::string& path) {
     EntityManager::GetInstance().reset();
-    Editor::state = Editor::State::None;
+    Editor::state = Editor::State::Selecting;
     Editor::active_entity_ = nullptr;
     GatorPhysics::GetInstance().clearBodies();
     Scene scene;
@@ -69,6 +67,7 @@ void GameEngine::update() {
 
     sUserInput();
     if (Editor::state == Editor::State::Testing) {
+        auto& entities_to_bodies = GatorPhysics::GetInstance().GetEntityToBodies();
         sTouchTrigger();
         sScripts();
         sMovement();
@@ -119,22 +118,32 @@ void GameEngine::sUserInput() {
 
             // Ctrl+Z hotkey does not exist. Good luck o7
         }
-    }
 
-    // Use IsKeyPressed API to detect registered keyMap/mouseMap inputs for faster responses
-    for (auto& entity : EntityManager::GetInstance().getEntities()) {
-        if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
-			continue;
+        // Detect mouse clicks
+        if (event.type == sf::Event::MouseButtonPressed) {
+            for (auto& entity : EntityManager::GetInstance().getEntities()) {
+                if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
+                    continue;
 
-		auto& inputMap = entity->getComponent<CUserInput>()->key_map;
-        for (auto& actionKeys : inputMap) {
-            if (sf::Keyboard::isKeyPressed(actionKeys.first)) {
-                ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
+                auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
+                for (auto& actionKeys : mouseMap) {
+                    auto button = event.mouseButton.button;
+                    if (actionKeys.first == button) {
+                        ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
+                    }
+                }
             }
         }
-        auto& mouseMap = entity->getComponent<CUserInput>()->mouse_map;
-        for (auto& actionKeys : mouseMap) {
-            if (sf::Mouse::isButtonPressed(actionKeys.first)) {
+    }
+
+    // Detect keypresses using IsKeyPressed API for continuous responses
+    for (auto& entity : EntityManager::GetInstance().getEntities()) {
+        if (!entity->hasComponent<CUserInput>() || entity->isDisabled())
+            continue;
+
+        auto& inputMap = entity->getComponent<CUserInput>()->key_map;
+        for (auto& actionKeys : inputMap) {
+            if (sf::Keyboard::isKeyPressed(actionKeys.first)) {
                 ActionBus::GetInstance().Dispatch(entity, actionKeys.second);
             }
         }
@@ -166,18 +175,14 @@ void GameEngine::sTouchTrigger() {
             auto entityTouchedRect =
                 entityTouched->GetRect(5);  // Add leeway to the entity touched rect
             if (triggerRect.intersects(entityTouchedRect)) {
-
-                if (touchTrigger->action ==
-                    UpdateCollectible) {  // Only proceeding with an action if their is an collectable component attached, and its nots a health
+                // Only proceeding with an action if their is an collectable component attached, and its nots a health
+                if (touchTrigger->action == UpdateCollectible) {
                     if (entity->hasComponent<CCollectable>() &&
                         !entity->getComponent<CCollectable>()->is_health) {
                         // We are going to be updating not the entity that is touched, but rather the Text correlated to the collectable
-                        auto collectableEnityText =
-                            EntityManager::GetInstance().getEntityByName(
-                                entity->getComponent<CCollectable>()->text_entity_name);
-                        if (collectableEnityText != nullptr &&
-                            collectableEnityText->hasComponent<CText>())
-                            Interact(entity, collectableEnityText);
+                        auto collectableEnityText = EntityManager::GetInstance().getEntityByName(
+                            entity->getComponent<CCollectable>()->text_entity_name);
+                        Interact(entity, collectableEnityText);
                     }
                 } else if (touchTrigger->action == UpdateHealth) {
                     if (entity->hasComponent<CCollectable>() &&
@@ -192,23 +197,64 @@ void GameEngine::sTouchTrigger() {
     }
 }
 
-
 void GameEngine::sScripts() {
     //First, check if there are any entities that have been given a script component. If so,
     //add them to map of entities to lua states
     for (auto entity : EntityManager::GetInstance().getEntities()) {
-        if (entity->hasComponent<CScript>() && !lua_states[entity]) {
+        if (entity->hasComponent<CScript>() && !lua_states[entity]) { // TODO: Check if script name was changed?
             //Verify that the script name that the user typed in the editor is valid
-            std::string script_name = entity->getComponent<CScript>()->script_name;
-            std::ifstream file(script_name);
-            if (!file.good()) {
-                std::cout << "Invalid script name: " << script_name << std::endl;
+            std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
+
+            // Verify that the script name that was deserialized is valid (editor will catch all other invalid names)
+            if (scriptPath.substr(scriptPath.find_last_of(".") + 1) != "lua") {
+                std::cerr << "Invalid script name: " << scriptPath << std::endl;
                 continue;
             }
+
+            // If script not found (usually because the user deleted it, its a saved scene, and this is the first time the engine is running),
+            // then we'll create a default script for the user
+            if (!std::filesystem::exists(std::filesystem::path(scriptPath))) {
+                std::ofstream default_script(scriptPath);
+                default_script << "-- Default script for "
+                               << entity->getComponent<CScript>()->script_name << std::endl;
+                default_script << "function Update()\n";
+                default_script << "end\n";
+                default_script.close();
+            }
+
             std::shared_ptr<LuaState> new_lua_state =
-                std::make_shared<LuaState>(entity->getComponent<CScript>()->script_name, entity);
+                std::make_shared<LuaState>(scriptPath, entity);
             lua_states[entity] = new_lua_state;
             entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+        }
+        else
+        {
+            //If the entity already has a script component, check if the name has been changed
+            // by looking at stored name in lua_states (minus its prepended "scripts/" string)
+            if (entity->hasComponent<CScript>() && lua_states[entity] &&
+                entity->getComponent<CScript>()->script_name != lua_states[entity]->name.substr(8)) {
+				//If the name has been changed, remove the old lua state and create a new one
+				lua_states[entity].reset();
+				std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
+
+                if (scriptPath.substr(scriptPath.find_last_of(".") + 1) == "lua") {
+                    std::ofstream default_script(scriptPath);
+                    default_script << "-- Default script for "
+                                   << entity->getComponent<CScript>()->script_name << std::endl;
+                    default_script << "function update()\n";
+                    default_script << "end\n";
+                    default_script.close();
+                } else {
+                    std::cerr << "Invalid script name: " << scriptPath << std::endl;
+                    continue;
+                }
+
+				std::shared_ptr<LuaState> new_lua_state =
+					std::make_shared<LuaState>(scriptPath, entity);
+				lua_states[entity] = new_lua_state;
+				entity->getComponent<CScript>()->lua_state = new_lua_state.get();
+			}
+
         }
     }
 
@@ -229,7 +275,7 @@ void GameEngine::sMovement() {
 
         auto transform = entity->getComponent<CTransform>();
         auto character = entity->getComponent<CCharacter>();
-
+        auto rigidBody = entity->getComponent<CRigidBody>();
         // Handle movement
         // Start using the constant velocity (idk why anyone would ever set it to non-0 but just in case they do)
         Vec2 speed = transform->velocity;
@@ -241,7 +287,7 @@ void GameEngine::sMovement() {
         if (ActionBus::GetInstance().Received(entity, MoveLeft))
             speed.x -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveUp))
-            speed.y + -charSpeed;
+            speed.y -= charSpeed;
         if (ActionBus::GetInstance().Received(entity, MoveDown))
             speed.y += charSpeed;
 
@@ -249,19 +295,18 @@ void GameEngine::sMovement() {
         transform->position = transform->position + speed;
 
         // Use the RigidBody to process physics movements
-        if (!entity->hasComponent<CRigidBody>())
-            continue;
-        b2Body* body = GatorPhysics::GetInstance().GetEntityToBodies()[entity.get()];
+        auto it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
 
-        // Handle jumps 
-        if (ActionBus::GetInstance().Received(entity, Jump) && character &&
-            character->is_grounded) {
-            // TODO: Jumps can only work (normally) using is_grounded, which is in CCharacter-- change?
-            if (!character)
-                break;
-            body->ApplyLinearImpulseToCenter(
-                b2Vec2(character->jump_force.x, character->jump_force.y), true);
-            character->is_grounded = false;
+        if (!entity->hasComponent<CRigidBody>() ||
+            it == GatorPhysics::GetInstance().GetEntityToBodies().end())
+            continue;
+        b2Body* body = it->second;
+
+        // Handle jumps
+        Vec2 jumpPower = character ? character->jump_force : Vec2(0, 10);
+        if (ActionBus::GetInstance().Received(entity, Jump) && rigidBody->is_grounded) {
+            body->ApplyLinearImpulseToCenter(b2Vec2(jumpPower.x, jumpPower.y), true);
+            rigidBody->is_grounded = false;
         }
     }
 }
@@ -271,13 +316,15 @@ void GameEngine::sPhysics() {}
 void GameEngine::sCollision() {
     //First check if any new entities have a new rigid body component and
     // have not been added to the physics world
+    auto listOfEntities = EntityManager::GetInstance().getEntities();
     for (auto entity : EntityManager::GetInstance().getEntities()) {
         if (entity->hasComponent<CRigidBody>() && !entity->isDisabled()) {
             auto rigidBodyComponent = entity->getComponent<CRigidBody>();
             std::map<Entity*, b2Body*>& entity_to_bodies_ =
                 GatorPhysics::GetInstance().GetEntityToBodies();
             //If the entity is not in the physics world, add it
-            if (entity_to_bodies_.find(entity.get()) == entity_to_bodies_.end()) {
+            auto result = entity_to_bodies_.find(entity.get());
+            if (result == entity_to_bodies_.end()) {
                 GatorPhysics::GetInstance().createBody(entity.get(),
                                                        rigidBodyComponent->static_body);
             }
@@ -317,6 +364,12 @@ void GameEngine::sRender() {
                     ->position;  // getting the scale and positioning from the transform component in order to render sprite at proper spot
             auto spriteComponent = entity->getComponent<CSprite>();
             float yOffset = ImGui::GetMainViewport()->Size.y * .2 + 20;
+
+            // Replacing loadFromAssetManager() functionality thats supposed to be in CSprite constructor
+            // but it breaks serialization so moved here.
+            if (spriteComponent->sprite.getTexture() == nullptr) {
+                spriteComponent->loadFromAssetManager();
+            }
 
             // Set the origin of the sprite to its center
             sf::FloatRect bounds = spriteComponent->sprite.getLocalBounds();
@@ -435,9 +488,8 @@ void GameEngine::sUI() {
             textComponent->text.setScale(scale.x, scale.y);
             textComponent->text.setPosition(position.x, position.y + yOffset);
             textComponent->text.setOrigin(bounds.width / 2, bounds.height / 2);
-            
+
             GameEngine::GetInstance().window().draw(textComponent->text);
-            
         }
     }
 }
@@ -471,13 +523,13 @@ void GameEngine::sRenderColliders() {
     }
 }
 
+// Note: entityPair represents the entity to affect: for health collectables, that is the entity who touched; for all others, it's the counter UI
 void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity,
                           std::shared_ptr<Entity> entityPair) {
     auto collectibleComponent = collectibleEnity->getComponent<CCollectable>();
     collectibleComponent->touched = true;
-    if (collectibleComponent->is_health &&
-        entityPair->hasComponent<
-            CHealth>()) {  // If its health we are going to add points to the CHealth component of the entityPair
+    // If its health we are going to add points to the CHealth component of the entityPair
+    if (collectibleComponent->is_health && entityPair && entityPair->hasComponent<CHealth>()) {
         entityPair->updateHealth(collectibleComponent->points_to_add);
 
         collectibleComponent->touched = true;
@@ -485,10 +537,11 @@ void GameEngine::Interact(std::shared_ptr<Entity> collectibleEnity,
         if (collectibleComponent->disappear_on_touch) {
             collectibleEnity->setDisabled(true);
         }
+    // Else, interact with a collectable per usual
     // We are going to add score to the text comp
-    } else if (entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->is_counter) {
-
-        entityPair->getComponent<CText>()->counter += collectibleComponent->points_to_add;
+    } else {
+        if (entityPair && entityPair->hasComponent<CText>() && entityPair->getComponent<CText>()->is_counter)
+            entityPair->getComponent<CText>()->counter += collectibleComponent->points_to_add;
 
         if (collectibleComponent->disappear_on_touch) {
             collectibleEnity->setDisabled(true);

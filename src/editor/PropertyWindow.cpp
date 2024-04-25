@@ -11,6 +11,12 @@
 #include "Config.h"
 #include "Editor.h"
 
+#ifdef _WIN32
+#define OPEN_COMMAND "code "
+#elif __APPLE__
+#define OPEN_COMMAND "open -a 'Visual Studio Code' "
+#endif
+
 PropertyWindow::PropertyWindow() {
     window_flags_ |= ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
@@ -142,11 +148,6 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CName> name) {
     DrawProperty("Name", name->name);
 }
 
-void PropertyWindow::DrawComponentProperties(std::shared_ptr<CShape> shape) {
-    DrawProperty("Type", shape->type);
-    DrawProperty("Color", shape->color);
-}
-
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CUserInput> userinput) {
     for (auto& entry : userinput->mouse_map) {
         DrawProperty(kSFMLMouseNames[static_cast<int>(entry.first)], entry.second);
@@ -256,44 +257,8 @@ void PropertyWindow::DrawComponentProperties(std::shared_ptr<CCharacter> charact
 }
 
 void PropertyWindow::DrawComponentProperties(std::shared_ptr<CScript> script) {
-    std::string val_before = script->script_name;
     DrawProperty("Script Name", script->script_name);
-    std::string val_after = script->script_name;
-
-    if (val_after != val_before) {
-        //Ask the operating system to open Visual Studio Code with the name of the file
-        std::string command = "code " + val_after;
-        if (std::filesystem::exists(std::filesystem::path(val_after))) {
-            std::system(command.c_str());
-        } else {
-            //Verify that the script name ends with lua
-            if (val_after.substr(val_after.find_last_of(".") + 1) != "lua") {
-                std::cerr << "Invalid file type: " << val_after << std::endl;
-            } else {
-                std::ofstream file(val_after);
-                file << "--Insert your code here" << std::endl;
-                file.close();
-                std::system(command.c_str());
-            }
-        }
-    }
-
-    //nfdchar_t* outPath = NULL;
-    //nfdfilteritem_t filterItem[1] = { { "Scene files", "scene" } };
-    //nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
-
-    //if (result == NFD_OKAY) { //If a file/path is selected in the dialog
-    //    std::string pathString(outPath);
-    //    GameEngine::GetInstance().changeScene(pathString);
-    //    std::cout << "Selected file: " << outPath << std::endl;
-    //    NFD_FreePath(outPath);
-    //}
-    //else if (result == NFD_CANCEL) { //If no file or path is selecte
-    //    std::cout << "Dialog canceled." << std::endl;
-    //}
-    //else {
-    //    std::cerr << "Error: " << NFD_GetError() << std::endl;
-    //}
+    DrawButton(script);
 }
 
 // TODO: Add new overloads for future components here
@@ -443,7 +408,6 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val) {
                 val->name = spriteNameList[selection];
                 val->loadFromAssetManager();
             }
-
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -573,7 +537,7 @@ void PropertyWindow::DrawPopup(
     DrawProperty("Animation Speed", animationSpeed);
 
     if (ImGui::Button("Create")) {
-        Animation animation = Animation(animationName, assetManager.GetTexture(spriteName),
+        Animation animation = Animation(animationName, spriteName, assetManager.GetTexture(spriteName),
                                         frameCount, animationSpeed);
         assetManager.AddAnimation(animationName, animation);
         ImGui::CloseCurrentPopup();
@@ -608,6 +572,12 @@ void PropertyWindow::DrawPopup(std::shared_ptr<Entity> entity) {
             if (!component && selection == index) {
                 Editor::active_entity_->addComponent(component);
                 EntityManager::GetInstance().UpdateUIRenderingList();
+
+                // Another hacky sln for physics bodies, just like for its addComponent counterpart here
+                // TODO: Try (harder than I have) to put this maybe in the ctr of CRigidBody or somewhere else more fitting
+                if (auto rigid = std::dynamic_pointer_cast<CRigidBody>(component)) {
+					GatorPhysics::GetInstance().createBody(Editor::active_entity_.get(), rigid->static_body);
+				}
             }
         });
         ImGui::CloseCurrentPopup();
@@ -630,6 +600,44 @@ void PropertyWindow::DrawButton(std::shared_ptr<CAnimation>& val) {
     if (ImGui::Button(buttonLabel)) {
         val->play_animation = !val->play_animation;
     }
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));  // Spacing at the bottom
+
+    ImGui::BeginTable("EmptyTemp", 2,
+                      table_flags_);  // Don't want to disrupt the draw component function
+}
+
+
+void PropertyWindow::DrawButton(std::shared_ptr<CScript>& val) {
+    ImGui::EndTable();  // Don't want to disrupt the draw component function
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));  //Spacing up top
+
+    float contentWidth = ImGui::GetContentRegionAvail().x;
+    float buttonWidth =
+        ImGui::CalcTextSize("Open Script").x + 20.0f;  // Extra padding for the button
+    float centerPos = (contentWidth - buttonWidth) * 0.5f;
+    ImGui::SetCursorPosX(centerPos);
+
+    const char* buttonLabel = "Open Script";
+
+    if (ImGui::Button(buttonLabel)) {
+
+        std::string scriptPath = "scripts/" + val->script_name;
+        std::string command = OPEN_COMMAND + scriptPath;
+        if (std::filesystem::exists(std::filesystem::path(scriptPath))) {
+            std::system(command.c_str());
+        } else {
+            //Verify that the script name ends with lua
+            if (val->script_name.substr(val->script_name.find_last_of(".") + 1) != "lua") {
+                std::cerr << "Invalid file type: " << val->script_name << std::endl;
+            } else {
+                std::ofstream file(scriptPath);
+                file << "--Insert your code here" << std::endl;
+                file.close();
+                std::system(command.c_str());
+            }
+        }
+	}
 
     ImGui::Dummy(ImVec2(0.0f, 10.0f));  // Spacing at the bottom
 

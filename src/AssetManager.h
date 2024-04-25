@@ -25,8 +25,9 @@
 #include "SFML/Graphics/Texture.hpp"
 
 #include "Animation.h"
+#include "util/Serializable.h"
 
-class AssetManager {
+class AssetManager : public Serializable {
  public:
     static AssetManager& GetInstance();
     ~AssetManager();
@@ -119,6 +120,49 @@ class AssetManager {
 
     //Misc function for managing Lerp Colors (Interpolating)
     static sf::Color LerpColor(const sf::Color& colorStart, const sf::Color& colorEnd, float t);
+
+    void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
+        writer.StartObject();
+        writer.Key("animations");
+        writer.StartObject();
+        for (auto animation : animations_) {
+            writer.Key(animation.first.c_str());
+            animation.second->serialize(writer);
+            
+        }
+        writer.EndObject();
+        writer.EndObject();
+    }
+
+    void deserialize(const rapidjson::Value& value) override {
+        // First, check if the "animations" member exists and is of the correct type.
+        if (!value.HasMember("animations") || !value["animations"].IsObject()) {
+            std::cerr << "Error: JSON does not contain 'animations' object." << std::endl;
+            return;
+        }
+        // Now iterate through each animation and deserialize it safely.
+        const rapidjson::Value& animations = value["animations"];
+        for (auto it = animations.MemberBegin(); it != animations.MemberEnd(); ++it) {
+            // Ensure that each animation has a string name and it's an object.
+            if (!it->name.IsString() || !it->value.IsObject()) {
+                std::cerr << "Error: Invalid animation entry found in JSON." << std::endl;
+                continue;  // Skip this iteration as it's not valid
+            }
+
+            // Use the key (name of the animation) directly rather than deserializing it first.
+            std::string animationName = it->name.GetString();
+            const rapidjson::Value& animationValue = it->value;
+
+            // Create a new Animation object and use its `deserialize` method.
+            Animation animation;
+            animation.deserialize(animationValue);
+
+            // Add the deserialized animation to the manager.
+            AddAnimation(animationName, Animation(animation.name, animation.textureName,
+                                                  GetTexture(animation.textureName),
+                                                  animation.frame_count, animation.speed));
+        }
+    }
 
  private:
     AssetManager();

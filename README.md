@@ -71,7 +71,7 @@ and, finally, build the project in the out/ folder:
 cmake --build .
 ```
 
-*NOTE: Verify that the first line of output following this command reads something like "-- The C compiler identification is Clang X.X.X"*
+*NOTE: Verify that the first line of output following this command reads something like "-- The C compiler identification is AppleClang X.X..."*
 
 
 

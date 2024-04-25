@@ -17,6 +17,8 @@ class Scene : public Serializable {
 public:
     void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) override {
         writer.StartObject();
+        writer.Key("assetManager");
+        AssetManager::GetInstance().serialize(writer);
         writer.Key("entities");
         writer.StartObject();
         for (auto entity : EntityManager::GetInstance().getEntities()) {
@@ -27,6 +29,10 @@ public:
     }
 
     void deserialize(const rapidjson::Value& value) override {
+        
+        if (value.HasMember("assetManager") && value["assetManager"].IsObject()) {
+            AssetManager::GetInstance().deserialize(value["assetManager"]);
+        }
         for (auto it = value["entities"].MemberBegin(); it != value["entities"].MemberEnd(); it++) {
             auto entity = EntityManager::GetInstance().addEntity(it->name.GetString());
             entity->deserialize(it->value);
@@ -34,6 +40,8 @@ public:
             if (entity->hasComponent<CRigidBody>()) {
                 GatorPhysics::GetInstance().createBody(entity.get(), entity->getComponent<CRigidBody>()->static_body);
             }
+
+           
         }
 
         EntityManager::GetInstance().update();

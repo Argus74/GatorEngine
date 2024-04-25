@@ -19,7 +19,7 @@ class GameEngine : public Serializable {
     size_t simulation_speed_ = 1;
     bool running_ = true;
     bool initialized_ = false;
-    std::string current_scene_path_ = "scenes/default.scene";
+    std::string current_scene_path_ = "scenes/City.scene";
 
     void init();
 

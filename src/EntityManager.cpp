@@ -105,6 +105,10 @@ void EntityManager::resetPositions() {
             auto text = entity->getComponent<CText>();
             text->reset();
         }
+        if (entity->hasComponent<CRigidBody>()) {
+            entity->getComponent<CRigidBody>()->is_grounded = false;
+            // Rest of Physics reset handled by GatorPhysics::ResetWorld()
+        }
     }
 }
 

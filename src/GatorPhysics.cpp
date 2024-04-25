@@ -67,25 +67,12 @@ void GatorPhysics::update() {
         b2PolygonShape* shape = dynamic_cast<b2PolygonShape*>(firstFixture->GetShape());
         b2PolygonShape* sensorShape = dynamic_cast<b2PolygonShape*>(secondFixture->GetShape());
         //Update the size of the physics body to match the size of the entity
-        float xScale = entity->getComponent<CTransform>()->scale.x;
-        float yScale = entity->getComponent<CTransform>()->scale.y;
-        float newWidth;
-        float newHeight;
-        if (entity->hasComponent<CAnimation>()) {
-            newWidth =
-                entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().x /
-                2 * xScale / scale_;
-            newHeight =
-                entity->getComponent<CAnimation>()->animation.sprite.getLocalBounds().getSize().y /
-                2 * yScale / scale_;
-        } else if (entity->hasComponent<CSprite>()) {
-            newWidth = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().x / 2 *
-                       xScale / scale_;
-            newHeight = entity->getComponent<CSprite>()->sprite.getLocalBounds().getSize().y / 2 *
-                        yScale / scale_;
-        }
-        shape->SetAsBox(newWidth, newHeight);
-        sensorShape->SetAsBox(newWidth, newHeight);
+        auto entityRect = entity->GetRect();
+        entityRect.width = entityRect.width / (scale_ * 2);
+        entityRect.height = entityRect.height / (scale_ * 2);
+        shape->SetAsBox(entityRect.width, entityRect.height);
+        sensorShape->SetAsBox(entityRect.width, entityRect.height);
+
         //Update the densities and friction of the physics bodies
         b2Fixture* fixture = body->GetFixtureList();
         fixture->SetDensity(entity->getComponent<CRigidBody>()->density);
@@ -143,19 +130,11 @@ void GatorPhysics::setGravity(Vec2 gravity) {
 void GatorPhysics::createBody(Entity* entity, bool isStatic) {
     b2BodyDef newBodyDef;
     b2PolygonShape newBox;
-    bool hasSprite = entity->hasComponent<CSprite>();
-    bool hasAnimations = entity->hasComponent<CAnimation>();
 
-    if (!hasSprite && !hasAnimations) {
-        std::cout << "Entity does not have a sprite or animation" << std::endl;
-        return;
-    }
-
-    sf::Sprite& sprite = hasSprite ? entity->getComponent<CSprite>()->sprite
-                                   : entity->getComponent<CAnimation>()->animation.sprite;
-    float boxWidth = sprite.getLocalBounds().getSize().x * (1 / scale_) / 2;
-    float boxHeight = sprite.getLocalBounds().getSize().y * (1 / scale_) / 2;
-    newBox.SetAsBox(boxWidth, boxHeight);
+    auto entityRect = entity->GetRect();
+    entityRect.width = entityRect.width / (scale_ * 2);
+    entityRect.height = entityRect.height / (scale_ * 2);
+    newBox.SetAsBox(entityRect.width, entityRect.height);
     newBodyDef.userData.pointer = reinterpret_cast<uintptr_t>(entity);
 
     //Create a fixtuure to represent the physical body that will collide with other bodies
@@ -201,26 +180,29 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
     b2Fixture* fixtureB = contact->GetFixtureB();
     b2Fixture* sensorFixture = fixtureA->IsSensor() ? fixtureA : fixtureB;
     Entity* entity = reinterpret_cast<Entity*>(sensorFixture->GetBody()->GetUserData().pointer);
-    if (sensorFixture && entity->hasComponent<CCharacter>()) {
+    if (sensorFixture) {
         //Check if the sensor is below the entity
         b2Vec2 normal = contact->GetManifold()->localNormal;
         if (normal.y < 0.5) {
             //std::cout << entity->getComponent<CName>()->kComponentName << "Grounded" << std::endl;
-            entity->getComponent<CCharacter>()->is_grounded = true;
+            entity->getComponent<CRigidBody>()->is_grounded = true;
         } else {
-            entity->getComponent<CCharacter>()->is_grounded = false;
+            entity->getComponent<CRigidBody>()->is_grounded = false;
         }
     }
     b2Fixture* otherFixture = sensorFixture == fixtureA ? fixtureB : fixtureA;
     Entity* otherEntity =  reinterpret_cast<Entity*>(
         otherFixture->GetBody()->GetUserData().pointer);
-
     //For each node in the lua_states map, we will call the OnTouched function if the raw pointer in 
 //the map is equal to the enitity that was touched
-    for each (auto node in GameEngine::GetInstance().lua_states) {
+    for (auto node : GameEngine::GetInstance().lua_states) {
     	if (node.first.get() == entity) {
 			sol::state& sol_state = node.second->GetSolState();
-			sol_state["OnTouched"](otherEntity);
+            sol::protected_function OnTouched = sol_state["OnTouched"];
+            if (OnTouched.valid()) {
+				sol_state["OnTouched"](otherEntity);
+			}
+            std::cout << "Please work" << std::endl;
 		}
     }   
 }

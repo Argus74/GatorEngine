@@ -28,7 +28,6 @@ class PropertyWindow : public UIWindow {
     void DrawComponentProperties(std::shared_ptr<CUserInput> userinput);
     void DrawComponentProperties(std::shared_ptr<CTransform> transform);
     void DrawComponentProperties(std::shared_ptr<CName> name);
-    void DrawComponentProperties(std::shared_ptr<CShape> shape);
     void DrawComponentProperties(std::shared_ptr<CSprite> sprite);
     void DrawComponentProperties(std::shared_ptr<CAnimation> animation);
     void DrawComponentProperties(std::shared_ptr<CRigidBody> rigidbody);
@@ -67,6 +66,9 @@ class PropertyWindow : public UIWindow {
 
     //Button to play animation when in scene editor state
     void DrawButton(std::shared_ptr<CAnimation>& val);
+    
+    //Button to allow a user to open a script using vs code
+    void DrawButton(std::shared_ptr<CScript>& val);
 
     //Button to allow a user to choose a script to attach to an entity
     //void DrawButton(std::shared_ptr<CScript>& val);

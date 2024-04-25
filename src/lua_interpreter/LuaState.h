@@ -10,8 +10,8 @@ class LuaState {
     sol::function script_update_;
     sol::protected_function safe_script_update_;
     sol::protected_function safe_script_start_;
-
  public:
+    std::string name;
     //The current frame of the lua state (since the script was loaded)
     int current_frame = 0;
     //The entity that this lua state is attached to

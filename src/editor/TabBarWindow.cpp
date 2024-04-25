@@ -121,27 +121,21 @@ void TabBarWindow::DrawFrames() {
 
                 // Select button
                 auto selectButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Selecting)
-                                        ? Editor::State::None
-                                        : Editor::State::Selecting;
+                    Editor::state = Editor::State::Selecting;
                 };
                 DrawButton("Select", AssetManager::GetInstance().GetTexturePrivate("SelectIcon"), 0,
                            selectButton, (Editor::state == Editor::State::Selecting));
 
                 // Move button
                 auto moveButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Moving)
-                                        ? Editor::State::None
-                                        : Editor::State::Moving;
+                    Editor::state = Editor::State::Moving;
                 };
                 DrawButton("Move", AssetManager::GetInstance().GetTexturePrivate("MoveIcon"), 1,
                            moveButton, (Editor::state == Editor::State::Moving));
 
                 // Scale button
                 auto scaleButton = [&]() {
-                    Editor::state = (Editor::state == Editor::State::Resizing)
-                                        ? Editor::State::None
-                                        : Editor::State::Resizing;
+                    Editor::state = Editor::State::Resizing;
                 };
                 DrawButton("Scale", AssetManager::GetInstance().GetTexturePrivate("ScaleIcon"), 2,
                            scaleButton, (Editor::state == Editor::State::Resizing));
@@ -165,6 +159,7 @@ void TabBarWindow::DrawFrames() {
                     GatorPhysics::GetInstance().createBody(entity.get(), true);
                     EntityManager::GetInstance().sortEntitiesForRendering();
                     EntityManager::GetInstance().UpdateUIRenderingList();
+                    Editor::active_entity_ = entity;
                 };
                 DrawButton(
                     "Sprite",
@@ -179,6 +174,7 @@ void TabBarWindow::DrawFrames() {
                     entity->addComponent<CInformation>();
                     EntityManager::GetInstance().sortEntitiesForRendering();
                     EntityManager::GetInstance().UpdateUIRenderingList();
+                    Editor::active_entity_ = entity;
                 };
                 DrawButton("Game Object",
                            AssetManager::GetInstance().GetTexturePrivate("GameObjectIcon"), 6,
@@ -210,6 +206,7 @@ void TabBarWindow::DrawFrames() {
                              static_cast<float>(sceneHeight) / sprite.getLocalBounds().height);
 
                     entity->getComponent<CTransform>()->scale = scl;
+                    Editor::active_entity_ = entity;
                 };
                 DrawButton("Background",
                            AssetManager::GetInstance().GetTexturePrivate("BackgroundIcon"), 7,
@@ -232,6 +229,7 @@ void TabBarWindow::DrawFrames() {
                                       {sf::Keyboard::A, Action::MoveLeft},
                                       {sf::Keyboard::D, Action::MoveRight}};
                     GatorPhysics::GetInstance().createBody(player.get(), false);
+                    Editor::active_entity_ = player;
                 };
                 DrawButton("Player", AssetManager::GetInstance().GetTexturePrivate("PlayerIcon"), 8,
                            playerButton);
@@ -246,6 +244,7 @@ void TabBarWindow::DrawFrames() {
                     text->addComponent<CTransform>(Vec2(50, 50));
                     auto txt = text->addComponent<CText>("LoveDays");
                     txt->message = "Text";
+                    Editor::active_entity_ = text;
                 };
                 DrawButton("Text", AssetManager::GetInstance().GetTexturePrivate("TextIcon"),
                            9, textButton);
@@ -264,7 +263,7 @@ void TabBarWindow::DrawFrames() {
                     collectable->disappear_on_touch = false;
                     collectable->is_health = true;
                     collectable->points_to_add = -1; // Negative points for hazards
-
+                    Editor::active_entity_ = hazard;
                 };
                 DrawButton("Hazard", AssetManager::GetInstance().GetTexturePrivate("HazardIcon"),
                            10, hazardButton);
@@ -280,6 +279,7 @@ void TabBarWindow::DrawFrames() {
                     auto trigger = coin->addComponent<CTouchTrigger>();
                     trigger->action = TriggerAction::UpdateCollectible;
                     trigger->tag = "Player";
+                    Editor::active_entity_ = coin;
                 };
                 DrawButton("Coin",
                            AssetManager::GetInstance().GetTexturePrivate("CollectibleIcon"), 11, coinButton);
@@ -293,6 +293,7 @@ void TabBarWindow::DrawFrames() {
                     auto trigger = jumpPad->addComponent<CTouchTrigger>();
                     trigger->action = TriggerAction::GiveJump;
                     trigger->tag = "Player";
+                    Editor::active_entity_ = jumpPad;
                 };
                 DrawButton("Jump Pad",
                            AssetManager::GetInstance().GetTexturePrivate("JumpPadIcon"), 12,
@@ -313,7 +314,7 @@ void TabBarWindow::DrawFrames() {
 
             // Stop Button
             static auto stopButton = [&]() {
-                Editor::state = Editor::State::None;  // Testing stopped: Reset state to none
+                Editor::state = Editor::State::Selecting;  // Testing stopped: Reset state to selecting by default
                 EntityManager::GetInstance().resetPositions();
                 GatorPhysics::GetInstance().ResetWorld();
             };
