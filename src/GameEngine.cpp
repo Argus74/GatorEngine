@@ -42,7 +42,7 @@ void GameEngine::init() {
 
 void GameEngine::changeScene(const std::string& path) {
     EntityManager::GetInstance().reset();
-    Editor::state = Editor::State::None;
+    Editor::state = Editor::State::Selecting;
     Editor::active_entity_ = nullptr;
     GatorPhysics::GetInstance().clearBodies();
     Scene scene;

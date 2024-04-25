@@ -37,8 +37,7 @@ class Editor {
         Selecting,
         Moving,
         Resizing,
-        Testing,
-        None
+        Testing
     } state;
 
     // Active entity to modify.
