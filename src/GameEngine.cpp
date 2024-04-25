@@ -1,5 +1,7 @@
 #include "GameEngine.h"
 
+#include <filesystem>
+
 GameEngine::GameEngine() {}
 
 GameEngine& GameEngine::GetInstance() {
@@ -210,16 +212,21 @@ void GameEngine::sScripts() {
             //Verify that the script name that the user typed in the editor is valid
             std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
 
-            if (scriptPath.substr(scriptPath.find_last_of(".") + 1) == "lua") {
+            // Verify that the script name that was deserialized is valid (editor will catch all other invalid names)
+            if (scriptPath.substr(scriptPath.find_last_of(".") + 1) != "lua") {
+                std::cerr << "Invalid script name: " << scriptPath << std::endl;
+                continue;
+            }
+
+            // If script not found (usually because the user deleted it, its a saved scene, and this is the first time the engine is running),
+            // then we'll create a default script for the user
+            if (!std::filesystem::exists(std::filesystem::path(scriptPath))) {
                 std::ofstream default_script(scriptPath);
                 default_script << "-- Default script for "
                                << entity->getComponent<CScript>()->script_name << std::endl;
                 default_script << "function Update()\n";
                 default_script << "end\n";
                 default_script.close();
-            } else {
-			    std::cerr << "Invalid script name: " << scriptPath << std::endl;
-				continue;
             }
 
             std::shared_ptr<LuaState> new_lua_state =
@@ -230,9 +237,9 @@ void GameEngine::sScripts() {
         else
         {
             //If the entity already has a script component, check if the name has been changed
+            // by looking at stored name in lua_states (minus its prepended "scripts/" string)
             if (entity->hasComponent<CScript>() && lua_states[entity] &&
-				entity->getComponent<CScript>()->script_name !=
-					lua_states[entity]->name) {
+                entity->getComponent<CScript>()->script_name != lua_states[entity]->name.substr(8)) {
 				//If the name has been changed, remove the old lua state and create a new one
 				lua_states[entity].reset();
 				std::string scriptPath = "scripts/" + entity->getComponent<CScript>()->script_name;
@@ -295,7 +302,7 @@ void GameEngine::sMovement() {
         transform->position = transform->position + speed;
 
         // Use the RigidBody to process physics movements
-        auto& it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
+        auto it = GatorPhysics::GetInstance().GetEntityToBodies().find(entity.get());
 
         if (!entity->hasComponent<CRigidBody>() ||
             it == GatorPhysics::GetInstance().GetEntityToBodies().end())
