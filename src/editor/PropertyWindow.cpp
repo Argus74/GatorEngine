@@ -402,7 +402,6 @@ void PropertyWindow::DrawInputField(std::shared_ptr<CSprite>& val) {
                 val->name = spriteNameList[selection];
                 val->loadFromAssetManager();
             }
-
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -610,6 +609,7 @@ void PropertyWindow::DrawButton(std::shared_ptr<CScript>& val) {
     const char* buttonLabel = "Open Script";
 
     if (ImGui::Button(buttonLabel)) {
+
         std::string scriptPath = "scripts/" + val->script_name;
         std::string command = "code " + scriptPath;
         if (std::filesystem::exists(std::filesystem::path(scriptPath))) {
