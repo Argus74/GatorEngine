@@ -6,14 +6,15 @@ Animation::Animation(){
 
 };
 
-Animation::Animation(const std::string& name, const sf::Texture& texture)
-    : Animation(name, texture, 1, 0){
+Animation::Animation(const std::string& name, const std::string& textureName, const sf::Texture& texture)
+    : Animation(name, textureName, texture, 1, 0){
 
 };
 
-Animation::Animation(const std::string& name, const sf::Texture& texture, size_t frameCount,
-                     size_t animationSpeed)
-    : name(name),
+Animation::Animation(const std::string& name, const std::string& textureName,
+                     const sf::Texture& texture, size_t frameCount, size_t animationSpeed)
+    : name(name), 
+      textureName(textureName),
       sprite(texture),
       frame_count(frameCount),
       current_frame(0),

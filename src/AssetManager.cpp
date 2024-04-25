@@ -18,9 +18,9 @@ AssetManager::AssetManager() {
     IntializeAssets("assets/StartAssets", false);
     IntializeAssets("assets/InternalAssets", true);
 
-    Animation ani = Animation("DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
+    Animation ani = Animation("DefaultAnimation", "DefaultAnimation", GetTexture("DefaultAnimation"), 11, 1);
     AddAnimation("DefaultAnimation", ani);
-    Animation ani2 = Animation("RunningAnimation", GetTexture("RunningAnimation"), 12, 1);
+    Animation ani2 = Animation("RunningAnimation", "RunningAnimation", GetTexture("RunningAnimation"), 12, 1);
     AddAnimation("RunningAnimation", ani2);
 }
 

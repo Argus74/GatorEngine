@@ -22,11 +22,12 @@
 #include "Vec2.h"
 #include "util/Serializable.h"
 
+
 class Animation : public Serializable {
  public:
     Animation();
-    Animation(const std::string& name, const sf::Texture& texture);
-    Animation(const std::string& name, const sf::Texture& texture, size_t frameCount,
+    Animation(const std::string& name, const std::string& textureName, const sf::Texture& texture);
+    Animation(const std::string& name, const std::string& textureName, const sf::Texture& texture, size_t frameCount,
               size_t animationSpeed);
     sf::Sprite sprite;         // the sprite to display the animation
     size_t frame_count = 1;    // total number of frames of animation
@@ -36,6 +37,7 @@ class Animation : public Serializable {
     std::string name = "none";
     bool reached_end = false;
     float frame_remainder = 0.0f;
+    std::string textureName = "";
 
     void Update();
     bool HasEnded() const;
@@ -51,12 +53,21 @@ class Animation : public Serializable {
         writer.Double(speed);
         writer.Key("frameCount");
         writer.Uint64(frame_count);
+        writer.Key("textureName");
+        writer.String(textureName.c_str());
         writer.EndObject();
     }
 
     void deserialize(const rapidjson::Value& value) override {
-        name = value["name"].GetString();
-        speed = value["speed"].GetDouble();
-        frame_count = value["frameCount"].GetUint64();
+        if (value.HasMember("name"))
+            name = value["name"].GetString();
+        if (value.HasMember("speed"))
+            speed = value["speed"].GetDouble();
+        if (value.HasMember("frameCount"))
+            frame_count = value["frameCount"].GetUint64();
+        if (value.HasMember("textureName"))
+            textureName = value["textureName"].GetString();
+        
+        
     }
 };
