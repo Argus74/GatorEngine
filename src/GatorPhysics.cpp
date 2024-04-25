@@ -219,10 +219,11 @@ void GatorPhysics::BeginContact(b2Contact* contact) {
     for (auto node : GameEngine::GetInstance().lua_states) {
     	if (node.first.get() == entity) {
 			sol::state& sol_state = node.second->GetSolState();
-            if (sol_state.get_or("OnTouched", nullptr)) {
+            sol::protected_function OnTouched = sol_state["OnTouched"];
+            if (OnTouched.valid()) {
 				sol_state["OnTouched"](otherEntity);
 			}
-			
+            std::cout << "Please work" << std::endl;
 		}
     }   
 }
