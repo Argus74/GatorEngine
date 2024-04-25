@@ -7,6 +7,7 @@ GameEngine& GameEngine::GetInstance() {
     static GameEngine instance_;
 
     if (!instance_.initialized_) {
+
         instance_.init();
         instance_.initialized_ = true;
     }
@@ -31,8 +32,16 @@ AssetManager& GameEngine::assets() {
 
 void GameEngine::init() {
     //Intializing all png files as textures in Start Assets folder
+    Animation ani = Animation("DefaultAnimation", "DefaultAnimation",
+                              AssetManager::GetInstance().GetTexture("DefaultAnimation"), 11, 1);
+    AssetManager::GetInstance().AddAnimation("DefaultAnimation", ani);
+    Animation ani2 = Animation("RunningAnimation", "RunningAnimation",
+                               AssetManager::GetInstance().GetTexture("RunningAnimation"), 12, 1);
+    AssetManager::GetInstance().AddAnimation("RunningAnimation", ani2);
+
     AssetManager::GetInstance().IntializeAssets("assets/StartAssets");
-    
+
+
     if (!readFromJSONFile("last-scene.json")) {
         current_scene_path_ = "scenes/NewDefault.scene";
     }
